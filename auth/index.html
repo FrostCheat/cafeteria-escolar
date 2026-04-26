@@ -187,6 +187,10 @@
   const nameEl = document.getElementById('reg-name');
   nameEl.addEventListener('blur', () => validateName(nameEl));
 
+  document.getElementById('login-pass').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('btn-login').click();
+  });
+
   document.getElementById('btn-login').addEventListener('click', async () => {
     const btn   = document.getElementById('btn-login');
     const email = document.getElementById('login-email').value.trim().toLowerCase();
@@ -208,14 +212,18 @@
         window.location.href = data.user.role === 'admin' ? '/admin/' : '/store/';
       }, 600);
     } catch (e) {
-      toast(e.message, 'error');
+      console.error('Error completo:', e);
+      let errorMsg = e.message;
+      if (e.details) {
+        if (e.details.error) errorMsg = e.details.error;
+        if (e.details.message) errorMsg = e.details.message;
+        if (e.status === 404) errorMsg = 'Servidor no encontrado. Verifica la URL del API.';
+        if (e.status === 500) errorMsg = 'Error interno del servidor. Revisa los logs.';
+      }
+      toast(errorMsg, 'error');
       btn.disabled = false;
       btn.textContent = 'Iniciar sesión';
     }
-  });
-
-  document.getElementById('login-pass').addEventListener('keydown', e => {
-    if (e.key === 'Enter') document.getElementById('btn-login').click();
   });
 
   document.getElementById('btn-register').addEventListener('click', async () => {
@@ -246,9 +254,22 @@
       return;
     }
 
+    const birth = document.getElementById('reg-birth').value;
+    if (birth) {
+      const birthDate = new Date(birth);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const m = today.getMonth() - birthDate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
+      if (age < 5 || age > 20) {
+        toast('La edad debe estar entre 5 y 20 años', 'warning');
+        return;
+      }
+    }
+
     const body = {
       full_name:  fullName,
-      birth_date: document.getElementById('reg-birth').value,
+      birth_date: birth,
       grade,
       doc_type:   document.getElementById('reg-doc-type').value,
       doc_number: document.getElementById('reg-doc-num').value.trim(),
@@ -257,7 +278,7 @@
     };
 
     for (const [k, v] of Object.entries(body)) {
-      if (!v) { toast('Completa todos los campos', 'warning'); return; }
+      if (!v && k !== 'birth_date') { toast(`Campo requerido: ${k.replace('_', ' ')}`, 'warning'); return; }
     }
 
     btn.disabled = true;
@@ -268,7 +289,18 @@
       toast('¡Cuenta creada! Bienvenido a la cafetería 🍽️', 'success');
       setTimeout(() => { window.location.href = '/store/'; }, 700);
     } catch (e) {
-      toast(e.message, 'error');
+      console.error('Error completo:', e);
+      let errorMsg = e.message;
+      if (e.details) {
+        if (e.details.error) errorMsg = e.details.error;
+        if (e.details.message) errorMsg = e.details.message;
+        if (e.details.errors) {
+          errorMsg = Object.values(e.details.errors).flat().join(', ');
+        }
+        if (e.status === 409) errorMsg = 'El correo o documento ya está registrado';
+        if (e.status === 400) errorMsg = 'Datos inválidos: ' + (e.details.error || e.details.message);
+      }
+      toast(errorMsg, 'error');
       btn.disabled = false;
       btn.textContent = 'Crear cuenta';
     }

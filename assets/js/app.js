@@ -1,3 +1,17 @@
+window.addEventListener('unhandledrejection', function(event) {
+  console.error('Promesa rechazada no manejada:', event.reason);
+  toast('Error inesperado: ' + (event.reason?.message || 'Ver consola para detalles'), 'error');
+});
+
+const originalFetch = window.fetch;
+window.fetch = function(...args) {
+  console.log('[FETCH]', args[0], args[1]?.method || 'GET');
+  return originalFetch.apply(this, args).catch(err => {
+    console.error('[FETCH ERROR]', args[0], err);
+    throw err;
+  });
+};
+
 const API_BASE = '/api';
 
 const api = {
@@ -5,10 +19,32 @@ const api = {
     const token = localStorage.getItem('token');
     const headers = { 'Content-Type': 'application/json' };
     if (token) headers['Authorization'] = 'Bearer ' + token;
-    const res = await fetch(API_BASE + path, { ...opts, headers: { ...headers, ...(opts.headers || {}) } });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Error en la solicitud');
-    return data;
+    
+    try {
+      const res = await fetch(API_BASE + path, { ...opts, headers: { ...headers, ...(opts.headers || {}) } });
+      let data;
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        throw new Error(`Respuesta no JSON: ${text.substring(0, 200)}`);
+      }
+      
+      if (!res.ok) {
+        const error = new Error(data.error || data.message || `Error ${res.status}: ${res.statusText}`);
+        error.status = res.status;
+        error.details = data;
+        error.endpoint = path;
+        throw error;
+      }
+      return data;
+    } catch (e) {
+      if (e.name === 'TypeError' && e.message.includes('fetch')) {
+        throw new Error(`Error de conexión: No se pudo conectar al servidor. Verifica tu conexión a internet.`);
+      }
+      throw e;
+    }
   },
   get: (p) => api.request(p),
   post: (p, b) => api.request(p, { method: 'POST', body: JSON.stringify(b) }),
@@ -31,11 +67,41 @@ let toastWrap;
 function toast(msg, type = 'info') {
   if (!toastWrap) { toastWrap = document.createElement('div'); toastWrap.className = 'toast-wrap'; document.body.appendChild(toastWrap); }
   const icons = { success: '✓', error: '✕', info: 'ℹ', warning: '⚠' };
+  const colors = { success: '#276a44', error: '#b83232', info: '#111111', warning: '#c07020' };
+  
   const el = document.createElement('div');
   el.className = `toast toast-${type}`;
-  el.innerHTML = `<span>${icons[type] || ''}</span><span>${msg}</span>`;
+  el.style.backgroundColor = colors[type];
+  el.style.color = '#fff';
+  el.style.maxWidth = '500px';
+  el.style.wordBreak = 'break-word';
+  el.style.whiteSpace = 'pre-wrap';
+  
+  let displayMsg = typeof msg === 'object' ? JSON.stringify(msg, null, 2) : String(msg);
+  
+  el.innerHTML = `
+    <div style="display:flex;align-items:flex-start;gap:12px;">
+      <span style="font-size:1.2rem;">${icons[type] || ''}</span>
+      <div style="flex:1;font-size:0.85rem;line-height:1.4;">
+        ${displayMsg.replace(/\n/g, '<br>')}
+      </div>
+      <button style="background:none;border:none;color:#fff;cursor:pointer;font-size:1rem;opacity:0.7;" onclick="this.parentElement.parentElement.remove()">✕</button>
+    </div>
+  `;
+  
   toastWrap.appendChild(el);
-  setTimeout(() => { el.style.animation = 'toastOut .3s ease forwards'; setTimeout(() => el.remove(), 300); }, 3200);
+  
+  const timeout = setTimeout(() => {
+    if (el.parentElement) {
+      el.style.animation = 'toastOut .3s ease forwards';
+      setTimeout(() => el.remove(), 300);
+    }
+  }, type === 'error' ? 8000 : 5000);
+  
+  el.querySelector('button')?.addEventListener('click', () => {
+    clearTimeout(timeout);
+    el.remove();
+  });
 }
 
 function formatGrade(val) {
