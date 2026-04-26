@@ -1,0 +1,12 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule ^ - [L]
+    
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>
+
+<FilesMatch "\.(php$|ini$|log$)">
+    Require all denied
+</FilesMatch>

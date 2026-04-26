@@ -1,0 +1,25 @@
+DirectoryIndex index.html index.php
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    RewriteRule ^api/(.*)$ api/index.php [QSA,L]
+
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule ^ - [L]
+
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    RewriteRule ^ index.html [L]
+</IfModule>
+
+Options -Indexes
+
+<FilesMatch "\.(ini|log|sqlite|db|sql)$">
+    Require all denied
+</FilesMatch>
+
+<FilesMatch "^(config|database)\.php$">
+    Require all denied
+</FilesMatch>
