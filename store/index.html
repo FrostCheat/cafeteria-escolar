@@ -109,7 +109,7 @@
 
   const activeTab = location.hash === '#cart' ? 'cart' : location.hash === '#orders' ? 'orders' : 'products';
 
-  // ── Category icons (food) ──────────────────────────────────────────────
+
   function getCatIcon(cat) {
     const icons = {
       almuerzos: '🍛', desayunos: '🍳', rapidos: '🌭',
@@ -126,14 +126,13 @@
     return labels[cat] || cat;
   }
 
-  // ── Init ─────────────────────────────────────────────────────────────────
   async function init() {
     await loadProducts();
     if (auth.isLoggedIn()) {
       await loadCart();
       if (activeTab !== 'products') switchTab(activeTab);
     }
-    // Apply category from URL
+
     if (currentCat) {
       const catBtn = document.querySelector(`.cat-btn[data-cat="${currentCat}"]`);
       if (catBtn) {
@@ -144,7 +143,6 @@
     }
   }
 
-  // ── Products ─────────────────────────────────────────────────────────────
   async function loadProducts() {
     try {
       allProducts = await api.get('/products');
@@ -195,7 +193,6 @@
     btn.disabled = false;
   }
 
-  // ── Cart ─────────────────────────────────────────────────────────────────
   async function loadCart() {
     if (!auth.isLoggedIn()) {
       document.getElementById('cart-content').innerHTML = `
@@ -329,7 +326,6 @@
     }, 100);
   }
 
-  // ── Orders ────────────────────────────────────────────────────────────────
   async function loadOrders() {
     if (!auth.isLoggedIn()) return;
     try {
@@ -389,7 +385,6 @@
     }, 100);
   }
 
-  // ── Filters & Search ─────────────────────────────────────────────────────
   function filterCat(btn, cat) {
     document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');

@@ -149,12 +149,11 @@
     document.getElementById('panel-' + tab).classList.add('active');
   }
 
-  // ── Live validation helpers ──────────────────────────────────────────────
   const DOMAIN = '@santajuanalestonnac.edu.co';
 
   function validateEmail(input) {
     const val = input.value.trim().toLowerCase();
-    if (!val) return true; // empty = no error yet
+    if (!val) return true;
     const ok = val.endsWith(DOMAIN) && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
     input.classList.toggle('input-error', !ok);
     input.classList.toggle('input-ok', ok);
@@ -169,7 +168,6 @@
     return ok;
   }
 
-  // Grade
   document.getElementById('reg-grade').addEventListener('blur', function () {
     const raw = this.value.trim();
     if (!raw) return;
@@ -180,18 +178,15 @@
     this.classList.toggle('input-ok', ok);
   });
 
-  // Email live check
   ['login-email', 'reg-email'].forEach(id => {
     const el = document.getElementById(id);
     el.addEventListener('blur', () => validateEmail(el));
     el.addEventListener('input', () => { if (el.classList.contains('input-error')) validateEmail(el); });
   });
 
-  // Name live check
   const nameEl = document.getElementById('reg-name');
   nameEl.addEventListener('blur', () => validateName(nameEl));
 
-  // ── LOGIN ────────────────────────────────────────────────────────────────
   document.getElementById('btn-login').addEventListener('click', async () => {
     const btn   = document.getElementById('btn-login');
     const email = document.getElementById('login-email').value.trim().toLowerCase();
@@ -223,7 +218,6 @@
     if (e.key === 'Enter') document.getElementById('btn-login').click();
   });
 
-  // ── REGISTER ─────────────────────────────────────────────────────────────
   document.getElementById('btn-register').addEventListener('click', async () => {
     const btn = document.getElementById('btn-register');
 
