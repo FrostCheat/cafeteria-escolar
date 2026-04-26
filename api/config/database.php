@@ -32,13 +32,15 @@ function initDB(PDO $pdo): void {
             birth_date TEXT NOT NULL,
             grade TEXT NOT NULL,
             doc_type TEXT NOT NULL,
-            doc_number VARCHAR(50) NOT NULL UNIQUE,
-            email VARCHAR(100) NOT NULL UNIQUE,
+            doc_number VARCHAR(50) NOT NULL,
+            email VARCHAR(100) NOT NULL,
             password VARCHAR(255) NOT NULL,
             role VARCHAR(20) NOT NULL DEFAULT 'user',
             blocked INT NOT NULL DEFAULT 0,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE KEY unique_doc_number (doc_number),
+            UNIQUE KEY unique_email (email)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
         CREATE TABLE IF NOT EXISTS products (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -51,7 +53,7 @@ function initDB(PDO $pdo): void {
             qr_code VARCHAR(255),
             active INT NOT NULL DEFAULT 1,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
         CREATE TABLE IF NOT EXISTS cart_items (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -61,7 +63,7 @@ function initDB(PDO $pdo): void {
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
             FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
             UNIQUE KEY unique_cart (user_id, product_id)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
         CREATE TABLE IF NOT EXISTS orders (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -69,12 +71,13 @@ function initDB(PDO $pdo): void {
             total DECIMAL(10,2) NOT NULL,
             status VARCHAR(20) NOT NULL DEFAULT 'pending',
             qr_code VARCHAR(255),
-            qr_token VARCHAR(255) UNIQUE,
+            qr_token VARCHAR(255),
             notes TEXT,
             paid_at TIMESTAMP NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            FOREIGN KEY (user_id) REFERENCES users(id),
+            UNIQUE KEY unique_qr_token (qr_token)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
         CREATE TABLE IF NOT EXISTS order_items (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -85,7 +88,7 @@ function initDB(PDO $pdo): void {
             quantity INT NOT NULL,
             subtotal DECIMAL(10,2) NOT NULL,
             FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     ");
 
     $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
