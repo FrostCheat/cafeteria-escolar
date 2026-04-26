@@ -71,7 +71,7 @@ function initDB(PDO $pdo): void {
             total DECIMAL(10,2) NOT NULL,
             status VARCHAR(20) NOT NULL DEFAULT 'pending',
             qr_code VARCHAR(255),
-            qr_token VARCHAR(255),
+            qr_token VARCHAR(100),
             notes TEXT,
             paid_at TIMESTAMP NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
