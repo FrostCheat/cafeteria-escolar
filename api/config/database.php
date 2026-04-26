@@ -4,11 +4,11 @@ ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 ini_set('error_log', '../logs/error.log');
 
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'cafeteria_escolar');
-define('DB_USER', 'root');
-define('DB_PASS', '5sGD)(dbVUO1-txa');
-define('JWT_SECRET', 'cafeteria_secret_key_2027_xK9#mP');
+define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
+define('DB_NAME', getenv('DB_NAME') ?: 'cafeteria.db');
+define('DB_USER', getenv('DB_USER') ?: '');
+define('DB_PASS', getenv('DB_PASS') ?: '');
+define('JWT_SECRET', getenv('JWT_SECRET') ?: 'cafeteria_secret_key_2024_xK9#mP');
 define('UPLOAD_PATH', __DIR__ . '/../../imgs/uploads/');
 define('BASE_URL', 'http://localhost:8080');
 
