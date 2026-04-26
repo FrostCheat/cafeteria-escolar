@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Panel Admin — Cafetería Escolar</title>
+  <link rel="icon" href="/imgs/fav-icon.png" type="image/png"/>
+  <link rel="stylesheet" href="../assets/css/main.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    .admin-layout { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 64px); }
+    .admin-sidebar { background: var(--ink); color: var(--paper); padding: 24px 0; position: sticky; top: 64px; height: calc(100vh - 64px); overflow-y: auto; }
+    .sidebar-section { padding: 0 16px; margin-bottom: 8px; }
+    .sidebar-label { font-size: .68rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: rgba(247,243,236,.3); padding: 12px 12px 6px; }
+    .sidebar-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border: none; background: transparent; border-radius: 6px; color: rgba(247,243,236,.65); cursor: pointer; font-size: .88rem; text-align: left; transition: all .15s; }
+    .sidebar-btn:hover { background: rgba(247,243,236,.08); color: var(--paper); }
+    .sidebar-btn.active { background: rgba(200,66,30,.25); color: var(--paper); border-left: 3px solid var(--accent); }
+    .sidebar-btn .icon { font-size: 1rem; width: 20px; text-align: center; }
+    .admin-main { padding: 32px; overflow-y: auto; }
+    .page-title { font-size: 1.6rem; font-weight: 800; margin-bottom: 4px; }
+    .page-sub { color: var(--muted); font-size: .9rem; margin-bottom: 28px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; }
+    .stat-label { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 8px; }
+    .stat-value { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; }
+    .stat-value.accent { color: var(--accent); }
+    .stat-value.success { color: var(--success); }
+    .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+    .toolbar-search { padding: 9px 16px; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: .9rem; min-width: 240px; transition: border-color .2s; }
+    .toolbar-search:focus { outline: none; border-color: var(--accent); }
+    .product-img-admin { width: 48px; height: 48px; background: var(--cream); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; overflow: hidden; }
+    .product-img-admin img { width: 100%; height: 100%; object-fit: cover; }
+    .scanner-area { border: 3px dashed var(--border); border-radius: var(--radius-lg); padding: 48px 24px; text-align: center; transition: border-color .2s; cursor: pointer; }
+    .scanner-area:hover { border-color: var(--accent); }
+    .scanner-area.scanning { border-color: var(--accent); background: rgba(200,66,30,.04); }
+    #scanner-video { max-width: 100%; border-radius: var(--radius); display: none; }
+    .order-scan-result { background: var(--surface); border: 2px solid var(--success); border-radius: var(--radius-lg); padding: 24px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-grid .full { grid-column: 1 / -1; }
+    @media(max-width:900px) { .admin-layout { grid-template-columns: 1fr; } .admin-sidebar { display: none; } .form-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<nav class="nav" id="main-nav"></nav>
+
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div style="padding:16px 20px;border-bottom:1px solid rgba(247,243,236,.1);margin-bottom:12px">
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:.85rem;color:rgba(247,243,236,.4);text-transform:uppercase;letter-spacing:.08em">Panel</div>
+      <div style="font-family:'Syne',sans-serif;font-weight:700;color:var(--paper)">Administrador</div>
+    </div>
+    <div class="sidebar-label">Principal</div>
+    <div class="sidebar-section">
+      <button class="sidebar-btn active" data-panel="dashboard" onclick="showPanel('dashboard', this)"><span class="icon">📊</span>Dashboard</button>
+    </div>
+    <div class="sidebar-label">Gestión</div>
+    <div class="sidebar-section">
+      <button class="sidebar-btn" data-panel="products" onclick="showPanel('products', this)"><span class="icon">📦</span>Productos</button>
+      <button class="sidebar-btn" data-panel="users" onclick="showPanel('users', this)"><span class="icon">👥</span>Usuarios</button>
+      <button class="sidebar-btn" data-panel="orders" onclick="showPanel('orders', this)"><span class="icon">📋</span>Pedidos</button>
+    </div>
+    <div class="sidebar-label">Herramientas</div>
+    <div class="sidebar-section">
+      <button class="sidebar-btn" data-panel="scanner" onclick="showPanel('scanner', this)"><span class="icon">📷</span>Escanear QR</button>
+    </div>
+  </aside>
+
+  <main class="admin-main" id="admin-main">
+    <div id="loading-main" class="loading"><div class="spinner"></div></div>
+  </main>
+</div>
+
+<script src="../assets/js/app.js"></script>
+<script>
+  auth.requireAdmin();
+  buildNav('admin');
+
+  const panels = {};
+  let currentPanel = 'dashboard';
+
+  async function showPanel(name, btn) {
+    document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    currentPanel = name;
+    const el = document.getElementById('admin-main');
+    el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+    await renderPanel(name, el);
+  }
+
+  async function renderPanel(name, el) {
+    if (name === 'dashboard') await renderDashboard(el);
+    else if (name === 'products') await renderProducts(el);
+    else if (name === 'users') await renderUsers(el);
+    else if (name === 'orders') await renderOrders(el);
+    else if (name === 'scanner') renderScanner(el);
+  }
+
+  async function renderDashboard(el) {
+    const stats = await api.get('/orders/stats');
+    el.innerHTML = `
+      <div class="page-title">Dashboard</div>
+      <div class="page-sub">Resumen general de la cafetería</div>
+      <div class="grid-4" style="margin-bottom:32px">
+        <div class="stat-card"><div class="stat-label">Pedidos totales</div><div class="stat-value">${stats.total_orders}</div></div>
+        <div class="stat-card"><div class="stat-label">Pedidos pagados</div><div class="stat-value success">${stats.paid_orders}</div></div>
+        <div class="stat-card"><div class="stat-label">Pendientes</div><div class="stat-value accent">${stats.pending_orders}</div></div>
+        <div class="stat-card"><div class="stat-label">Cancelados</div><div class="stat-value" style="color:var(--error)">${stats.cancelled_orders}</div></div>
+        <div class="stat-card"><div class="stat-label">Ingresos cobrados</div><div class="stat-value success" style="font-size:1.4rem">${fmtCurrency(stats.total_revenue)}</div></div>
+        <div class="stat-card"><div class="stat-label">Ingresos pendientes</div><div class="stat-value accent" style="font-size:1.4rem">${fmtCurrency(stats.pending_revenue - stats.total_revenue)}</div></div>
+        <div class="stat-card"><div class="stat-label">Productos activos</div><div class="stat-value">${stats.total_products}</div></div>
+        <div class="stat-card"><div class="stat-label">Usuarios registrados</div><div class="stat-value">${stats.total_users}</div></div>
+      </div>
+      <div class="flex gap-2" style="flex-wrap:wrap">
+        <button class="btn btn-accent" onclick="showPanel('scanner')">📷 Escanear QR de compra</button>
+        <button class="btn btn-primary" onclick="showPanel('orders')">📋 Ver todos los pedidos</button>
+        <button class="btn btn-outline" onclick="showPanel('products')">📦 Gestionar productos</button>
+      </div>
+    `;
+  }
+
+  async function renderProducts(el) {
+    const products = await api.get('/products?all=1');
+    el.innerHTML = `
+      <div class="page-title">Productos</div>
+      <div class="page-sub">Gestiona el catálogo de la cafetería</div>
+      <div class="toolbar">
+        <input class="toolbar-search" id="prod-search" placeholder="Buscar productos..." oninput="filterTable('prod-tbody', this.value, [1,2])"/>
+        <button class="btn btn-accent" onclick="openProductModal()">+ Agregar producto</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Producto</th><th>Categoría</th><th>Precio</th><th>Stock</th><th>Estado</th><th>QR</th><th>Acciones</th></tr></thead>
+          <tbody id="prod-tbody">
+            ${products.map(p => `
+              <tr>
+                <td class="text-muted text-sm">${p.id}</td>
+                <td>
+                  <div style="display:flex;align-items:center;gap:12px">
+                    <div class="product-img-admin">${p.image ? `<img src="${p.image}" onerror="this.parentElement.innerHTML='📦'">` : '📦'}</div>
+                    <div><div style="font-weight:600">${p.name}</div><div class="text-muted text-xs">${(p.description||'').substring(0,40)}</div></div>
+                  </div>
+                </td>
+                <td><span class="tag">${p.category}</span></td>
+                <td class="price">${fmtCurrency(p.price)}</td>
+                <td><span style="font-weight:600;color:${p.stock>5?'var(--success)':p.stock>0?'var(--warning)':'var(--error)'}">${p.stock}</span></td>
+                <td>${p.active ? '<span class="badge badge-paid">✓ Activo</span>' : '<span class="badge badge-cancelled">✕ Inactivo</span>'}</td>
+                <td><button class="btn btn-ghost btn-sm" onclick="showProductQR(${p.id},'${p.name}',${p.price})">Ver QR</button></td>
+                <td>
+                  <div class="flex gap-1">
+                    <button class="btn btn-ghost btn-sm" onclick="openProductModal(${JSON.stringify(JSON.stringify(p)).slice(1,-1)})">✏️</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})">🗑</button>
+                  </div>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  function openProductModal(productJsonStr) {
+    const p = productJsonStr ? JSON.parse(productJsonStr) : null;
+    const isEdit = !!p;
+    const m = modal(`
+      <div class="form-grid">
+        <div class="field full"><label>Nombre del producto</label><input id="pf-name" value="${p?.name||''}" placeholder="Ej: Cuaderno universitario"/></div>
+        <div class="field full"><label>Descripción</label><textarea id="pf-desc" placeholder="Descripción del producto">${p?.description||''}</textarea></div>
+        <div class="field"><label>Precio (COP)</label><input id="pf-price" type="number" value="${p?.price||''}" placeholder="5000"/></div>
+        <div class="field"><label>Stock</label><input id="pf-stock" type="number" value="${p?.stock||''}" placeholder="10"/></div>
+        <div class="field"><label>Categoría</label>
+          <select id="pf-cat">
+            ${['almuerzos','desayunos','rapidos','bebidas','snacks','postres','general'].map(c => `<option value="${c}" ${p?.category===c?'selected':''}>${c}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field"><label>URL de imagen (opcional)</label><input id="pf-img" value="${p?.image||''}" placeholder="https://..."/></div>
+      </div>
+      <div class="flex gap-2 mt-3">
+        <button class="btn btn-accent" id="btn-save-prod">💾 ${isEdit ? 'Actualizar' : 'Crear producto'}</button>
+        <button class="btn btn-ghost" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
+      </div>
+    `, { title: isEdit ? 'Editar producto' : 'Nuevo producto' });
+
+    m.querySelector('#btn-save-prod').onclick = async () => {
+      const body = {
+        name: m.querySelector('#pf-name').value.trim(),
+        description: m.querySelector('#pf-desc').value.trim(),
+        price: parseFloat(m.querySelector('#pf-price').value),
+        stock: parseInt(m.querySelector('#pf-stock').value),
+        category: m.querySelector('#pf-cat').value,
+        image: m.querySelector('#pf-img').value.trim() || null,
+      };
+      if (!body.name || isNaN(body.price)) { toast('Nombre y precio son requeridos', 'warning'); return; }
+      try {
+        isEdit ? await api.put('/products/' + p.id, body) : await api.post('/products', body);
+        toast(isEdit ? 'Producto actualizado' : 'Producto creado', 'success');
+        m.remove();
+        renderPanel('products', document.getElementById('admin-main'));
+      } catch (e) { toast(e.message, 'error'); }
+    };
+  }
+
+  async function deleteProduct(id) {
+    confirm('¿Desactivar este producto?', async () => {
+      try { await api.del('/products/' + id); toast('Producto desactivado', 'success'); renderPanel('products', document.getElementById('admin-main')); }
+      catch (e) { toast(e.message, 'error'); }
+    });
+  }
+
+  function showProductQR(id, name, price) {
+    const qrId = 'qr-prod-' + id;
+    const m = modal(`
+      <div style="text-align:center">
+        <p class="text-muted text-sm mb-2">${name} — ${fmtCurrency(price)}</p>
+        <div style="background:var(--cream);border-radius:var(--radius-lg);padding:24px;display:inline-block">
+          <div id="${qrId}" style="display:inline-block;background:white;padding:10px;border-radius:6px"></div>
+        </div>
+        <p class="text-muted text-xs mt-2">ID del producto: ${id}</p>
+      </div>
+    `, { title: 'QR del producto' });
+    setTimeout(() => {
+      new QRCode(document.getElementById(qrId), {
+        text: JSON.stringify({ type: 'product', id, name, price }),
+        width: 180, height: 180
+      });
+    }, 100);
+  }
+
+  async function renderUsers(el) {
+    const users = await api.get('/users');
+    el.innerHTML = `
+      <div class="page-title">Usuarios</div>
+      <div class="page-sub">Gestiona los estudiantes registrados</div>
+      <div class="toolbar">
+        <input class="toolbar-search" placeholder="Buscar por nombre, email, grado..." oninput="filterTable('users-tbody', this.value, [0,1,2,3,4])"/>
+        <span class="text-muted text-sm">${users.length} usuarios</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Nombre</th><th>Email</th><th>Grado</th><th>Documento</th><th>Registro</th><th>Estado</th><th>Acciones</th></tr></thead>
+          <tbody id="users-tbody">
+            ${users.map(u => `
+              <tr>
+                <td><div style="font-weight:600">${u.full_name}</div></td>
+                <td class="text-sm text-muted">${u.email}</td>
+                <td><span class="tag">${u.grade}</span></td>
+                <td class="text-sm">${u.doc_type} ${u.doc_number}</td>
+                <td class="text-xs text-muted">${fmtDate(u.created_at)}</td>
+                <td>${u.blocked ? '<span class="badge badge-cancelled">🔒 Bloqueado</span>' : '<span class="badge badge-paid">✓ Activo</span>'}</td>
+                <td>
+                  <div class="flex gap-1">
+                    <button class="btn ${u.blocked ? 'btn-success' : 'btn-warning'} btn-sm" onclick="toggleBlock(${u.id}, ${u.blocked})">${u.blocked ? '🔓' : '🔒'}</button>
+                    <button class="btn btn-ghost btn-sm" onclick="viewUser(${u.id})">👁</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})">🗑</button>
+                  </div>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  async function toggleBlock(id, isBlocked) {
+    try {
+      const res = await api.put('/users/' + id + '/block', {});
+      toast(res.blocked ? 'Usuario bloqueado' : 'Usuario desbloqueado', 'success');
+      renderPanel('users', document.getElementById('admin-main'));
+    } catch (e) { toast(e.message, 'error'); }
+  }
+
+  async function viewUser(id) {
+    const user = await api.get('/users/' + id);
+    modal(`
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="grid-2">
+          <div><div class="text-xs text-muted">Nombre</div><div style="font-weight:600">${user.full_name}</div></div>
+          <div><div class="text-xs text-muted">Grado</div><div style="font-weight:600">${user.grade}</div></div>
+          <div><div class="text-xs text-muted">Documento</div><div>${user.doc_type} ${user.doc_number}</div></div>
+          <div><div class="text-xs text-muted">Email</div><div>${user.email}</div></div>
+          <div><div class="text-xs text-muted">Nacimiento</div><div>${user.birth_date}</div></div>
+          <div><div class="text-xs text-muted">Estado</div><div>${user.blocked ? '🔒 Bloqueado' : '✓ Activo'}</div></div>
+        </div>
+        <div class="divider"></div>
+        <div><div class="text-xs text-muted mb-1">Pedidos (${user.orders.length})</div>
+          ${user.orders.map(o => `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span class="text-sm">Pedido #${o.id}</span><span>${statusBadge(o.status)}</span><span class="price">${fmtCurrency(o.total)}</span></div>`).join('') || '<div class="text-muted text-sm">Sin pedidos</div>'}
+        </div>
+      </div>
+    `, { title: 'Detalle del usuario' });
+  }
+
+  async function deleteUser(id) {
+    confirm('¿Eliminar este usuario permanentemente?', async () => {
+      try { await api.del('/users/' + id); toast('Usuario eliminado', 'success'); renderPanel('users', document.getElementById('admin-main')); }
+      catch (e) { toast(e.message, 'error'); }
+    });
+  }
+
+  async function renderOrders(el) {
+    const orders = await api.get('/orders');
+    el.innerHTML = `
+      <div class="page-title">Pedidos</div>
+      <div class="page-sub">Gestiona y verifica todos los pedidos</div>
+      <div class="toolbar">
+        <input class="toolbar-search" placeholder="Buscar pedidos..." oninput="filterTable('orders-tbody', this.value, [0,1,2])"/>
+        <div class="flex gap-1">
+          <select id="status-filter" class="toolbar-search" style="min-width:140px" onchange="filterOrdersByStatus(this.value)">
+            <option value="">Todos</option>
+            <option value="pending">Pendientes</option>
+            <option value="paid">Pagados</option>
+            <option value="cancelled">Cancelados</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Estudiante</th><th>Grado</th><th>Total</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr></thead>
+          <tbody id="orders-tbody">
+            ${orders.map(o => `
+              <tr data-status="${o.status}">
+                <td style="font-weight:700">#${o.id}</td>
+                <td><div style="font-weight:600">${o.full_name}</div><div class="text-xs text-muted">${o.doc_number}</div></td>
+                <td><span class="tag">${o.grade}</span></td>
+                <td class="price">${fmtCurrency(o.total)}</td>
+                <td>${statusBadge(o.status)}</td>
+                <td class="text-xs text-muted">${fmtDate(o.created_at)}</td>
+                <td>
+                  <div class="flex gap-1">
+                    <button class="btn btn-ghost btn-sm" onclick="viewOrder(${o.id})">👁 Ver</button>
+                    ${o.status !== 'paid' ? `<button class="btn btn-success btn-sm" onclick="setOrderStatus(${o.id},'paid')">✅ Pagado</button>` : ''}
+                    ${o.status === 'pending' ? `<button class="btn btn-danger btn-sm" onclick="setOrderStatus(${o.id},'cancelled')">❌</button>` : ''}
+                    ${o.status !== 'pending' ? `<button class="btn btn-warning btn-sm" onclick="setOrderStatus(${o.id},'pending')">⏳</button>` : ''}
+                  </div>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  function filterOrdersByStatus(status) {
+    document.querySelectorAll('#orders-tbody tr').forEach(row => {
+      row.style.display = !status || row.dataset.status === status ? '' : 'none';
+    });
+  }
+
+  async function viewOrder(id) {
+    const o = await api.get('/orders/' + id);
+    const qrId = 'admin-qr-' + id;
+    const m = modal(`
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="grid-2">
+          <div><div class="text-xs text-muted">Estudiante</div><div style="font-weight:600">${o.full_name}</div></div>
+          <div><div class="text-xs text-muted">Grado</div><div style="font-weight:600">${o.grade}</div></div>
+          <div><div class="text-xs text-muted">Total</div><div class="price">${fmtCurrency(o.total)}</div></div>
+          <div><div class="text-xs text-muted">Estado actual</div>${statusBadge(o.status)}</div>
+        </div>
+        <div>
+          <div class="text-xs text-muted mb-2">Productos del pedido</div>
+          ${o.items.map(i => `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span class="text-sm">${i.product_name}</span><span class="text-sm text-muted">×${i.quantity}</span><span class="price text-sm">${fmtCurrency(i.subtotal)}</span></div>`).join('')}
+        </div>
+        <div style="text-align:center">
+          <div class="text-xs text-muted mb-2">QR del pedido</div>
+          <div id="${qrId}" style="display:inline-block;background:white;padding:10px;border:1px solid var(--border);border-radius:8px"></div>
+        </div>
+        <div class="flex gap-2">
+          <button class="btn btn-success btn-full" onclick="setOrderStatus(${o.id},'paid',true)">✅ Marcar pagado</button>
+          <button class="btn btn-warning" onclick="setOrderStatus(${o.id},'pending',true)">⏳ Pendiente</button>
+          <button class="btn btn-danger" onclick="setOrderStatus(${o.id},'cancelled',true)">❌ Cancelar</button>
+        </div>
+      </div>
+    `, { title: `Pedido #${o.id}` });
+
+    setTimeout(() => {
+      new QRCode(document.getElementById(qrId), {
+        text: JSON.stringify({ token: o.qr_token, orderId: o.id }),
+        width: 140, height: 140
+      });
+    }, 100);
+  }
+
+  async function setOrderStatus(id, status, fromModal = false) {
+    try {
+      await api.put('/orders/' + id + '/status', { status });
+      toast('Estado actualizado: ' + status, 'success');
+      if (fromModal) document.querySelector('.modal-overlay')?.remove();
+      renderPanel('orders', document.getElementById('admin-main'));
+    } catch (e) { toast(e.message, 'error'); }
+  }
+
+  function renderScanner(el) {
+    el.innerHTML = `
+      <div class="page-title">Escanear QR</div>
+      <div class="page-sub">Escanea el código QR de un pedido para verificarlo y cambiar su estado</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start">
+        <div>
+          <div style="margin-bottom:20px">
+            <h3 style="font-size:1rem;margin-bottom:12px">Ingresar token manualmente</h3>
+            <div class="flex gap-2">
+              <input id="manual-token" class="toolbar-search" style="flex:1" placeholder="Token del QR o ID del pedido"/>
+              <button class="btn btn-accent" onclick="scanByToken()">Buscar</button>
+            </div>
+          </div>
+          <div class="divider mb-2"></div>
+          <div style="margin-bottom:16px">
+            <h3 style="font-size:1rem;margin-bottom:12px">Escanear con cámara</h3>
+            <div class="scanner-area" id="scanner-area" onclick="startCamera()">
+              <div style="font-size:3rem;margin-bottom:12px">📷</div>
+              <div style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:6px">Haz clic para activar cámara</div>
+              <div class="text-muted text-sm">Apunta la cámara al código QR del pedido</div>
+            </div>
+            <video id="scanner-video" autoplay muted playsinline></video>
+            <canvas id="scanner-canvas" style="display:none"></canvas>
+            <button id="btn-stop-cam" class="btn btn-ghost btn-sm mt-2" style="display:none" onclick="stopCamera()">Detener cámara</button>
+          </div>
+        </div>
+        <div id="scan-result">
+          <div style="background:var(--cream);border:1px dashed var(--border);border-radius:var(--radius-lg);padding:40px 24px;text-align:center;color:var(--muted)">
+            <div style="font-size:2.5rem;margin-bottom:12px">🔍</div>
+            <div style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:6px">Sin resultado</div>
+            <div class="text-sm">Escanea o ingresa el token del pedido</div>
+          </div>
+        </div>
+      </div>
+    `;
+    document.getElementById('manual-token').addEventListener('keydown', e => { if (e.key === 'Enter') scanByToken(); });
+  }
+
+  let cameraStream = null;
+  let scanInterval = null;
+
+  async function startCamera() {
+    try {
+      cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      const video = document.getElementById('scanner-video');
+      video.srcObject = cameraStream;
+      video.style.display = 'block';
+      document.getElementById('scanner-area').style.display = 'none';
+      document.getElementById('btn-stop-cam').style.display = '';
+      toast('Cámara activa. Apunta al QR', 'info');
+      scanInterval = setInterval(scanFrame, 500);
+    } catch (e) { toast('No se pudo acceder a la cámara: ' + e.message, 'error'); }
+  }
+
+  function stopCamera() {
+    if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
+    clearInterval(scanInterval);
+    const video = document.getElementById('scanner-video');
+    if (video) { video.style.display = 'none'; }
+    const area = document.getElementById('scanner-area');
+    if (area) area.style.display = '';
+    const btn = document.getElementById('btn-stop-cam');
+    if (btn) btn.style.display = 'none';
+  }
+
+  async function scanFrame() {
+    const video = document.getElementById('scanner-video');
+    const canvas = document.getElementById('scanner-canvas');
+    if (!video || !canvas || !video.videoWidth) return;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    try {
+      const imageData = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
+      if (window.jsQR) {
+        const code = jsQR(imageData.data, imageData.width, imageData.height);
+        if (code) {
+          clearInterval(scanInterval);
+          stopCamera();
+          const parsed = JSON.parse(code.data);
+          if (parsed.token) await fetchOrder(parsed.token);
+        }
+      }
+    } catch {}
+  }
+
+  async function scanByToken() {
+    const token = document.getElementById('manual-token').value.trim();
+    if (!token) { toast('Ingresa un token', 'warning'); return; }
+    await fetchOrder(token);
+  }
+
+  async function fetchOrder(token) {
+    const resultEl = document.getElementById('scan-result');
+    resultEl.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+    try {
+      const o = await api.get('/orders/scan/' + token);
+      const qrId = 'scan-qr-' + o.id;
+      resultEl.innerHTML = `
+        <div class="order-scan-result">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+            <div><div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem">Pedido #${o.id}</div><div class="text-muted text-sm">${fmtDate(o.created_at)}</div></div>
+            ${statusBadge(o.status)}
+          </div>
+          <div class="grid-2 mb-2">
+            <div><div class="text-xs text-muted">Estudiante</div><div style="font-weight:600">${o.full_name}</div></div>
+            <div><div class="text-xs text-muted">Grado</div><div style="font-weight:600">${o.grade}</div></div>
+            <div><div class="text-xs text-muted">Documento</div><div>${o.doc_type} ${o.doc_number}</div></div>
+            <div><div class="text-xs text-muted">Total a cobrar</div><div class="price">${fmtCurrency(o.total)}</div></div>
+          </div>
+          <div style="margin-bottom:16px">
+            <div class="text-xs text-muted mb-2">Productos:</div>
+            ${o.items.map(i => `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span class="text-sm">${i.product_name}</span><span class="text-sm text-muted">×${i.quantity}</span><span class="price text-sm">${fmtCurrency(i.subtotal)}</span></div>`).join('')}
+          </div>
+          <div class="flex gap-2" style="flex-wrap:wrap">
+            <button class="btn btn-success" onclick="setOrderStatus(${o.id},'paid')">✅ Marcar como Pagado</button>
+            <button class="btn btn-warning btn-sm" onclick="setOrderStatus(${o.id},'pending')">⏳ Pendiente</button>
+            <button class="btn btn-danger btn-sm" onclick="setOrderStatus(${o.id},'cancelled')">❌ Cancelar</button>
+          </div>
+        </div>
+      `;
+    } catch (e) {
+      resultEl.innerHTML = `<div style="background:var(--surface);border:2px solid var(--error);border-radius:var(--radius-lg);padding:24px;text-align:center"><div style="font-size:2rem;margin-bottom:8px">❌</div><div style="font-family:'Syne',sans-serif;font-weight:700;color:var(--error)">No encontrado</div><div class="text-muted text-sm mt-1">${e.message}</div></div>`;
+    }
+  }
+
+  function filterTable(tbodyId, q, colIndexes) {
+    const rows = document.querySelectorAll('#' + tbodyId + ' tr');
+    rows.forEach(row => {
+      const text = colIndexes.map(i => row.cells[i]?.textContent || '').join(' ').toLowerCase();
+      row.style.display = text.includes(q.toLowerCase()) ? '' : 'none';
+    });
+  }
+
+  showPanel('dashboard', document.querySelector('.sidebar-btn[data-panel="dashboard"]'));
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js"></script>
+</body>
+</html>

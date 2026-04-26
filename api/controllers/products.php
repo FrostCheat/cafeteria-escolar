@@ -14,7 +14,7 @@ if ($resource === 'products') {
             $params[] = '%' . $_GET['q'] . '%';
             $params[] = '%' . $_GET['q'] . '%';
         }
-        $stmt = $db->prepare("SELECT * FROM products $where ORDER BY created_at DESC");
+        $stmt = $db->prepare("SELECT * FROM products $where ORDER BY category, created_at ASC");
         $stmt->execute($params);
         jsonResponse($stmt->fetchAll());
     }
@@ -31,6 +31,10 @@ if ($resource === 'products') {
         requireAdmin();
         if (empty($body['name']) || !isset($body['price'])) jsonError('Nombre y precio requeridos');
 
+        $validCats = ['almuerzos','desayunos','rapidos','bebidas','snacks','postres','general'];
+        $category = trim($body['category'] ?? 'general');
+        if (!in_array($category, $validCats)) $category = 'general';
+
         $stmt = $db->prepare("
             INSERT INTO products (name, description, price, stock, category, image)
             VALUES (?, ?, ?, ?, ?, ?)
@@ -40,7 +44,7 @@ if ($resource === 'products') {
             trim($body['description'] ?? ''),
             (float)$body['price'],
             (int)($body['stock'] ?? 0),
-            trim($body['category'] ?? 'general'),
+            $category,
             $body['image'] ?? null
         ]);
         $newId = (int)$db->lastInsertId();

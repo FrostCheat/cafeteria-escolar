@@ -89,14 +89,14 @@ function initDB(PDO $pdo): void {
     ");
 
     $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
-    $stmt->execute(['admin@cafeteria.com']);
+    $stmt->execute(['admin@santajuanalestonnac.edu.co']);
     $admin = $stmt->fetch();
     
     if (!$admin) {
         $hash = password_hash('admin123', PASSWORD_BCRYPT);
         $stmt = $pdo->prepare("
             INSERT INTO users (full_name, birth_date, grade, doc_type, doc_number, email, password, role)
-            VALUES ('Administrador', '1990-01-01', '11A', 'CC', '000000001', 'admin@cafeteria.com', ?, 'admin')
+            VALUES ('Administrador', '1990-01-01', '11A', 'CC', '000000001', 'admin@santajuanalestonnac.edu.co', ?, 'admin')
         ");
         $stmt->execute([$hash]);
     }
