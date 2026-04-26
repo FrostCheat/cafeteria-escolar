@@ -7,6 +7,10 @@
     RewriteRule ^ index.php [QSA,L]
 </IfModule>
 
-<FilesMatch "\.(php$|ini$|log$)">
+<FilesMatch "^(?!index\.php$).*\.php$">
+    Require all denied
+</FilesMatch>
+
+<FilesMatch "\.(ini|log|sqlite|db|sql)$">
     Require all denied
 </FilesMatch>
