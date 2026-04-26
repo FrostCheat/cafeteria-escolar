@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cafetería Santa Juana — Lestonnac</title>
+  <link rel="icon" href="/imgs/fav-icon.png" type="image/png"/>
+  <link rel="stylesheet" href="assets/css/main.css"/>
+  <style>
+    .hero { display: grid; grid-template-columns: 1fr 1fr; min-height: calc(100vh - 64px); }
+    .hero-left { display: flex; flex-direction: column; justify-content: center; padding: 80px 64px; }
+    .hero-right { background: var(--ink); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+    .hero-right::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 55% 35%, rgba(200,66,30,.28) 0%, transparent 65%); }
+    .hero-tag { display: inline-flex; align-items: center; gap: 8px; background: var(--cream); border: 1px solid var(--border); border-radius: 100px; padding: 5px 14px; font-size: .8rem; font-weight: 600; color: var(--muted); margin-bottom: 28px; width: fit-content; }
+    .hero-title { font-size: clamp(2.6rem,5vw,4.2rem); font-weight: 800; letter-spacing: -.03em; line-height: 1.05; margin-bottom: 24px; }
+    .hero-title span { color: var(--accent); }
+    .hero-subtitle { font-size: 1.05rem; color: var(--muted); max-width: 420px; line-height: 1.75; margin-bottom: 40px; }
+    .hero-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; margin-top: 48px; padding-top: 36px; border-top: 1px solid var(--border); }
+    .stat-num { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--accent); }
+    .stat-label { font-size: .8rem; color: var(--muted); }
+    .how-card { background: rgba(247,243,236,.06); border: 1px solid rgba(247,243,236,.1); border-radius: 10px; padding: 14px 18px; display: flex; align-items: flex-start; gap: 14px; }
+    .how-num { font-family: 'Syne', sans-serif; font-weight: 800; color: var(--accent-light); font-size: .8rem; min-width: 22px; margin-top: 2px; }
+    .how-text { font-size: .86rem; color: rgba(247,243,236,.68); line-height: 1.5; }
+    .how-title { font-family: 'Syne', sans-serif; font-weight: 700; color: rgba(247,243,236,.95); font-size: .88rem; margin-bottom: 2px; }
+    .cat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 18px; }
+    .cat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px 16px; text-align: center; transition: all .2s; cursor: pointer; }
+    .cat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--accent); }
+    .cat-icon { font-size: 2.2rem; margin-bottom: 10px; }
+    .cat-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: .92rem; margin-bottom: 3px; }
+    .cat-desc { font-size: .78rem; color: var(--muted); }
+    @media(max-width:900px) { .hero { grid-template-columns:1fr; } .hero-right { min-height:320px; } .hero-left { padding:44px 24px; } .cat-grid { grid-template-columns:repeat(2,1fr); } }
+  </style>
+</head>
+<body>
+<nav class="nav" id="main-nav"></nav>
+
+<main>
+  <section class="hero">
+    <div class="hero-left">
+      <div class="hero-tag">🏫 Colegio Santa Juana de Lestonnac</div>
+      <h1 class="hero-title">Tu cafetería<br/>escolar,<br/><span>ahora digital</span></h1>
+      <p class="hero-subtitle">Pide tu almuerzo, desayuno o snack en línea. Genera tu QR y recoge sin hacer fila en la cafetería del colegio.</p>
+      <div class="flex gap-2" style="flex-wrap:wrap">
+        <a href="/store/" class="btn btn-primary btn-lg">Ver menú del día →</a>
+        <a href="/auth/" class="btn btn-outline btn-lg">Crear cuenta</a>
+      </div>
+      <div class="hero-stats">
+        <div><div class="stat-num">QR</div><div class="stat-label">Pago rápido</div></div>
+        <div><div class="stat-num">100%</div><div class="stat-label">En efectivo</div></div>
+        <div><div class="stat-num">0</div><div class="stat-label">Minutos de fila</div></div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div style="position:relative;z-index:1;padding:44px;text-align:center;color:var(--paper);max-width:360px">
+        <div style="font-size:4.5rem;margin-bottom:16px">🍽️</div>
+        <h2 style="font-size:1.4rem;font-weight:700;margin-bottom:18px;color:var(--paper)">¿Cómo funciona?</h2>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="how-card"><span class="how-num">01</span><div><div class="how-title">Elige del menú</div><div class="how-text">Almuerzos, desayunos, bebidas y más</div></div></div>
+          <div class="how-card"><span class="how-num">02</span><div><div class="how-title">Genera tu QR</div><div class="how-text">Confirma y recibe tu código único</div></div></div>
+          <div class="how-card"><span class="how-num">03</span><div><div class="how-title">Paga en la cafetería</div><div class="how-text">El encargado escanea tu QR y listo</div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background:var(--cream)">
+    <div class="container">
+      <div style="text-align:center;margin-bottom:48px">
+        <h2 style="font-size:2rem;font-weight:800">Nuestro menú</h2>
+        <p class="text-muted mt-1">Comida casera, fresca y nutritiva para tu jornada escolar</p>
+      </div>
+      <div class="cat-grid">
+        <div class="cat-card" onclick="location.href='/store/?cat=almuerzos'"><div class="cat-icon">🍛</div><div class="cat-name">Almuerzos</div><div class="cat-desc">Sopa, seco, jugo y postre</div></div>
+        <div class="cat-card" onclick="location.href='/store/?cat=desayunos'"><div class="cat-icon">🍳</div><div class="cat-name">Desayunos</div><div class="cat-desc">Arepa, huevo, changua y más</div></div>
+        <div class="cat-card" onclick="location.href='/store/?cat=rapidos'"><div class="cat-icon">🌭</div><div class="cat-name">Platos Rápidos</div><div class="cat-desc">Hot dog, hamburguesa, salchipapa</div></div>
+        <div class="cat-card" onclick="location.href='/store/?cat=bebidas'"><div class="cat-icon">🥤</div><div class="cat-name">Bebidas</div><div class="cat-desc">Jugos naturales, chocolate y más</div></div>
+        <div class="cat-card" onclick="location.href='/store/?cat=snacks'"><div class="cat-icon">🍿</div><div class="cat-name">Snacks</div><div class="cat-desc">Empanadas, buñuelos, pandebono</div></div>
+        <div class="cat-card" onclick="location.href='/store/?cat=postres'"><div class="cat-icon">🍮</div><div class="cat-name">Postres</div><div class="cat-desc">Dulces y postres del día</div></div>
+        <div class="cat-card" onclick="location.href='/store/'"><div class="cat-icon">🍽️</div><div class="cat-name">Ver todo</div><div class="cat-desc">Todo el menú disponible hoy</div></div>
+        <div class="cat-card" onclick="location.href='/auth/'"><div class="cat-icon">👤</div><div class="cat-name">Mi cuenta</div><div class="cat-desc">Inicia sesión o regístrate</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="grid-2" style="align-items:center;gap:72px">
+        <div>
+          <div class="tag mb-2">Proceso de pedido</div>
+          <h2 style="font-size:1.9rem;font-weight:800;margin-bottom:20px">Pedir es fácil y sin filas</h2>
+          <div style="display:flex;flex-direction:column;gap:20px">
+            <div class="flex gap-2 items-center">
+              <div style="min-width:40px;height:40px;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800">1</div>
+              <div><div style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:2px">Crea tu cuenta</div><div class="text-muted text-sm">Con tu correo institucional @santajuanalestonnac.edu.co</div></div>
+            </div>
+            <div class="flex gap-2 items-center">
+              <div style="min-width:40px;height:40px;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800">2</div>
+              <div><div style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:2px">Elige lo que quieres</div><div class="text-muted text-sm">Almuerzo, desayuno, snack o bebida</div></div>
+            </div>
+            <div class="flex gap-2 items-center">
+              <div style="min-width:40px;height:40px;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800">3</div>
+              <div><div style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:2px">Recibe tu QR</div><div class="text-muted text-sm">Código único con el detalle de tu pedido</div></div>
+            </div>
+            <div class="flex gap-2 items-center">
+              <div style="min-width:40px;height:40px;background:var(--success);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800">4</div>
+              <div><div style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:2px">Paga en efectivo</div><div class="text-muted text-sm">El encargado escanea tu QR y confirma tu pago</div></div>
+            </div>
+          </div>
+          <a href="/auth/" class="btn btn-accent btn-lg mt-4">Comenzar ahora →</a>
+        </div>
+        <div style="background:var(--ink);border-radius:16px;padding:44px;text-align:center">
+          <div style="font-size:3.5rem;margin-bottom:14px">📱</div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:var(--paper);margin-bottom:14px">Tu código QR de pedido</div>
+          <div style="background:rgba(247,243,236,.08);border:1px dashed rgba(247,243,236,.2);border-radius:10px;padding:22px;display:inline-block">
+            <div style="width:120px;height:120px;background:white;border-radius:6px;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:2.8rem">▦</div>
+          </div>
+          <p style="color:rgba(247,243,236,.4);font-size:.78rem;margin-top:14px">Generado automáticamente al confirmar tu pedido</p>
+          <div style="margin-top:20px;display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:center;gap:10px;color:rgba(247,243,236,.55);font-size:.82rem"><span style="color:var(--accent-light)">✓</span>Solo correos @santajuanalestonnac.edu.co</div>
+            <div style="display:flex;align-items:center;gap:10px;color:rgba(247,243,236,.55);font-size:.82rem"><span style="color:var(--accent-light)">✓</span>Nombre completo verificado</div>
+            <div style="display:flex;align-items:center;gap:10px;color:rgba(247,243,236,.55);font-size:.82rem"><span style="color:var(--accent-light)">✓</span>QR único por pedido</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer style="background:var(--ink);color:var(--paper);padding:32px 48px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
+  <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;display:flex;align-items:center;gap:10px">
+    🍽️ Cafetería<span style="color:var(--accent-light)">Santa Juana</span>
+  </div>
+  <div style="color:rgba(247,243,236,.35);font-size:.8rem">© 2024 — Colegio Santa Juana de Lestonnac</div>
+</footer>
+
+<script src="assets/js/app.js"></script>
+<script>buildNav('home');</script>
+</body>
+</html>

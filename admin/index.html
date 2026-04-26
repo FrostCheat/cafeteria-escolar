@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Panel Admin — Cafetería Escolar</title>
+  <link rel="icon" href="/imgs/fav-icon.png" type="image/png"/>
+  <link rel="stylesheet" href="../assets/css/main.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js"></script>
+  <style>
+    .admin-layout { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 64px); }
+    .admin-sidebar { background: var(--ink); color: var(--paper); padding: 20px 0; position: sticky; top: 64px; height: calc(100vh - 64px); overflow-y: auto; display: flex; flex-direction: column; }
+    .sidebar-header { padding: 0 20px 16px; border-bottom: 1px solid rgba(247,243,236,.08); margin-bottom: 8px; }
+    .sidebar-header-label { font-size: .65rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: rgba(247,243,236,.3); margin-bottom: 4px; }
+    .sidebar-header-name { font-family: 'Syne', sans-serif; font-weight: 700; color: var(--paper); font-size: .95rem; }
+    .sidebar-section-label { font-size: .62rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: rgba(247,243,236,.25); padding: 12px 20px 4px; }
+    .sidebar-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 20px; border: none; background: transparent; color: rgba(247,243,236,.6); cursor: pointer; font-size: .875rem; text-align: left; transition: all .15s; font-family: 'DM Sans', sans-serif; position: relative; }
+    .sidebar-btn:hover { background: rgba(247,243,236,.07); color: var(--paper); }
+    .sidebar-btn.active { background: rgba(200,66,30,.18); color: var(--paper); }
+    .sidebar-btn.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); border-radius: 0 2px 2px 0; }
+    .sidebar-btn .sb-icon { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: rgba(247,243,236,.06); font-size: .9rem; flex-shrink: 0; }
+    .sidebar-btn.active .sb-icon { background: rgba(200,66,30,.3); }
+    .sidebar-divider { height: 1px; background: rgba(247,243,236,.06); margin: 8px 20px; }
+
+    .admin-main { background: var(--paper); min-height: calc(100vh - 64px); overflow-y: auto; }
+    .panel-wrap { padding: 28px 32px; max-width: 1400px; animation: fadeUp .35s ease; }
+    .panel-title { font-size: 1.5rem; font-weight: 800; font-family: 'Syne', sans-serif; margin-bottom: 2px; }
+    .panel-sub { color: var(--muted); font-size: .88rem; margin-bottom: 28px; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stats-grid-6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-bottom: 20px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; position: relative; overflow: hidden; transition: transform .2s, box-shadow .2s; animation: fadeUp .4s ease both; }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .stat-card::after { content: ''; position: absolute; right: -12px; top: -12px; width: 64px; height: 64px; border-radius: 50%; opacity: .06; }
+    .stat-card.accent::after { background: var(--accent); }
+    .stat-card.success::after { background: var(--success); }
+    .stat-card.info::after { background: var(--info); }
+    .stat-card.warning::after { background: var(--warning); }
+    .stat-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+    .stat-label .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); }
+    .stat-label .dot.accent { background: var(--accent); }
+    .stat-label .dot.success { background: var(--success); }
+    .stat-label .dot.info { background: var(--info); }
+    .stat-label .dot.warning { background: var(--warning); }
+    .stat-value { font-family: 'Syne', sans-serif; font-size: 1.75rem; font-weight: 800; line-height: 1; }
+    .stat-value.clr-accent { color: var(--accent); }
+    .stat-value.clr-success { color: var(--success); }
+    .stat-value.clr-info { color: var(--info); }
+    .stat-value.clr-warning { color: var(--warning); }
+    .stat-value.clr-error { color: var(--error); }
+    .stat-sub { font-size: .75rem; color: var(--muted); margin-top: 6px; }
+
+    .section-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+    .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 12px; flex-wrap: wrap; }
+    .search-input { padding: 9px 14px; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: .875rem; min-width: 200px; transition: border-color .2s, box-shadow .2s; background: var(--surface); }
+    .search-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(200,66,30,.1); }
+
+    .table-wrap { overflow-x: auto; border-radius: var(--radius-lg); border: 1px solid var(--border); background: var(--surface); }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { background: #f5f1ea; font-family: 'Syne', sans-serif; font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding: 11px 16px; text-align: left; white-space: nowrap; }
+    tbody td { padding: 11px 16px; border-top: 1px solid var(--border); font-size: .875rem; vertical-align: middle; }
+    tbody tr:hover td { background: #faf8f4; }
+
+    .prod-img { width: 42px; height: 42px; background: var(--cream); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; overflow: hidden; flex-shrink: 0; }
+    .prod-img img { width: 100%; height: 100%; object-fit: cover; }
+
+    .scanner-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+    .scanner-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; }
+
+    .scanner-video-wrap {
+      position: relative; border-radius: var(--radius); overflow: hidden;
+      background: #0a0a0a; aspect-ratio: 4/3;
+      display: flex; align-items: center; justify-content: center;
+    }
+    #scanner-video { width: 100%; height: 100%; object-fit: cover; display: none; }
+    .scanner-placeholder { text-align: center; color: rgba(255,255,255,.4); padding: 32px; }
+
+    .scanner-aim {
+      position: absolute; width: 55%; aspect-ratio: 1;
+      border: 2.5px solid var(--accent); border-radius: 8px;
+      pointer-events: none; display: none;
+      animation: scanPulse 2s ease-in-out infinite;
+    }
+    .scanner-aim-corner {
+      position: absolute; width: 22px; height: 22px; border-color: #f0896a; border-style: solid;
+    }
+    .scanner-aim-corner.tl { top: -3px; left: -3px; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
+    .scanner-aim-corner.tr { top: -3px; right: -3px; border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
+    .scanner-aim-corner.bl { bottom: -3px; left: -3px; border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
+    .scanner-aim-corner.br { bottom: -3px; right: -3px; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
+
+    .scan-line {
+      position: absolute; left: 5%; right: 5%; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent-light), transparent);
+      animation: scanLine 2s ease-in-out infinite;
+    }
+    @keyframes scanLine {
+      0% { top: 20%; opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { top: 80%; opacity: 0; }
+    }
+
+    .scanner-status {
+      position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+      background: rgba(0,0,0,.7); color: #fff; font-size: .72rem;
+      padding: 4px 12px; border-radius: 100px; white-space: nowrap;
+      backdrop-filter: blur(4px);
+    }
+
+    .scan-type-tabs { display: flex; gap: 0; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 18px; }
+    .scan-type-tab { flex: 1; padding: 9px 8px; border: none; background: var(--surface); font-family: 'Syne', sans-serif; font-weight: 700; font-size: .78rem; cursor: pointer; color: var(--muted); transition: all .15s; }
+    .scan-type-tab.active { background: var(--ink); color: var(--paper); }
+
+    .result-card { background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); padding: 24px; min-height: 200px; display: flex; align-items: center; justify-content: center; transition: all .2s; }
+    .result-card.has-result { align-items: flex-start; animation: scaleIn .25s ease; }
+    .result-empty { text-align: center; color: var(--muted); }
+    .result-empty .re-icon { font-size: 2.5rem; margin-bottom: 10px; }
+
+    .result-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); width: 100%; }
+    .result-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-bottom: 14px; }
+    .result-meta-label { font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 700; color: var(--muted); margin-bottom: 3px; }
+    .result-meta-val { font-size: .9rem; font-weight: 600; }
+    .result-actions { display: flex; gap: 8px; flex-wrap: wrap; width: 100%; margin-top: 16px; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-grid .full { grid-column: 1 / -1; }
+
+    .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+    .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; transition: box-shadow .2s; }
+    .chart-card:hover { box-shadow: var(--shadow-md); }
+    .chart-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: .9rem; margin-bottom: 14px; color: var(--ink); }
+    .bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 120px; }
+    .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .bar { width: 100%; border-radius: 4px 4px 0 0; background: var(--accent); min-height: 4px; position: relative; cursor: pointer; transition: background .2s, height .5s cubic-bezier(.34,1.56,.64,1); }
+    .bar:hover { background: var(--accent-dark); }
+    .bar-label { font-size: .6rem; color: var(--muted); text-align: center; white-space: nowrap; }
+
+    .quick-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
+
+    .cam-perm-tip {
+      background: #fff8f0; border: 1px solid #f0c070; border-radius: var(--radius-lg);
+      padding: 14px 16px; font-size: .82rem; color: #6a4400; margin-top: 10px; display: none;
+    }
+
+    @media(max-width:1100px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .stats-grid-6 { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media(max-width:900px) {
+      .admin-layout { grid-template-columns: 1fr; }
+      .admin-sidebar { display: none; }
+      .scanner-panel { grid-template-columns: 1fr; }
+      .charts-row { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .panel-wrap { padding: 16px; }
+      .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .stats-grid-6 { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .stat-value { font-size: 1.4rem; }
+      .admin-mobile-tabs {
+        display: flex; overflow-x: auto; gap: 0; border-bottom: 2px solid var(--border);
+        background: var(--surface); padding: 0 4px; scrollbar-width: none; position: sticky; top: 64px; z-index: 10;
+      }
+      .admin-mobile-tabs::-webkit-scrollbar { display: none; }
+      .admin-mobile-tab {
+        flex-shrink: 0; padding: 14px 16px; background: none; border: none;
+        font-family: 'Syne', sans-serif; font-weight: 700; font-size: .82rem;
+        color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px;
+        white-space: nowrap; transition: color .2s;
+      }
+      .admin-mobile-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+      .toolbar { flex-direction: column; align-items: stretch; }
+      .search-input { min-width: unset; }
+    }
+    @media(min-width:901px) {
+      .admin-mobile-tabs { display: none; }
+    }
+  </style>
+</head>
+<body>
+<nav class="nav" id="main-nav"></nav>
+
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-header-label">Panel de control</div>
+      <div class="sidebar-header-name">Administrador</div>
+    </div>
+    <div class="sidebar-section-label">Principal</div>
+    <button class="sidebar-btn active" data-panel="dashboard" onclick="showPanel('dashboard',this)">
+      <span class="sb-icon">📊</span>Dashboard
+    </button>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-label">Escanear QR</div>
+    <button class="sidebar-btn" data-panel="scanner" onclick="showPanel('scanner',this)">
+      <span class="sb-icon">📷</span>Escanear QR
+    </button>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-label">Gestión</div>
+    <button class="sidebar-btn" data-panel="products" onclick="showPanel('products',this)">
+      <span class="sb-icon">📦</span>Productos
+    </button>
+    <button class="sidebar-btn" data-panel="users" onclick="showPanel('users',this)">
+      <span class="sb-icon">👥</span>Usuarios
+    </button>
+    <button class="sidebar-btn" data-panel="orders" onclick="showPanel('orders',this)">
+      <span class="sb-icon">📋</span>Pedidos
+    </button>
+  </aside>
+
+  <main class="admin-main" id="admin-main">
+    <div class="admin-mobile-tabs" id="admin-mobile-tabs">
+      <button class="admin-mobile-tab active" onclick="showPanel('dashboard',null,'dashboard')">📊 Dashboard</button>
+      <button class="admin-mobile-tab" onclick="showPanel('scanner',null,'scanner')">📷 Escáner</button>
+      <button class="admin-mobile-tab" onclick="showPanel('products',null,'products')">📦 Productos</button>
+      <button class="admin-mobile-tab" onclick="showPanel('users',null,'users')">👥 Usuarios</button>
+      <button class="admin-mobile-tab" onclick="showPanel('orders',null,'orders')">📋 Pedidos</button>
+    </div>
+    <div class="loading" style="min-height:300px"><div class="spinner"></div></div>
+  </main>
+</div>
+
+<script src="../assets/js/app.js"></script>
+<script>
+auth.requireAdmin();
+buildNav('admin');
+
+let cameraStream = null;
+let scanInterval = null;
+let currentScanType = 'order';
+let lastScanned = '';
+let lastScannedTime = 0;
+
+function showPanel(name, btn, mobileTabName) {
+  document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+  if (btn) {
+    btn.classList.add('active');
+  } else {
+    document.querySelector(`.sidebar-btn[data-panel="${name}"]`)?.classList.add('active');
+  }
+
+  const tabName = mobileTabName || name;
+  document.querySelectorAll('.admin-mobile-tab').forEach((t, i) => {
+    const panels = ['dashboard','scanner','products','users','orders'];
+    t.classList.toggle('active', panels[i] === tabName);
+  });
+
+  stopCamera();
+
+  const el = document.getElementById('admin-main');
+  const tabs = document.getElementById('admin-mobile-tabs');
+  el.innerHTML = '';
+  if (tabs) el.appendChild(tabs);
+  const loading = document.createElement('div');
+  loading.className = 'loading';
+  loading.style.minHeight = '300px';
+  loading.innerHTML = '<div class="spinner"></div>';
+  el.appendChild(loading);
+
+  if (name === 'dashboard') renderDashboard(el);
+  else if (name === 'products') renderProducts(el);
+  else if (name === 'users') renderUsers(el);
+  else if (name === 'orders') renderOrders(el);
+  else if (name === 'scanner') renderScanner(el);
+}
+
+async function renderDashboard(el) {
+  let stats, allOrders = [], products = [];
+
+  try {
+    [stats, allOrders, products] = await Promise.all([
+      api.get('/orders/stats'),
+      api.get('/orders'),
+      api.get('/products?all=1'),
+    ]);
+  } catch(e) {
+    appendPanel(el, `<div class="panel-title">Dashboard</div><div style="color:var(--error)">${e.message}</div>`);
+    return;
+  }
+
+  const now = new Date();
+  const todayStr = now.toISOString().slice(0,10);
+  const monthStr = now.toISOString().slice(0,7);
+  const yearStr  = now.getFullYear().toString();
+
+  const paidOrders = allOrders.filter(o => o.status === 'paid');
+
+  const revByPeriod = (orders, period) =>
+    orders.filter(o => o.created_at?.startsWith(period))
+          .reduce((s,o) => s + parseFloat(o.total || 0), 0);
+
+  const countByPeriod = (orders, period) =>
+    orders.filter(o => o.created_at?.startsWith(period)).length;
+
+  const revToday  = revByPeriod(paidOrders, todayStr);
+  const revMonth  = revByPeriod(paidOrders, monthStr);
+  const revYear   = revByPeriod(paidOrders, yearStr);
+  const revTotal  = paidOrders.reduce((s,o) => s + parseFloat(o.total || 0), 0);
+
+  const salesToday = countByPeriod(allOrders, todayStr);
+  const salesMonth = countByPeriod(allOrders, monthStr);
+  const salesYear  = countByPeriod(allOrders, yearStr);
+
+  const monthlyData = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const key = d.toISOString().slice(0,7);
+    const label = d.toLocaleDateString('es-CO', {month:'short'});
+    monthlyData.push({ label, rev: revByPeriod(paidOrders, key) });
+  }
+
+  const totalStock  = products.reduce((s,p) => s + parseInt(p.stock || 0), 0);
+  const activeProds = products.filter(p => p.active).length;
+  const lowStock    = products.filter(p => p.active && parseInt(p.stock) <= 3);
+
+  const productSales = {};
+  allOrders.forEach(o => {
+    (o.items || []).forEach(i => {
+      productSales[i.product_name] = (productSales[i.product_name] || 0) + parseInt(i.quantity || 1);
+    });
+  });
+  const topProducts = Object.entries(productSales).sort((a,b) => b[1]-a[1]).slice(0,5);
+
+  const maxRev = Math.max(...monthlyData.map(m => m.rev), 1);
+
+  const totalOrders    = parseInt(stats.total_orders   || 0);
+  const paidCount      = parseInt(stats.paid_orders    || 0);
+  const pendingCount   = parseInt(stats.pending_orders || 0);
+  const cancelledCount = parseInt(stats.cancelled_orders || 0);
+  const totalUsers     = parseInt(stats.total_users    || 0);
+  const pendingRev     = parseFloat(stats.pending_revenue || 0);
+  const paidRev        = parseFloat(stats.total_revenue   || 0);
+
+  appendPanel(el, `
+    <div class="panel-title">Dashboard</div>
+    <div class="panel-sub">${new Date().toLocaleDateString('es-CO', {weekday:'long', year:'numeric', month:'long', day:'numeric'})}</div>
+
+    <div class="quick-actions">
+      <button class="btn btn-accent" onclick="showPanel('scanner')">📷 Escanear QR</button>
+      <button class="btn btn-primary" onclick="showPanel('orders')">📋 Ver pedidos</button>
+      <button class="btn btn-outline btn-sm" onclick="showPanel('products')">📦 Productos</button>
+      <button class="btn btn-outline btn-sm" onclick="showPanel('users')">👥 Usuarios</button>
+    </div>
+
+    <div class="section-title">💰 Ganancias (cobradas)</div>
+    <div class="stats-grid" style="margin-bottom:20px">
+      <div class="stat-card success">
+        <div class="stat-label"><span class="dot success"></span>Hoy</div>
+        <div class="stat-value clr-success" style="font-size:1.3rem">${fmtCurrency(revToday)}</div>
+        <div class="stat-sub">${countByPeriod(paidOrders, todayStr)} pagados</div>
+      </div>
+      <div class="stat-card success">
+        <div class="stat-label"><span class="dot success"></span>Este mes</div>
+        <div class="stat-value clr-success" style="font-size:1.3rem">${fmtCurrency(revMonth)}</div>
+        <div class="stat-sub">${countByPeriod(paidOrders, monthStr)} pagados</div>
+      </div>
+      <div class="stat-card success">
+        <div class="stat-label"><span class="dot success"></span>Este año</div>
+        <div class="stat-value clr-success" style="font-size:1.3rem">${fmtCurrency(revYear)}</div>
+        <div class="stat-sub">${countByPeriod(paidOrders, yearStr)} pagados</div>
+      </div>
+      <div class="stat-card success">
+        <div class="stat-label"><span class="dot success"></span>Total histórico</div>
+        <div class="stat-value clr-success" style="font-size:1.3rem">${fmtCurrency(revTotal)}</div>
+        <div class="stat-sub">${paidOrders.length} pagados</div>
+      </div>
+    </div>
+
+    <div class="section-title">🛒 Ventas (todos los pedidos)</div>
+    <div class="stats-grid" style="margin-bottom:20px">
+      <div class="stat-card accent">
+        <div class="stat-label"><span class="dot accent"></span>Pedidos hoy</div>
+        <div class="stat-value clr-accent">${salesToday}</div>
+        <div class="stat-sub">${fmtCurrency(revByPeriod(allOrders, todayStr))}</div>
+      </div>
+      <div class="stat-card accent">
+        <div class="stat-label"><span class="dot accent"></span>Este mes</div>
+        <div class="stat-value clr-accent">${salesMonth}</div>
+        <div class="stat-sub">${fmtCurrency(revByPeriod(allOrders, monthStr))}</div>
+      </div>
+      <div class="stat-card accent">
+        <div class="stat-label"><span class="dot accent"></span>Este año</div>
+        <div class="stat-value clr-accent">${salesYear}</div>
+        <div class="stat-sub">${fmtCurrency(revByPeriod(allOrders, yearStr))}</div>
+      </div>
+      <div class="stat-card accent">
+        <div class="stat-label"><span class="dot accent"></span>Pedidos totales</div>
+        <div class="stat-value clr-accent">${totalOrders}</div>
+        <div class="stat-sub">${fmtCurrency(pendingRev)} en total</div>
+      </div>
+    </div>
+
+    <div class="section-title">📋 Estado de pedidos</div>
+    <div class="stats-grid-6" style="margin-bottom:20px">
+      <div class="stat-card success">
+        <div class="stat-label"><span class="dot success"></span>Pagados</div>
+        <div class="stat-value clr-success">${paidCount}</div>
+      </div>
+      <div class="stat-card warning">
+        <div class="stat-label"><span class="dot warning"></span>Pendientes</div>
+        <div class="stat-value clr-warning">${pendingCount}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label"><span class="dot"></span>Cancelados</div>
+        <div class="stat-value clr-error">${cancelledCount}</div>
+      </div>
+      <div class="stat-card info">
+        <div class="stat-label"><span class="dot info"></span>Productos activos</div>
+        <div class="stat-value clr-info">${activeProds}</div>
+      </div>
+      <div class="stat-card info">
+        <div class="stat-label"><span class="dot info"></span>Stock total</div>
+        <div class="stat-value clr-info">${totalStock}</div>
+        <div class="stat-sub">unidades</div>
+      </div>
+      <div class="stat-card info">
+        <div class="stat-label"><span class="dot info"></span>Usuarios</div>
+        <div class="stat-value clr-info">${totalUsers}</div>
+      </div>
+    </div>
+
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">📈 Ganancias últimos 6 meses</div>
+        <div class="bar-chart">
+          ${monthlyData.map(m => `
+            <div class="bar-wrap">
+              <div class="bar" style="height:${Math.max(8,(m.rev/maxRev)*100)}px" title="${fmtCurrency(m.rev)}"></div>
+              <div class="bar-label">${m.label}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">🏆 Productos más vendidos</div>
+        ${topProducts.length ? topProducts.map(([name, qty], i) => `
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:.75rem;color:var(--muted);width:16px">${i+1}</span>
+            <div style="flex:1">
+              <div style="font-size:.85rem;font-weight:600;margin-bottom:2px">${name}</div>
+              <div style="height:5px;background:var(--cream);border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:${(qty/(topProducts[0][1]||1)*100)}%;background:var(--accent);border-radius:3px;transition:width .6s ease"></div>
+              </div>
+            </div>
+            <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:.8rem;color:var(--muted)">${qty} uds</span>
+          </div>
+        `).join('') : '<div class="text-muted text-sm">Sin datos de ventas aún</div>'}
+      </div>
+    </div>
+
+    ${lowStock.length ? `
+      <div style="background:#fff8f0;border:1px solid #f0c070;border-radius:var(--radius-lg);padding:16px 20px;margin-bottom:20px">
+        <div style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:8px;color:#8a5a00">⚠️ Stock bajo (≤3 unidades)</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          ${lowStock.map(p => `<span class="tag" style="color:var(--warning)">${p.name} (${p.stock})</span>`).join('')}
+        </div>
+      </div>
+    ` : ''}
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;display:flex;gap:24px;align-items:center;flex-wrap:wrap">
+      <div>
+        <div class="stat-label"><span class="dot warning"></span>Ingresos pendientes</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;color:var(--warning)">${fmtCurrency(Math.max(0, pendingRev - paidRev))}</div>
+      </div>
+      <div style="flex:1;min-width:180px">
+        <div class="text-muted text-sm">Pedidos pendientes de cobro. Escanea los QR para registrar pagos.</div>
+      </div>
+      <button class="btn btn-accent" onclick="showPanel('scanner')">📷 Ir al escáner</button>
+    </div>
+  `);
+}
+
+function appendPanel(el, html) {
+  const tabs = document.getElementById('admin-mobile-tabs');
+  el.innerHTML = '';
+  if (tabs) el.appendChild(tabs);
+  const wrap = document.createElement('div');
+  wrap.className = 'panel-wrap';
+  wrap.innerHTML = html;
+  el.appendChild(wrap);
+}
+
+function renderScanner(el) {
+  const tabs = document.getElementById('admin-mobile-tabs');
+  el.innerHTML = '';
+  if (tabs) el.appendChild(tabs);
+
+  const wrap = document.createElement('div');
+  wrap.className = 'panel-wrap';
+  wrap.innerHTML = `
+    <div class="panel-title">Escanear QR</div>
+    <div class="panel-sub">Apunta la cámara al código QR — detección automática</div>
+
+    <div class="scan-type-tabs">
+      <button class="scan-type-tab active" onclick="setScanType('order',this)">🧾 Pedidos</button>
+      <button class="scan-type-tab" onclick="setScanType('user',this)">👤 Usuarios</button>
+      <button class="scan-type-tab" onclick="setScanType('product',this)">📦 Productos</button>
+    </div>
+
+    <div class="scanner-panel">
+      <div>
+        <div class="scanner-box" style="margin-bottom:16px">
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;margin-bottom:12px">📹 Cámara</div>
+          <div class="scanner-video-wrap" id="scanner-video-wrap">
+            <div class="scanner-placeholder" id="scanner-placeholder">
+              <div style="font-size:2.5rem;margin-bottom:10px">📷</div>
+              <div style="font-size:.85rem">Toca "Activar cámara" para escanear</div>
+            </div>
+            <video id="scanner-video" autoplay muted playsinline></video>
+            <div class="scanner-aim" id="scanner-aim">
+              <div class="scanner-aim-corner tl"></div>
+              <div class="scanner-aim-corner tr"></div>
+              <div class="scanner-aim-corner bl"></div>
+              <div class="scanner-aim-corner br"></div>
+              <div class="scan-line" id="scan-line"></div>
+            </div>
+            <div class="scanner-status" id="scanner-status" style="display:none">Buscando QR...</div>
+          </div>
+          <canvas id="scanner-canvas" style="display:none"></canvas>
+          <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+            <button class="btn btn-accent" id="btn-start-cam" onclick="startCamera()">▶ Activar cámara</button>
+            <button class="btn btn-ghost" id="btn-stop-cam" style="display:none" onclick="stopCamera()">⏹ Detener</button>
+            <button class="btn btn-ghost btn-sm" id="btn-flip-cam" style="display:none" onclick="flipCamera()">🔄 Voltear</button>
+          </div>
+          <div class="cam-perm-tip" id="cam-perm-tip">
+            <strong>📋 Permitir cámara:</strong> Toca el ícono 🔒 en la barra de direcciones y permite el acceso a la cámara. Si usas Safari en iPhone, ve a Configuración → Safari → Cámara → Permitir.
+          </div>
+        </div>
+
+        <div class="scanner-box">
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;margin-bottom:12px">⌨️ Ingresar manualmente</div>
+          <div style="display:flex;gap:8px">
+            <input class="search-input" id="manual-token" placeholder="Token, ID o número de documento..." style="flex:1;min-width:0"/>
+            <button class="btn btn-primary" onclick="manualSearch()">Buscar</button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;margin-bottom:12px">📋 Resultado</div>
+        <div class="result-card" id="scan-result">
+          <div class="result-empty">
+            <div class="re-icon">🔍</div>
+            <div style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:6px">Sin resultado</div>
+            <div style="font-size:.82rem">Escanea un QR o ingresa un token/ID</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  el.appendChild(wrap);
+
+  document.getElementById('manual-token').addEventListener('keydown', e => {
+    if (e.key === 'Enter') manualSearch();
+  });
+}
+
+let facingMode = 'environment';
+
+function setScanType(type, btn) {
+  currentScanType = type;
+  document.querySelectorAll('.scan-type-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  clearScanResult();
+  const placeholders = { order: 'Token del QR o ID del pedido...', user: 'Número de documento del estudiante...', product: 'ID del producto...' };
+  const inp = document.getElementById('manual-token');
+  if (inp) inp.placeholder = placeholders[type] || '';
+}
+
+function clearScanResult() {
+  const r = document.getElementById('scan-result');
+  if (!r) return;
+  r.className = 'result-card';
+  r.innerHTML = `<div class="result-empty"><div class="re-icon">🔍</div><div style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:6px">Sin resultado</div><div style="font-size:.82rem">Escanea un QR o ingresa un token/ID</div></div>`;
+}
+
+async function manualSearch() {
+  const token = (document.getElementById('manual-token')?.value || '').trim();
+  if (!token) { toast('Ingresa un valor para buscar', 'warning'); return; }
+  await processScanResult(token);
+}
+
+async function processScanResult(raw) {
+  const resultEl = document.getElementById('scan-result');
+  if (!resultEl) return;
+  resultEl.className = 'result-card';
+  resultEl.innerHTML = '<div class="loading" style="min-height:120px"><div class="spinner"></div></div>';
+
+  let parsed = null;
+  try { parsed = JSON.parse(raw); } catch(e) {}
+  if (!parsed) {
+    try { parsed = JSON.parse(atob(raw.replace(/-/g,'+').replace(/_/g,'/'))); } catch(e) {}
+  }
+
+  let type = currentScanType;
+  if (parsed?.type === 'order') type = 'order';
+  else if (parsed?.type === 'product') type = 'product';
+
+  try {
+    if (type === 'order') await showOrderResult(parsed?.token || raw, resultEl);
+    else if (type === 'product') await showProductResult(parsed?.id || parseInt(raw), resultEl);
+    else await showUserResult(raw, resultEl);
+  } catch(e) {
+    resultEl.className = 'result-card';
+    resultEl.innerHTML = `
+      <div style="text-align:center;width:100%">
+        <div style="font-size:2rem;margin-bottom:8px">❌</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;color:var(--error);margin-bottom:6px">No encontrado</div>
+        <div style="font-size:.82rem;color:var(--muted)">${e.message}</div>
+      </div>`;
+  }
+}
+
+async function showOrderResult(token, el) {
+  const o = await api.get('/orders/scan/' + token);
+  el.className = 'result-card has-result';
+  const qrId = 'res-qr-' + Date.now();
+  el.innerHTML = `
+    <div style="width:100%">
+      <div class="result-header">
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem">Pedido #${o.id}</div>
+          <div style="font-size:.78rem;color:var(--muted)">${fmtDate(o.created_at)}</div>
+        </div>
+        ${statusBadge(o.status)}
+      </div>
+      <div class="result-meta">
+        <div><div class="result-meta-label">Estudiante</div><div class="result-meta-val">${o.full_name}</div></div>
+        <div><div class="result-meta-label">Grado</div><div class="result-meta-val">${o.grade}</div></div>
+        <div><div class="result-meta-label">Documento</div><div class="result-meta-val">${o.doc_type} ${o.doc_number}</div></div>
+        <div><div class="result-meta-label">Total</div><div class="result-meta-val price" style="font-size:1.1rem">${fmtCurrency(o.total)}</div></div>
+      </div>
+      <div style="margin-bottom:12px">
+        <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700;color:var(--muted);margin-bottom:6px">Productos:</div>
+        ${(o.items||[]).map(i => `
+          <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:.875rem">
+            <span>${i.product_name}</span><span class="text-muted">×${i.quantity}</span><span class="price">${fmtCurrency(i.subtotal)}</span>
+          </div>`).join('')}
+      </div>
+      <div id="${qrId}" style="text-align:center;margin-bottom:12px"></div>
+      <div class="result-actions">
+        ${o.status !== 'paid' ? `<button class="btn btn-success" onclick="setOrderStatus(${o.id},'paid',true)">✅ Marcar pagado</button>` : ''}
+        ${o.status === 'pending' ? `<button class="btn btn-danger btn-sm" onclick="setOrderStatus(${o.id},'cancelled',true)">❌ Cancelar</button>` : ''}
+        ${o.status !== 'pending' ? `<button class="btn btn-warning btn-sm" onclick="setOrderStatus(${o.id},'pending',true)">⏳ Pendiente</button>` : ''}
+      </div>
+    </div>`;
+  setTimeout(() => {
+    const qrEl = document.getElementById(qrId);
+    if (qrEl) new QRCode(qrEl, { text: JSON.stringify({token: o.qr_token, orderId: o.id}), width: 110, height: 110 });
+  }, 80);
+}
+
+async function showProductResult(id, el) {
+  if (!id || isNaN(id)) throw new Error('ID de producto inválido');
+  const p = await api.get('/products/' + id);
+  el.className = 'result-card has-result';
+  const qrId = 'res-qr-' + Date.now();
+  el.innerHTML = `
+    <div style="width:100%">
+      <div class="result-header">
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem">${p.name}</div>
+          <span class="tag">${p.category}</span>
+        </div>
+        ${p.active ? '<span class="badge badge-paid">✓ Activo</span>' : '<span class="badge badge-cancelled">✕ Inactivo</span>'}
+      </div>
+      <div class="result-meta">
+        <div><div class="result-meta-label">Precio</div><div class="result-meta-val price">${fmtCurrency(p.price)}</div></div>
+        <div><div class="result-meta-label">Stock</div><div class="result-meta-val" style="color:${p.stock>5?'var(--success)':p.stock>0?'var(--warning)':'var(--error)'}">${p.stock} unidades</div></div>
+        <div><div class="result-meta-label">ID</div><div class="result-meta-val">#${p.id}</div></div>
+        <div><div class="result-meta-label">Creado</div><div class="result-meta-val">${fmtDate(p.created_at)}</div></div>
+      </div>
+      ${p.description ? `<div style="font-size:.85rem;color:var(--muted);margin-bottom:12px">${p.description}</div>` : ''}
+      <div id="${qrId}" style="text-align:center;margin-bottom:12px"></div>
+      <div class="result-actions">
+        <button class="btn btn-primary btn-sm" onclick="showPanel('products')">📦 Ir a productos</button>
+      </div>
+    </div>`;
+  setTimeout(() => {
+    const qrEl = document.getElementById(qrId);
+    if (qrEl) new QRCode(qrEl, { text: JSON.stringify({type:'product', id:p.id, name:p.name, price:p.price}), width: 110, height: 110 });
+  }, 80);
+}
+
+async function showUserResult(docOrId, el) {
+  let user = null;
+  try { user = await api.get('/users/' + parseInt(docOrId)); } catch(e) {}
+  if (!user) {
+    const users = await api.get('/users');
+    const found = users.find(u => u.doc_number === docOrId.trim() || u.id == docOrId);
+    if (!found) throw new Error('Usuario no encontrado. Ingresa el número de documento o ID.');
+    user = await api.get('/users/' + found.id);
+  }
+  el.className = 'result-card has-result';
+  el.innerHTML = `
+    <div style="width:100%">
+      <div class="result-header">
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.05rem">${user.full_name}</div>
+          <div style="font-size:.78rem;color:var(--muted)">Registrado: ${fmtDate(user.created_at)}</div>
+        </div>
+        ${user.blocked ? '<span class="badge badge-cancelled">🔒 Bloqueado</span>' : '<span class="badge badge-paid">✓ Activo</span>'}
+      </div>
+      <div class="result-meta">
+        <div><div class="result-meta-label">Grado</div><div class="result-meta-val">${user.grade}</div></div>
+        <div><div class="result-meta-label">Documento</div><div class="result-meta-val">${user.doc_type} ${user.doc_number}</div></div>
+        <div><div class="result-meta-label">Email</div><div class="result-meta-val" style="font-size:.8rem">${user.email}</div></div>
+        <div><div class="result-meta-label">Pedidos</div><div class="result-meta-val">${(user.orders||[]).length}</div></div>
+      </div>
+      ${(user.orders||[]).length ? `
+        <div style="margin-bottom:10px">
+          <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700;color:var(--muted);margin-bottom:6px">Últimos pedidos:</div>
+          ${user.orders.slice(0,3).map(o => `
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:.85rem">
+              <span>Pedido #${o.id}</span>${statusBadge(o.status)}<span class="price">${fmtCurrency(o.total)}</span>
+            </div>`).join('')}
+        </div>` : ''}
+      <div class="result-actions">
+        <button class="btn ${user.blocked?'btn-success':'btn-warning'} btn-sm" onclick="toggleBlock(${user.id},${user.blocked?1:0})">
+          ${user.blocked ? '🔓 Desbloquear' : '🔒 Bloquear'}
+        </button>
+        <button class="btn btn-primary btn-sm" onclick="showPanel('users')">👥 Ir a usuarios</button>
+      </div>
+    </div>`;
+}
+
+async function startCamera() {
+  const tipEl = document.getElementById('cam-perm-tip');
+  if (tipEl) tipEl.style.display = 'none';
+
+  const constraints = [
+    { video: { facingMode, width: { ideal: 1280 }, height: { ideal: 960 } } },
+    { video: { facingMode } },
+    { video: { facingMode: 'environment' } },
+    { video: true },
+  ];
+
+  let stream = null;
+  for (const c of constraints) {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia(c);
+      break;
+    } catch(e) {
+      if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
+        if (tipEl) tipEl.style.display = 'block';
+        toast('Permiso de cámara denegado. Revisa la configuración del navegador.', 'error');
+        return;
+      }
+    }
+  }
+
+  if (!stream) {
+    if (tipEl) tipEl.style.display = 'block';
+    toast('No se pudo acceder a la cámara en este dispositivo.', 'error');
+    return;
+  }
+
+  cameraStream = stream;
+  const video = document.getElementById('scanner-video');
+  const ph    = document.getElementById('scanner-placeholder');
+  const aim   = document.getElementById('scanner-aim');
+  const status = document.getElementById('scanner-status');
+
+  video.srcObject = stream;
+  video.style.display = 'block';
+  if (ph) ph.style.display = 'none';
+  if (aim) aim.style.display = 'block';
+  if (status) status.style.display = 'block';
+
+  document.getElementById('btn-start-cam').style.display = 'none';
+  document.getElementById('btn-stop-cam').style.display = '';
+  document.getElementById('btn-flip-cam').style.display = '';
+
+  toast('Cámara activa — apuntando automáticamente', 'success');
+  scanInterval = setInterval(scanFrame, 300);
+}
+
+function stopCamera() {
+  if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
+  if (scanInterval) { clearInterval(scanInterval); scanInterval = null; }
+
+  const video   = document.getElementById('scanner-video');
+  const ph      = document.getElementById('scanner-placeholder');
+  const aim     = document.getElementById('scanner-aim');
+  const status  = document.getElementById('scanner-status');
+  const startBtn = document.getElementById('btn-start-cam');
+  const stopBtn  = document.getElementById('btn-stop-cam');
+  const flipBtn  = document.getElementById('btn-flip-cam');
+
+  if (video)    { video.style.display = 'none'; video.srcObject = null; }
+  if (ph)       ph.style.display = '';
+  if (aim)      aim.style.display = 'none';
+  if (status)   status.style.display = 'none';
+  if (startBtn) startBtn.style.display = '';
+  if (stopBtn)  stopBtn.style.display = 'none';
+  if (flipBtn)  flipBtn.style.display = 'none';
+}
+
+async function flipCamera() {
+  facingMode = facingMode === 'environment' ? 'user' : 'environment';
+  stopCamera();
+  await startCamera();
+}
+
+async function scanFrame() {
+  const video  = document.getElementById('scanner-video');
+  const canvas = document.getElementById('scanner-canvas');
+  if (!video || !canvas || !video.videoWidth || video.readyState < 2) return;
+
+  canvas.width  = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0);
+
+  try {
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    if (!window.jsQR) return;
+    const code = jsQR(imgData.data, imgData.width, imgData.height, { inversionAttempts: 'attemptBoth' });
+    if (!code?.data) return;
+
+    const now = Date.now();
+    if (code.data === lastScanned && now - lastScannedTime < 4000) return;
+    lastScanned = code.data;
+    lastScannedTime = now;
+
+    clearInterval(scanInterval);
+    scanInterval = null;
+
+    const status = document.getElementById('scanner-status');
+    if (status) status.textContent = '✓ QR detectado!';
+
+    stopCamera();
+    toast('✓ QR detectado', 'success');
+    await processScanResult(code.data);
+  } catch(e) {}
+}
+
+async function renderProducts(el) {
+  let products = [];
+  try { products = await api.get('/products?all=1'); }
+  catch(e) { appendPanel(el, `<div style="color:var(--error)">Error: ${e.message}</div>`); return; }
+
+  appendPanel(el, `
+    <div class="panel-title">Productos</div>
+    <div class="panel-sub">${products.length} productos en el catálogo</div>
+    <div class="toolbar">
+      <input class="search-input" id="prod-search" placeholder="Buscar productos..." oninput="filterTable('prod-tbody',this.value,[1,2])"/>
+      <button class="btn btn-accent" onclick="openProductModal()">+ Agregar producto</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Producto</th><th>Categoría</th><th>Precio</th><th>Stock</th><th>Estado</th><th>QR</th><th>Acciones</th></tr></thead>
+        <tbody id="prod-tbody">
+          ${products.map(p => `
+            <tr>
+              <td class="text-muted text-sm">${p.id}</td>
+              <td>
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div class="prod-img">${p.image ? `<img src="${p.image}" onerror="this.parentElement.innerHTML='📦'">` : '📦'}</div>
+                  <div><div style="font-weight:600">${p.name}</div><div class="text-muted text-xs">${(p.description||'').substring(0,40)}</div></div>
+                </div>
+              </td>
+              <td><span class="tag">${p.category}</span></td>
+              <td class="price">${fmtCurrency(p.price)}</td>
+              <td><span style="font-weight:700;color:${p.stock>5?'var(--success)':p.stock>0?'var(--warning)':'var(--error)'}">${p.stock}</span></td>
+              <td>${p.active ? '<span class="badge badge-paid">✓ Activo</span>' : '<span class="badge badge-cancelled">✕ Inactivo</span>'}</td>
+              <td><button class="btn btn-ghost btn-sm" onclick="showProductQR(${p.id},'${escapeStr(p.name)}',${p.price})">Ver QR</button></td>
+              <td>
+                <div class="flex gap-1">
+                  <button class="btn btn-ghost btn-sm" onclick="openProductModal(${JSON.stringify(JSON.stringify(p)).slice(1,-1)})">✏️</button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})">🗑</button>
+                </div>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `);
+}
+
+function openProductModal(productJsonStr) {
+  const p = productJsonStr ? JSON.parse(productJsonStr) : null;
+  const isEdit = !!p;
+  const m = modal(`
+    <div class="form-grid">
+      <div class="field full"><label>Nombre del producto</label><input id="pf-name" value="${p?.name||''}" placeholder="Ej: Cuaderno universitario"/></div>
+      <div class="field full"><label>Descripción</label><textarea id="pf-desc" placeholder="Descripción del producto">${p?.description||''}</textarea></div>
+      <div class="field"><label>Precio (COP)</label><input id="pf-price" type="number" value="${p?.price||''}" placeholder="5000"/></div>
+      <div class="field"><label>Stock</label><input id="pf-stock" type="number" value="${p?.stock||''}" placeholder="10"/></div>
+      <div class="field"><label>Categoría</label>
+        <select id="pf-cat">
+          ${['almuerzos','desayunos','rapidos','bebidas','snacks','postres','general'].map(c => `<option value="${c}" ${p?.category===c?'selected':''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label>URL de imagen (opcional)</label><input id="pf-img" value="${p?.image||''}" placeholder="https://..."/></div>
+    </div>
+    <div class="flex gap-2 mt-3">
+      <button class="btn btn-accent" id="btn-save-prod">💾 ${isEdit ? 'Actualizar' : 'Crear producto'}</button>
+      <button class="btn btn-ghost" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
+    </div>
+  `, { title: isEdit ? 'Editar producto' : 'Nuevo producto' });
+
+  m.querySelector('#btn-save-prod').onclick = async () => {
+    const body = {
+      name: m.querySelector('#pf-name').value.trim(),
+      description: m.querySelector('#pf-desc').value.trim(),
+      price: parseFloat(m.querySelector('#pf-price').value),
+      stock: parseInt(m.querySelector('#pf-stock').value),
+      category: m.querySelector('#pf-cat').value,
+      image: m.querySelector('#pf-img').value.trim() || null,
+    };
+    if (!body.name || isNaN(body.price)) { toast('Nombre y precio son requeridos', 'warning'); return; }
+    try {
+      isEdit ? await api.put('/products/' + p.id, body) : await api.post('/products', body);
+      toast(isEdit ? 'Producto actualizado' : 'Producto creado', 'success');
+      m.remove(); showPanel('products');
+    } catch(e) { toast(e.message, 'error'); }
+  };
+}
+
+async function deleteProduct(id) {
+  confirm('¿Desactivar este producto?', async () => {
+    try { await api.del('/products/' + id); toast('Producto desactivado', 'success'); showPanel('products'); }
+    catch(e) { toast(e.message, 'error'); }
+  });
+}
+
+function showProductQR(id, name, price) {
+  const qrId = 'qr-prod-' + id;
+  const m = modal(`
+    <div style="text-align:center">
+      <p class="text-muted text-sm mb-2">${name} — ${fmtCurrency(price)}</p>
+      <div style="background:var(--cream);border-radius:var(--radius-lg);padding:24px;display:inline-block">
+        <div id="${qrId}" style="display:inline-block;background:white;padding:10px;border-radius:6px"></div>
+      </div>
+      <p class="text-muted text-xs mt-2">ID del producto: ${id}</p>
+    </div>
+  `, { title: 'QR del producto' });
+  setTimeout(() => {
+    new QRCode(document.getElementById(qrId), {
+      text: JSON.stringify({ type: 'product', id, name, price }),
+      width: 180, height: 180
+    });
+  }, 100);
+}
+
+async function renderUsers(el) {
+  let users = [];
+  try { users = await api.get('/users'); }
+  catch(e) { appendPanel(el, `<div style="color:var(--error)">Error: ${e.message}</div>`); return; }
+
+  appendPanel(el, `
+    <div class="panel-title">Usuarios</div>
+    <div class="panel-sub">${users.length} estudiantes registrados</div>
+    <div class="toolbar">
+      <input class="search-input" placeholder="Buscar por nombre, email, grado..." oninput="filterTable('users-tbody',this.value,[0,1,2,3])"/>
+      <span class="text-muted text-sm">${users.filter(u=>!u.blocked).length} activos · ${users.filter(u=>u.blocked).length} bloqueados</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Nombre</th><th>Email</th><th>Grado</th><th>Documento</th><th>Registro</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody id="users-tbody">
+          ${users.map(u => `
+            <tr>
+              <td><div style="font-weight:600">${u.full_name}</div></td>
+              <td class="text-sm text-muted">${u.email}</td>
+              <td><span class="tag">${u.grade}</span></td>
+              <td class="text-sm">${u.doc_type} ${u.doc_number}</td>
+              <td class="text-xs text-muted">${fmtDate(u.created_at)}</td>
+              <td>${u.blocked ? '<span class="badge badge-cancelled">🔒 Bloqueado</span>' : '<span class="badge badge-paid">✓ Activo</span>'}</td>
+              <td>
+                <div class="flex gap-1">
+                  <button class="btn ${u.blocked?'btn-success':'btn-warning'} btn-sm" onclick="toggleBlock(${u.id},${u.blocked?1:0})">${u.blocked?'🔓':'🔒'}</button>
+                  <button class="btn btn-ghost btn-sm" onclick="viewUser(${u.id})">👁</button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})">🗑</button>
+                </div>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `);
+}
+
+async function toggleBlock(id, isBlocked) {
+  try {
+    const res = await api.put('/users/' + id + '/block', {});
+    toast(res.blocked ? 'Usuario bloqueado' : 'Usuario desbloqueado', 'success');
+    const scanResultEl = document.getElementById('scan-result');
+    if (scanResultEl?.classList.contains('has-result')) {
+      await showUserResult(String(id), scanResultEl);
+    } else {
+      showPanel('users');
+    }
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function viewUser(id) {
+  const user = await api.get('/users/' + id);
+  modal(`
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="grid-2">
+        <div><div class="text-xs text-muted">Nombre</div><div style="font-weight:600">${user.full_name}</div></div>
+        <div><div class="text-xs text-muted">Grado</div><div style="font-weight:600">${user.grade}</div></div>
+        <div><div class="text-xs text-muted">Documento</div><div>${user.doc_type} ${user.doc_number}</div></div>
+        <div><div class="text-xs text-muted">Email</div><div style="font-size:.82rem">${user.email}</div></div>
+        <div><div class="text-xs text-muted">Nacimiento</div><div>${user.birth_date}</div></div>
+        <div><div class="text-xs text-muted">Estado</div><div>${user.blocked ? '🔒 Bloqueado' : '✓ Activo'}</div></div>
+      </div>
+      <div class="divider"></div>
+      <div><div class="text-xs text-muted mb-1">Pedidos (${(user.orders||[]).length})</div>
+        ${(user.orders||[]).map(o => `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+            <span class="text-sm">Pedido #${o.id}</span>${statusBadge(o.status)}<span class="price">${fmtCurrency(o.total)}</span>
+          </div>`).join('') || '<div class="text-muted text-sm">Sin pedidos</div>'}
+      </div>
+    </div>
+  `, { title: 'Detalle del usuario' });
+}
+
+async function deleteUser(id) {
+  confirm('¿Eliminar este usuario permanentemente?', async () => {
+    try { await api.del('/users/' + id); toast('Usuario eliminado', 'success'); showPanel('users'); }
+    catch(e) { toast(e.message, 'error'); }
+  });
+}
+
+async function renderOrders(el) {
+  let orders = [];
+  try { orders = await api.get('/orders'); }
+  catch(e) { appendPanel(el, `<div style="color:var(--error)">Error: ${e.message}</div>`); return; }
+
+  appendPanel(el, `
+    <div class="panel-title">Pedidos</div>
+    <div class="panel-sub">${orders.length} pedidos en total</div>
+    <div class="toolbar">
+      <input class="search-input" placeholder="Buscar pedidos..." oninput="filterTable('orders-tbody',this.value,[0,1,2])"/>
+      <div class="flex gap-1" style="flex-wrap:wrap">
+        <select id="status-filter" class="search-input" style="min-width:130px" onchange="filterOrdersByStatus(this.value)">
+          <option value="">Todos</option>
+          <option value="pending">Pendientes</option>
+          <option value="paid">Pagados</option>
+          <option value="cancelled">Cancelados</option>
+        </select>
+        <button class="btn btn-accent btn-sm" onclick="showPanel('scanner')">📷 Escanear</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Estudiante</th><th>Grado</th><th>Total</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr></thead>
+        <tbody id="orders-tbody">
+          ${orders.map(o => `
+            <tr data-status="${o.status}">
+              <td style="font-weight:700">#${o.id}</td>
+              <td><div style="font-weight:600">${o.full_name}</div><div class="text-xs text-muted">${o.doc_number}</div></td>
+              <td><span class="tag">${o.grade}</span></td>
+              <td class="price">${fmtCurrency(o.total)}</td>
+              <td>${statusBadge(o.status)}</td>
+              <td class="text-xs text-muted">${fmtDate(o.created_at)}</td>
+              <td>
+                <div class="flex gap-1" style="flex-wrap:wrap">
+                  <button class="btn btn-ghost btn-sm" onclick="viewOrder(${o.id})">👁 Ver</button>
+                  ${o.status !== 'paid' ? `<button class="btn btn-success btn-sm" onclick="setOrderStatus(${o.id},'paid')">✅</button>` : ''}
+                  ${o.status === 'pending' ? `<button class="btn btn-danger btn-sm" onclick="setOrderStatus(${o.id},'cancelled')">❌</button>` : ''}
+                  ${o.status !== 'pending' ? `<button class="btn btn-warning btn-sm" onclick="setOrderStatus(${o.id},'pending')">⏳</button>` : ''}
+                </div>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `);
+}
+
+function filterOrdersByStatus(status) {
+  document.querySelectorAll('#orders-tbody tr').forEach(row => {
+    row.style.display = !status || row.dataset.status === status ? '' : 'none';
+  });
+}
+
+async function viewOrder(id) {
+  const o = await api.get('/orders/' + id);
+  const qrId = 'admin-qr-' + id;
+  const m = modal(`
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="grid-2">
+        <div><div class="text-xs text-muted">Estudiante</div><div style="font-weight:600">${o.full_name}</div></div>
+        <div><div class="text-xs text-muted">Grado</div><div style="font-weight:600">${o.grade}</div></div>
+        <div><div class="text-xs text-muted">Total</div><div class="price">${fmtCurrency(o.total)}</div></div>
+        <div><div class="text-xs text-muted">Estado</div>${statusBadge(o.status)}</div>
+      </div>
+      <div>
+        <div class="text-xs text-muted mb-2">Productos del pedido</div>
+        ${(o.items||[]).map(i => `<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)"><span class="text-sm">${i.product_name}</span><span class="text-sm text-muted">×${i.quantity}</span><span class="price text-sm">${fmtCurrency(i.subtotal)}</span></div>`).join('')}
+      </div>
+      <div style="text-align:center"><div class="text-xs text-muted mb-2">QR del pedido</div><div id="${qrId}" style="display:inline-block;background:white;padding:10px;border:1px solid var(--border);border-radius:8px"></div></div>
+      <div class="flex gap-2" style="flex-wrap:wrap">
+        ${o.status !== 'paid' ? `<button class="btn btn-success" onclick="setOrderStatus(${o.id},'paid',true)">✅ Marcar pagado</button>` : ''}
+        <button class="btn btn-warning btn-sm" onclick="setOrderStatus(${o.id},'pending',true)">⏳ Pendiente</button>
+        <button class="btn btn-danger btn-sm" onclick="setOrderStatus(${o.id},'cancelled',true)">❌ Cancelar</button>
+      </div>
+    </div>
+  `, { title: `Pedido #${o.id}` });
+  setTimeout(() => {
+    new QRCode(document.getElementById(qrId), { text: JSON.stringify({token: o.qr_token, orderId: o.id}), width: 140, height: 140 });
+  }, 100);
+}
+
+async function setOrderStatus(id, status, fromModal = false) {
+  try {
+    await api.put('/orders/' + id + '/status', { status });
+    toast('Estado actualizado: ' + status, 'success');
+    if (fromModal) document.querySelector('.modal-overlay')?.remove();
+    showPanel('orders');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function filterTable(tbodyId, q, colIndexes) {
+  document.querySelectorAll('#' + tbodyId + ' tr').forEach(row => {
+    const text = colIndexes.map(i => row.cells[i]?.textContent || '').join(' ').toLowerCase();
+    row.style.display = text.includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+
+function escapeStr(str) {
+  return String(str).replace(/'/g, "\\'").replace(/"/g, '\\"');
+}
+
+showPanel('dashboard', document.querySelector('.sidebar-btn[data-panel="dashboard"]'));
+</script>
+</body>
+</html>
