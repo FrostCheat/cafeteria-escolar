@@ -6,8 +6,7 @@
   <title>Panel Admin — Cafetería Escolar</title>
   <link rel="icon" href="/imgs/fav-icon.png" type="image/png"/>
   <link rel="stylesheet" href="../assets/css/main.css"/>
-  <script src="../assets/plugins/qrCode.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode/html5-qrcode.min.js"></script>
   <style>
     .admin-layout { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 64px); }
     .admin-sidebar { background: var(--ink); color: var(--paper); padding: 20px 0; position: sticky; top: 64px; height: calc(100vh - 64px); overflow-y: auto; display: flex; flex-direction: column; }
@@ -72,42 +71,37 @@
 
     .scanner-video-wrap {
       position: relative; border-radius: var(--radius); overflow: hidden;
-      background: #0a0a0a; aspect-ratio: 4/3;
+      background: #0a0a0a; width: 100%;
       display: flex; align-items: center; justify-content: center;
+      min-height: 240px;
     }
-    #scanner-canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; }
-    .scanner-placeholder { text-align: center; color: rgba(255,255,255,.4); padding: 32px; }
+    #qr-reader {
+      width: 100% !important;
+      border: none !important;
+      border-radius: var(--radius) !important;
+    }
+    #qr-reader video {
+      border-radius: var(--radius) !important;
+      width: 100% !important;
+      object-fit: cover !important;
+    }
+    #qr-reader img { display: none !important; }
+    #qr-reader__scan_region { border: none !important; }
+    #qr-reader__dashboard { background: transparent !important; border: none !important; padding: 8px 0 0 !important; }
+    #qr-reader__dashboard_section_csr button {
+      background: var(--accent) !important;
+      color: white !important;
+      border: none !important;
+      border-radius: var(--radius) !important;
+      padding: 8px 16px !important;
+      font-family: 'DM Sans', sans-serif !important;
+      cursor: pointer !important;
+    }
+    #qr-reader__dashboard_section_fsr { display: none !important; }
+    #qr-reader__status_span { font-size: .8rem !important; color: var(--muted) !important; }
+    #qr-reader__camera_permission_button { display: none !important; }
 
-    .scanner-aim {
-      position: absolute; width: 55%; aspect-ratio: 1;
-      border: 2.5px solid var(--accent); border-radius: 8px;
-      pointer-events: none; display: none;
-      animation: scanPulse 2s ease-in-out infinite;
-    }
-    .scanner-aim-corner { position: absolute; width: 22px; height: 22px; border-color: #f0896a; border-style: solid; }
-    .scanner-aim-corner.tl { top: -3px; left: -3px; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
-    .scanner-aim-corner.tr { top: -3px; right: -3px; border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
-    .scanner-aim-corner.bl { bottom: -3px; left: -3px; border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
-    .scanner-aim-corner.br { bottom: -3px; right: -3px; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
-
-    .scan-line {
-      position: absolute; left: 5%; right: 5%; height: 2px;
-      background: linear-gradient(90deg, transparent, var(--accent-light), transparent);
-      animation: scanLine 2s ease-in-out infinite;
-    }
-    @keyframes scanLine {
-      0% { top: 20%; opacity: 0; }
-      10% { opacity: 1; }
-      90% { opacity: 1; }
-      100% { top: 80%; opacity: 0; }
-    }
-
-    .scanner-status {
-      position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
-      background: rgba(0,0,0,.7); color: #fff; font-size: .72rem;
-      padding: 4px 12px; border-radius: 100px; white-space: nowrap;
-      backdrop-filter: blur(4px);
-    }
+    .scanner-placeholder { text-align: center; color: rgba(255,255,255,.4); padding: 40px 32px; width: 100%; }
 
     .scan-type-tabs { display: flex; gap: 0; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 18px; }
     .scan-type-tab { flex: 1; padding: 9px 8px; border: none; background: var(--surface); font-family: 'Syne', sans-serif; font-weight: 700; font-size: .78rem; cursor: pointer; color: var(--muted); transition: all .15s; }
@@ -143,6 +137,8 @@
       background: #fff8f0; border: 1px solid #f0c070; border-radius: var(--radius-lg);
       padding: 14px 16px; font-size: .82rem; color: #6a4400; margin-top: 10px; display: none;
     }
+
+    .scanner-controls { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
 
     @media(max-width:1100px) {
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
@@ -227,14 +223,11 @@
 auth.requireAdmin();
 buildNav('admin');
 
-let cameraStream = null;
-let cameraVideo = null;
-let scanning = false;
+let html5QrCode = null;
+let isScanning = false;
 let currentScanType = 'order';
 let lastScanned = '';
 let lastScannedTime = 0;
-let facingMode = 'environment';
-let tickRunning = false;
 
 function showPanel(name, btn, mobileTabName) {
   document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
@@ -505,25 +498,16 @@ function renderScanner(el) {
       <div>
         <div class="scanner-box" style="margin-bottom:16px">
           <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;margin-bottom:12px">📹 Cámara</div>
-          <div class="scanner-video-wrap" id="scanner-video-wrap">
-            <div class="scanner-placeholder" id="scanner-placeholder">
+          <div class="scanner-video-wrap">
+            <div id="qr-reader-placeholder" class="scanner-placeholder">
               <div style="font-size:2.5rem;margin-bottom:10px">📷</div>
               <div style="font-size:.85rem">Toca "Activar cámara" para escanear</div>
             </div>
-            <canvas id="scanner-canvas"></canvas>
-            <div class="scanner-aim" id="scanner-aim">
-              <div class="scanner-aim-corner tl"></div>
-              <div class="scanner-aim-corner tr"></div>
-              <div class="scanner-aim-corner bl"></div>
-              <div class="scanner-aim-corner br"></div>
-              <div class="scan-line" id="scan-line"></div>
-            </div>
-            <div class="scanner-status" id="scanner-status" style="display:none">Buscando QR...</div>
+            <div id="qr-reader" style="width:100%;display:none;"></div>
           </div>
-          <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+          <div class="scanner-controls">
             <button class="btn btn-accent" id="btn-start-cam" onclick="startCamera()">▶ Activar cámara</button>
             <button class="btn btn-ghost" id="btn-stop-cam" style="display:none" onclick="stopCamera()">⏹ Detener</button>
-            <button class="btn btn-ghost btn-sm" id="btn-flip-cam" style="display:none" onclick="flipCamera()">🔄 Voltear</button>
           </div>
           <div class="cam-perm-tip" id="cam-perm-tip">
             <strong>📋 Permitir cámara:</strong> Toca el ícono 🔒 en la barra de direcciones y permite el acceso a la cámara. En Safari iOS: Configuración → Safari → Cámara → Permitir.
@@ -774,132 +758,76 @@ async function startCamera() {
   const tipEl = document.getElementById('cam-perm-tip');
   if (tipEl) tipEl.style.display = 'none';
 
-  let stream = null;
-  const attempts = [
-    { video: { facingMode, width: { ideal: 1280 }, height: { ideal: 720 } } },
-    { video: { facingMode } },
-    { video: { facingMode: 'environment' } },
-    { video: true },
-  ];
+  const placeholder = document.getElementById('qr-reader-placeholder');
+  const readerEl = document.getElementById('qr-reader');
 
-  for (const c of attempts) {
-    try { stream = await navigator.mediaDevices.getUserMedia(c); break; }
-    catch(e) {
-      if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
-        if (tipEl) tipEl.style.display = 'block';
-        toast('Permiso de cámara denegado.', 'error');
-        return;
-      }
-    }
+  if (!readerEl) return;
+
+  if (html5QrCode) {
+    try { await html5QrCode.stop(); } catch(e) {}
+    html5QrCode = null;
   }
 
-  if (!stream) {
+  html5QrCode = new Html5Qrcode('qr-reader');
+
+  const config = {
+    fps: 10,
+    qrbox: { width: 220, height: 220 },
+    aspectRatio: 1.333,
+  };
+
+  const onScanSuccess = async (decodedText) => {
+    const now = Date.now();
+    if (decodedText === lastScanned && now - lastScannedTime < 4000) return;
+    lastScanned = decodedText;
+    lastScannedTime = now;
+
+    await stopCamera();
+    toast('✓ QR detectado', 'success');
+    await processScanResult(decodedText);
+  };
+
+  try {
+    if (placeholder) placeholder.style.display = 'none';
+    readerEl.style.display = 'block';
+
+    await html5QrCode.start(
+      { facingMode: 'environment' },
+      config,
+      onScanSuccess,
+      () => {}
+    );
+
+    isScanning = true;
+    document.getElementById('btn-start-cam').style.display = 'none';
+    document.getElementById('btn-stop-cam').style.display = '';
+  } catch(err) {
+    readerEl.style.display = 'none';
+    if (placeholder) placeholder.style.display = 'flex';
     if (tipEl) tipEl.style.display = 'block';
     toast('No se pudo acceder a la cámara.', 'error');
-    return;
-  }
-
-  cameraStream = stream;
-  cameraVideo = document.createElement('video');
-  cameraVideo.setAttribute('playsinline', true);
-  cameraVideo.srcObject = stream;
-
-  const canvasEl  = document.getElementById('scanner-canvas');
-  const ph        = document.getElementById('scanner-placeholder');
-  const aim       = document.getElementById('scanner-aim');
-  const statusEl  = document.getElementById('scanner-status');
-
-  canvasEl.style.display = 'block';
-  if (ph) ph.style.display = 'none';
-  if (aim) aim.style.display = 'block';
-  if (statusEl) statusEl.style.display = 'block';
-
-  document.getElementById('btn-start-cam').style.display = 'none';
-  document.getElementById('btn-stop-cam').style.display = '';
-  document.getElementById('btn-flip-cam').style.display = '';
-
-  scanning = true;
-  tickRunning = true;
-
-  await cameraVideo.play().catch(() => {});
-  tick();
-  scan();
-}
-
-function tick() {
-  if (!tickRunning) return;
-  const canvasEl = document.getElementById('scanner-canvas');
-  if (!canvasEl || !cameraVideo) return;
-  canvasEl.height = cameraVideo.videoHeight;
-  canvasEl.width  = cameraVideo.videoWidth;
-  const ctx = canvasEl.getContext('2d');
-  ctx.drawImage(cameraVideo, 0, 0, canvasEl.width, canvasEl.height);
-  requestAnimationFrame(tick);
-}
-
-function scan() {
-  if (!scanning) return;
-  try {
-    qrcode.decode();
-  } catch(e) {
-    setTimeout(scan, 300);
+    html5QrCode = null;
+    isScanning = false;
   }
 }
 
-function stopCamera() {
-  scanning = false;
-  tickRunning = false;
-
-  if (cameraStream) {
-    cameraStream.getTracks().forEach(t => t.stop());
-    cameraStream = null;
+async function stopCamera() {
+  if (html5QrCode && isScanning) {
+    try { await html5QrCode.stop(); } catch(e) {}
+    html5QrCode = null;
   }
-  if (cameraVideo) {
-    cameraVideo.srcObject = null;
-    cameraVideo = null;
-  }
+  isScanning = false;
 
-  const canvasEl  = document.getElementById('scanner-canvas');
-  const ph        = document.getElementById('scanner-placeholder');
-  const aim       = document.getElementById('scanner-aim');
-  const statusEl  = document.getElementById('scanner-status');
-  const startBtn  = document.getElementById('btn-start-cam');
-  const stopBtn   = document.getElementById('btn-stop-cam');
-  const flipBtn   = document.getElementById('btn-flip-cam');
+  const placeholder = document.getElementById('qr-reader-placeholder');
+  const readerEl = document.getElementById('qr-reader');
+  const startBtn = document.getElementById('btn-start-cam');
+  const stopBtn = document.getElementById('btn-stop-cam');
 
-  if (canvasEl)  canvasEl.style.display = 'none';
-  if (ph)        ph.style.display = '';
-  if (aim)       aim.style.display = 'none';
-  if (statusEl)  statusEl.style.display = 'none';
-  if (startBtn)  startBtn.style.display = '';
-  if (stopBtn)   stopBtn.style.display = 'none';
-  if (flipBtn)   flipBtn.style.display = 'none';
+  if (readerEl) readerEl.style.display = 'none';
+  if (placeholder) placeholder.style.display = '';
+  if (startBtn) startBtn.style.display = '';
+  if (stopBtn) stopBtn.style.display = 'none';
 }
-
-async function flipCamera() {
-  facingMode = facingMode === 'environment' ? 'user' : 'environment';
-  stopCamera();
-  await startCamera();
-}
-
-qrcode.callback = async (data) => {
-  if (!data || !scanning) return;
-
-  const now = Date.now();
-  if (data === lastScanned && now - lastScannedTime < 4000) return;
-  lastScanned = data;
-  lastScannedTime = now;
-
-  scanning = false;
-  tickRunning = false;
-
-  const statusEl = document.getElementById('scanner-status');
-  if (statusEl) statusEl.textContent = '✓ QR detectado!';
-
-  stopCamera();
-  toast('✓ QR detectado', 'success');
-  await processScanResult(data);
-};
 
 async function renderProducts(el) {
   let products = [];
