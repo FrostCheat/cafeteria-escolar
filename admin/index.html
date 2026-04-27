@@ -995,9 +995,9 @@ async function renderDashboard(el) {
         <div style="margin-top: 20px; padding: 12px; background: #fff8e0; border-left: 4px solid var(--warning);">
           <strong>📌 Posibles causas:</strong><br>
           • La base de datos no está configurada correctamente en InfinityFree<br>
-      • Las credenciales de la base de datos son incorrectas<br>
-      • El archivo api/config/database.php tiene errores de sintaxis<br>
-      • El servidor no tiene habilitada la extensión PDO MySQL
+          • Las credenciales de la base de datos son incorrectas<br>
+          • El archivo api/config/database.php tiene errores de sintaxis<br>
+          • El servidor no tiene habilitada la extensión PDO MySQL
         </div>
         <button class="quick-btn qb-accent" style="margin-top: 20px;" onclick="location.reload()">🔄 Reintentar</button>
       </div>
@@ -1005,16 +1005,18 @@ async function renderDashboard(el) {
     
     setPanel(el, `
       <div class="panel-title">Dashboard</div>
-      <div class="panel-sub">${new Date().toLocaleDateString('es-CO', {weekday:'long', year:'numeric', month:'long', day:'numeric'})}</div>
+      <div class="panel-sub">${new Date().toLocaleDateString('es-CO', {timeZone: 'America/Bogota', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'})}</div>
       ${errorDetails}
     `);
     return;
   }
 
   const now = new Date();
-  const todayStr = now.toISOString().slice(0,10);
-  const monthStr = now.toISOString().slice(0,7);
-  const yearStr  = now.getFullYear().toString();
+  const colombiaDate = new Date(now.toLocaleString('en-US', { timeZone: 'America/Bogota' }));
+  
+  const todayStr = colombiaDate.toISOString().slice(0,10);
+  const monthStr = colombiaDate.toISOString().slice(0,7);
+  const yearStr  = colombiaDate.getFullYear().toString();
   const paidOrders = allOrders.filter(o => o.status === 'paid');
 
   const revByPeriod = (orders, period) =>
@@ -1029,9 +1031,9 @@ async function renderDashboard(el) {
 
   const monthlyData = [];
   for (let i = 5; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const d = new Date(colombiaDate.getFullYear(), colombiaDate.getMonth() - i, 1);
     const key = d.toISOString().slice(0,7);
-    const label = d.toLocaleDateString('es-CO', {month:'short'});
+    const label = d.toLocaleDateString('es-CO', { month: 'short' });
     monthlyData.push({ label, rev: revByPeriod(paidOrders, key) });
   }
 
@@ -1060,7 +1062,7 @@ async function renderDashboard(el) {
 
   setPanel(el, `
     <div class="panel-title">Dashboard</div>
-    <div class="panel-sub">${new Date().toLocaleDateString('es-CO', {weekday:'long', year:'numeric', month:'long', day:'numeric'})}</div>
+    <div class="panel-sub">${colombiaDate.toLocaleDateString('es-CO', {timeZone: 'America/Bogota', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'})}</div>
 
     <div class="quick-row">
       <button class="quick-btn qb-accent" onclick="showPanel('scanner')">📷 Escanear QR</button>

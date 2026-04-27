@@ -11,6 +11,7 @@ define('DB_PASS', 'cNLNhBke4hmJ');
 define('JWT_SECRET', 'cafeteria_secret_key_2024_xK9#mP');
 define('UPLOAD_PATH', __DIR__ . '/../../imgs/uploads/');
 define('BASE_URL', 'http://localhost:8080');
+date_default_timezone_set('America/Bogota');
 
 function getDB(): PDO {
     static $pdo = null;

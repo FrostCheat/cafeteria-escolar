@@ -121,15 +121,29 @@ function formatGrade(val) {
   return m ? m[1] + m[2] : clean;
 }
 
-function fmtCurrency(n) {
-  const num = parseFloat(n);
-  if (isNaN(num)) return '$0';
-  return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(num);
-}
+const COLOMBIA_TZ = 'America/Bogota';
 
 function fmtDate(d) {
-  if (!d) return '—';
-  return new Date(d).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    if (!d) return '—';
+    const date = new Date(d);
+    return date.toLocaleString('es-CO', { 
+        timeZone: COLOMBIA_TZ,
+        day: '2-digit', 
+        month: 'short', 
+        year: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit' 
+    });
+}
+
+function fmtCurrency(n) {
+    const num = parseFloat(n);
+    if (isNaN(num)) return '$0';
+    return new Intl.NumberFormat('es-CO', { 
+        style: 'currency', 
+        currency: 'COP', 
+        maximumFractionDigits: 0 
+    }).format(num);
 }
 
 function modal(content, opts = {}) {
