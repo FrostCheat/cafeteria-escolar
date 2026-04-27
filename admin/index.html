@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/css/main.css"/>
   <script src="https://unpkg.com/html5-qrcode/html5-qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <style>
     :root {
       --c1: #0d0d0d;
@@ -1441,7 +1442,12 @@ async function renderProducts(el) {
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>#</th><th>Producto</th><th>Categoría</th><th>Precio</th><th>Stock</th><th>Estado</th><th>QR</th><th>Acciones</th></tr></thead>
+        <thead>
+          <tr>
+            <th>#</th><th>Producto</th><th>Categoría</th><th>Precio</th>
+            <th>Stock</th><th>Estado</th><th>QR</th><th>Acciones</th>
+          </tr>
+        </thead>
         <tbody id="prod-tbody">
           ${products.map(p => `
             <tr>
@@ -1459,7 +1465,10 @@ async function renderProducts(el) {
               <td style="font-family:var(--font-display);font-weight:800;color:var(--accent)">${fmtCurrency(p.price)}</td>
               <td style="font-weight:700;color:${p.stock>5?'var(--success)':p.stock>0?'var(--warning)':'var(--error)'}">${p.stock}</td>
               <td>${p.active ? '<span class="status-pill sp-active">✓ Activo</span>' : '<span class="status-pill sp-inactive">✕ Inactivo</span>'}</td>
-              <td><button class="act-btn ab-ghost" onclick="showProductQR(${p.id},'${escapeStr(p.name)}',${p.price})">Ver QR</button></td>
+              <td>
+                <div id="qr-container-${p.id}" style="width:50px;height:50px;"></div>
+                <button class="act-btn ab-ghost" style="margin-top:5px" onclick="showProductQR(${p.id},'${escapeStr(p.name)}',${p.price})">🔍 Ampliar</button>
+              </td>
               <td>
                 <div style="display:flex;gap:6px">
                   <button class="act-btn ab-ghost" onclick="openProductModal(${JSON.stringify(JSON.stringify(p)).slice(1,-1)})">✏️</button>
@@ -1472,6 +1481,19 @@ async function renderProducts(el) {
       </table>
     </div>
   `);
+
+  setTimeout(() => {
+    products.forEach(p => {
+      const qrContainer = document.getElementById(`qr-container-${p.id}`);
+      if (qrContainer && typeof QRCode !== 'undefined') {
+        new QRCode(qrContainer, {
+          text: JSON.stringify({ type: 'product', id: p.id, name: p.name, price: p.price }),
+          width: 50,
+          height: 50
+        });
+      }
+    });
+  }, 100);
 }
 
 function openProductModal(productJsonStr) {
@@ -1554,7 +1576,12 @@ async function renderUsers(el) {
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Nombre</th><th>Email</th><th>Grado</th><th>Documento</th><th>Registro</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Nombre</th><th>Email</th><th>Grado</th>
+            <th>Documento</th><th>Registro</th><th>QR</th><th>Estado</th><th>Acciones</th>
+          </tr>
+        </thead>
         <tbody id="users-tbody">
           ${users.map(u => `
             <tr>
@@ -1563,6 +1590,9 @@ async function renderUsers(el) {
               <td><span style="font-size:0.72rem;font-weight:700;background:var(--cream);padding:4px 10px;border-radius:100px">${u.grade}</span></td>
               <td style="font-size:0.8rem">${u.doc_type} ${u.doc_number}</td>
               <td style="font-size:0.75rem;color:var(--muted)">${fmtDate(u.created_at)}</td>
+              <td>
+                <div id="user-qr-${u.id}" style="width:50px;height:50px;"></div>
+              </td>
               <td>${u.blocked ? '<span class="status-pill sp-blocked">🔒 Bloqueado</span>' : '<span class="status-pill sp-active">✓ Activo</span>'}</td>
               <td>
                 <div style="display:flex;gap:6px">
@@ -1577,6 +1607,19 @@ async function renderUsers(el) {
       </table>
     </div>
   `);
+
+  setTimeout(() => {
+    users.forEach(u => {
+      const qrContainer = document.getElementById(`user-qr-${u.id}`);
+      if (qrContainer && typeof QRCode !== 'undefined') {
+        new QRCode(qrContainer, {
+          text: JSON.stringify({ type: 'user', id: u.id, doc: u.doc_number, name: u.full_name }),
+          width: 50,
+          height: 50
+        });
+      }
+    });
+  }, 100);
 }
 
 async function toggleBlock(id, isBlocked) {
@@ -1642,7 +1685,12 @@ async function renderOrders(el) {
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>#</th><th>Estudiante</th><th>Grado</th><th>Total</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr></thead>
+        <thead>
+          <tr>
+            <th>#</th><th>Estudiante</th><th>Grado</th>
+            <th>Total</th><th>Estado</th><th>Fecha</th><th>QR</th><th>Acciones</th>
+          </tr>
+        </thead>
         <tbody id="orders-tbody">
           ${orders.map(o => `
             <tr data-status="${o.status}">
@@ -1652,6 +1700,9 @@ async function renderOrders(el) {
               <td style="font-family:var(--font-display);font-weight:800;color:var(--accent)">${fmtCurrency(o.total)}</td>
               <td>${statusPill(o.status)}</td>
               <td style="font-size:0.75rem;color:var(--muted)">${fmtDate(o.created_at)}</td>
+              <td>
+                <div id="order-qr-${o.id}" style="width:50px;height:50px;"></div>
+              </td>
               <td>
                 <div style="display:flex;gap:6px;flex-wrap:wrap">
                   <button class="act-btn ab-ghost" onclick="viewOrder(${o.id})">👁 Ver</button>
@@ -1666,6 +1717,19 @@ async function renderOrders(el) {
       </table>
     </div>
   `);
+
+  setTimeout(() => {
+    orders.forEach(o => {
+      const qrContainer = document.getElementById(`order-qr-${o.id}`);
+      if (qrContainer && o.qr_token && typeof QRCode !== 'undefined') {
+        new QRCode(qrContainer, {
+          text: JSON.stringify({ token: o.qr_token, orderId: o.id }),
+          width: 50,
+          height: 50
+        });
+      }
+    });
+  }, 100);
 }
 
 function filterOrdersByStatus(status) {
