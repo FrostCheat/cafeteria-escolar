@@ -6,8 +6,8 @@
   <title>Panel Admin — Cafetería Escolar</title>
   <link rel="icon" href="/imgs/fav-icon.png" type="image/png"/>
   <link rel="stylesheet" href="../assets/css/main.css"/>
+  <script src="../assets/plugins/qrCode.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js"></script>
   <style>
     .admin-layout { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 64px); }
     .admin-sidebar { background: var(--ink); color: var(--paper); padding: 20px 0; position: sticky; top: 64px; height: calc(100vh - 64px); overflow-y: auto; display: flex; flex-direction: column; }
@@ -75,7 +75,7 @@
       background: #0a0a0a; aspect-ratio: 4/3;
       display: flex; align-items: center; justify-content: center;
     }
-    #scanner-video { width: 100%; height: 100%; object-fit: cover; display: none; }
+    #scanner-canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; }
     .scanner-placeholder { text-align: center; color: rgba(255,255,255,.4); padding: 32px; }
 
     .scanner-aim {
@@ -228,11 +228,13 @@ auth.requireAdmin();
 buildNav('admin');
 
 let cameraStream = null;
-let scanInterval = null;
+let cameraVideo = null;
+let scanning = false;
 let currentScanType = 'order';
 let lastScanned = '';
 let lastScannedTime = 0;
 let facingMode = 'environment';
+let tickRunning = false;
 
 function showPanel(name, btn, mobileTabName) {
   document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
@@ -508,7 +510,7 @@ function renderScanner(el) {
               <div style="font-size:2.5rem;margin-bottom:10px">📷</div>
               <div style="font-size:.85rem">Toca "Activar cámara" para escanear</div>
             </div>
-            <video id="scanner-video" autoplay muted playsinline></video>
+            <canvas id="scanner-canvas"></canvas>
             <div class="scanner-aim" id="scanner-aim">
               <div class="scanner-aim-corner tl"></div>
               <div class="scanner-aim-corner tr"></div>
@@ -518,7 +520,6 @@ function renderScanner(el) {
             </div>
             <div class="scanner-status" id="scanner-status" style="display:none">Buscando QR...</div>
           </div>
-          <canvas id="scanner-canvas" style="display:none"></canvas>
           <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
             <button class="btn btn-accent" id="btn-start-cam" onclick="startCamera()">▶ Activar cámara</button>
             <button class="btn btn-ghost" id="btn-stop-cam" style="display:none" onclick="stopCamera()">⏹ Detener</button>
@@ -769,18 +770,12 @@ async function showUserResult(docOrId, el) {
     </div>`;
 }
 
-let scanCanvas = null;
-let scanCtx = null;
-let rafId = null;
-let scanning = false;
-
 async function startCamera() {
   const tipEl = document.getElementById('cam-perm-tip');
   if (tipEl) tipEl.style.display = 'none';
 
   let stream = null;
   const attempts = [
-    { video: { facingMode, width: { ideal: 1280 }, height: { ideal: 720 }, focusMode: 'continuous' } },
     { video: { facingMode, width: { ideal: 1280 }, height: { ideal: 720 } } },
     { video: { facingMode } },
     { video: { facingMode: 'environment' } },
@@ -804,56 +799,81 @@ async function startCamera() {
     return;
   }
 
-  const track = stream.getVideoTracks()[0];
-  if (track?.applyConstraints) {
-    try { await track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }); } catch(e) {}
-  }
-
   cameraStream = stream;
-  const video = document.getElementById('scanner-video');
-  const ph    = document.getElementById('scanner-placeholder');
-  const aim   = document.getElementById('scanner-aim');
-  const status = document.getElementById('scanner-status');
+  cameraVideo = document.createElement('video');
+  cameraVideo.setAttribute('playsinline', true);
+  cameraVideo.srcObject = stream;
 
-  video.srcObject = stream;
-  video.style.display = 'block';
+  const canvasEl  = document.getElementById('scanner-canvas');
+  const ph        = document.getElementById('scanner-placeholder');
+  const aim       = document.getElementById('scanner-aim');
+  const statusEl  = document.getElementById('scanner-status');
+
+  canvasEl.style.display = 'block';
   if (ph) ph.style.display = 'none';
   if (aim) aim.style.display = 'block';
-  if (status) status.style.display = 'block';
+  if (statusEl) statusEl.style.display = 'block';
 
   document.getElementById('btn-start-cam').style.display = 'none';
   document.getElementById('btn-stop-cam').style.display = '';
   document.getElementById('btn-flip-cam').style.display = '';
 
-  scanCanvas = document.getElementById('scanner-canvas');
-  scanCtx = scanCanvas.getContext('2d', { willReadFrequently: true });
-
   scanning = true;
-  await video.play().catch(() => {});
-  rafLoop();
+  tickRunning = true;
+
+  await cameraVideo.play().catch(() => {});
+  tick();
+  scan();
+}
+
+function tick() {
+  if (!tickRunning) return;
+  const canvasEl = document.getElementById('scanner-canvas');
+  if (!canvasEl || !cameraVideo) return;
+  canvasEl.height = cameraVideo.videoHeight;
+  canvasEl.width  = cameraVideo.videoWidth;
+  const ctx = canvasEl.getContext('2d');
+  ctx.drawImage(cameraVideo, 0, 0, canvasEl.width, canvasEl.height);
+  requestAnimationFrame(tick);
+}
+
+function scan() {
+  if (!scanning) return;
+  try {
+    qrcode.decode();
+  } catch(e) {
+    setTimeout(scan, 300);
+  }
 }
 
 function stopCamera() {
   scanning = false;
-  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-  if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
-  if (scanInterval) { clearInterval(scanInterval); scanInterval = null; }
+  tickRunning = false;
 
-  const video    = document.getElementById('scanner-video');
-  const ph       = document.getElementById('scanner-placeholder');
-  const aim      = document.getElementById('scanner-aim');
-  const status   = document.getElementById('scanner-status');
-  const startBtn = document.getElementById('btn-start-cam');
-  const stopBtn  = document.getElementById('btn-stop-cam');
-  const flipBtn  = document.getElementById('btn-flip-cam');
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(t => t.stop());
+    cameraStream = null;
+  }
+  if (cameraVideo) {
+    cameraVideo.srcObject = null;
+    cameraVideo = null;
+  }
 
-  if (video)    { video.style.display = 'none'; video.srcObject = null; }
-  if (ph)       ph.style.display = '';
-  if (aim)      aim.style.display = 'none';
-  if (status)   status.style.display = 'none';
-  if (startBtn) startBtn.style.display = '';
-  if (stopBtn)  stopBtn.style.display = 'none';
-  if (flipBtn)  flipBtn.style.display = 'none';
+  const canvasEl  = document.getElementById('scanner-canvas');
+  const ph        = document.getElementById('scanner-placeholder');
+  const aim       = document.getElementById('scanner-aim');
+  const statusEl  = document.getElementById('scanner-status');
+  const startBtn  = document.getElementById('btn-start-cam');
+  const stopBtn   = document.getElementById('btn-stop-cam');
+  const flipBtn   = document.getElementById('btn-flip-cam');
+
+  if (canvasEl)  canvasEl.style.display = 'none';
+  if (ph)        ph.style.display = '';
+  if (aim)       aim.style.display = 'none';
+  if (statusEl)  statusEl.style.display = 'none';
+  if (startBtn)  startBtn.style.display = '';
+  if (stopBtn)   stopBtn.style.display = 'none';
+  if (flipBtn)   flipBtn.style.display = 'none';
 }
 
 async function flipCamera() {
@@ -862,56 +882,16 @@ async function flipCamera() {
   await startCamera();
 }
 
-let lastFrameTime = 0;
-const FRAME_INTERVAL = 80;
+qrcode.callback = async (data) => {
+  if (!data || !scanning) return;
 
-function rafLoop(ts = 0) {
-  if (!scanning) return;
-  rafId = requestAnimationFrame(rafLoop);
-  if (ts - lastFrameTime < FRAME_INTERVAL) return;
-  lastFrameTime = ts;
-  scanFrame();
-}
-
-function scanFrame() {
-  const video = document.getElementById('scanner-video');
-  if (!video || !scanCanvas || !scanCtx || !video.videoWidth || video.readyState < 2) return;
-
-  const vw = video.videoWidth;
-  const vh = video.videoHeight;
-  const SCAN_SIZE = 400;
-  const sx = Math.max(0, (vw - SCAN_SIZE) / 2);
-  const sy = Math.max(0, (vh - SCAN_SIZE) / 2);
-  const sw = Math.min(SCAN_SIZE, vw);
-  const sh = Math.min(SCAN_SIZE, vh);
-
-  scanCanvas.width  = sw;
-  scanCanvas.height = sh;
-  scanCtx.drawImage(video, sx, sy, sw, sh, 0, 0, sw, sh);
-
-  try {
-    const imgData = scanCtx.getImageData(0, 0, sw, sh);
-    if (!window.jsQR) return;
-    const code = jsQR(imgData.data, sw, sh, { inversionAttempts: 'dontInvert' });
-
-    if (!code?.data) {
-      const code2 = jsQR(imgData.data, sw, sh, { inversionAttempts: 'onlyInvert' });
-      if (!code2?.data) return;
-      handleDetected(code2.data);
-      return;
-    }
-    handleDetected(code.data);
-  } catch(e) {}
-}
-
-async function handleDetected(data) {
   const now = Date.now();
   if (data === lastScanned && now - lastScannedTime < 4000) return;
   lastScanned = data;
   lastScannedTime = now;
 
   scanning = false;
-  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+  tickRunning = false;
 
   const statusEl = document.getElementById('scanner-status');
   if (statusEl) statusEl.textContent = '✓ QR detectado!';
@@ -919,7 +899,7 @@ async function handleDetected(data) {
   stopCamera();
   toast('✓ QR detectado', 'success');
   await processScanResult(data);
-}
+};
 
 async function renderProducts(el) {
   let products = [];
