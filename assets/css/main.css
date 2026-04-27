@@ -302,7 +302,6 @@ tbody tr:hover td { background: rgba(255,77,31,0.03); }
   .modal { border-radius: var(--radius-lg); max-height: 95dvh; }
   .toast-wrap { bottom: 80px; right: 12px; left: 12px; max-width: 100%; }
 }
-
 @media(max-width:480px) {
   .btn-lg { padding: 15px 24px; font-size: .9rem; }
   .stat-value { font-size: 1.4rem; }
