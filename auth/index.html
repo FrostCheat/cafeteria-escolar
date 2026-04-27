@@ -7,31 +7,139 @@
   <link rel="icon" href="/imgs/fav-icon.png" type="image/png"/>
   <link rel="stylesheet" href="/assets/css/main.css"/>
   <style>
-    .auth-wrap { min-height: calc(100vh - 64px); display: grid; grid-template-columns: 1fr 1fr; }
-    .auth-left { background: var(--ink); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 60px 48px; position: relative; overflow: hidden; }
-    .auth-left::before { content: ''; position: absolute; width: 500px; height: 500px; border-radius: 50%; background: radial-gradient(circle, rgba(200,66,30,.22) 0%, transparent 70%); top: -100px; left: -100px; }
-    .auth-right { display: flex; flex-direction: column; justify-content: center; padding: 48px; overflow-y: auto; }
-    .auth-card { max-width: 460px; width: 100%; margin: 0 auto; }
-    .tab-bar { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 28px; }
-    .tab { flex: 1; padding: 12px 16px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: .875rem; background: none; border: none; color: var(--muted); cursor: pointer; text-align: center; transition: color .2s; position: relative; border-bottom: 2px solid transparent; margin-bottom: -2px; }
-    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-    .tab-panel { display: none; flex-direction: column; gap: 16px; }
-    .tab-panel.active { display: flex; }
-    .doc-row { display: flex; gap: 10px; align-items: flex-end; }
-    .doc-row .field:first-child { width: 120px; flex-shrink: 0; }
-    .doc-row .field:last-child { flex: 1; }
-    .form-title { font-size: 1.7rem; font-weight: 800; margin-bottom: 4px; }
-    .form-sub { color: var(--muted); font-size: .9rem; margin-bottom: 8px; }
-    .domain-hint { font-size: .72rem; color: var(--muted); font-style: italic; margin-top: 3px; }
-    .input-error { border-color: var(--error) !important; }
-    .input-ok { border-color: var(--success) !important; }
-  </style>
+  .auth-wrap { 
+    min-height: calc(100vh - 70px); 
+    display: grid; 
+    grid-template-columns: 1.1fr 0.9fr; 
+  }
+
+  .auth-left { 
+    background: var(--ink); 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
+    align-items: center; 
+    padding: 60px; 
+    position: relative; 
+    overflow: hidden; 
+  }
+
+  .auth-left::before { 
+    content: ''; position: absolute; 
+    width: 600px; height: 600px; 
+    border-radius: 50%; 
+    background: radial-gradient(circle, rgba(255,92,53,.15) 0%, transparent 70%); 
+    top: -150px; left: -150px; 
+  }
+
+  .auth-right { 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
+    padding: 60px; 
+    background: var(--paper);
+    overflow-y: auto; 
+  }
+
+  .auth-card { 
+    max-width: 440px; 
+    width: 100%; 
+    margin: 0 auto; 
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  .tab-bar { 
+    display: flex; 
+    background: var(--cream);
+    padding: 6px;
+    border-radius: 14px;
+    margin-bottom: 32px; 
+  }
+  
+  .tab { 
+    flex: 1; 
+    padding: 12px; 
+    font-family: 'Syne', sans-serif; 
+    font-weight: 800; 
+    font-size: .9rem; 
+    background: none; 
+    border: none; 
+    color: var(--muted); 
+    cursor: pointer; 
+    border-radius: 10px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .tab.active { 
+    color: var(--ink); 
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .tab-panel { display: none; flex-direction: column; gap: 20px; }
+  .tab-panel.active { display: flex; animation: slideUp 0.4s ease-out; }
+
+  .form-title { font-size: 2rem; font-weight: 800; margin-bottom: 6px; color: var(--ink); letter-spacing: -0.02em; }
+  .form-sub { color: var(--muted); font-size: 1rem; margin-bottom: 12px; }
+  
+  .doc-row { display: grid; grid-template-columns: 100px 1fr; gap: 12px; }
+  
+  .domain-hint { 
+    font-size: .75rem; 
+    color: var(--muted); 
+    background: var(--cream);
+    padding: 6px 10px;
+    border-radius: 6px;
+    margin-top: 4px;
+    display: inline-block;
+  }
+
+  .input-error { border-color: var(--error) !important; background: #fff8f8 !important; }
+  .input-ok { border-color: var(--success) !important; background: #f8fffb !important; }
+
+  @media (max-width: 900px) {
+    .auth-wrap { grid-template-columns: 1fr; }
+    
+    .auth-left { 
+      padding: 40px 20px; 
+      min-height: auto;
+    }
+    
+    .auth-left .info-list { display: none; }
+    .auth-left h2 { font-size: 1.5rem !important; margin-bottom: 5px !important; }
+    .auth-left p { font-size: 0.85rem !important; }
+    
+    .auth-right { 
+      padding: 40px 20px; 
+      border-radius: 30px 30px 0 0;
+      margin-top: -30px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .form-title { font-size: 1.6rem; }
+
+    .btn-lg {
+      padding: 16px;
+      font-size: 1.1rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .grid-2 { grid-template-columns: 1fr; gap: 16px; }
+    .doc-row { grid-template-columns: 80px 1fr; }
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
 </head>
 <body>
 <nav class="nav" id="main-nav"></nav>
 
 <div class="auth-wrap">
-  <!-- Left panel -->
   <div class="auth-left">
     <div style="position:relative;z-index:1;text-align:center;color:var(--paper);max-width:320px">
       <div style="font-size:4rem;margin-bottom:16px">🍽️</div>
@@ -46,7 +154,6 @@
     </div>
   </div>
 
-  <!-- Right panel -->
   <div class="auth-right">
     <div class="auth-card">
       <div class="tab-bar">
@@ -54,7 +161,6 @@
         <button class="tab"        id="tab-register" onclick="switchTab('register')">Registrarse</button>
       </div>
 
-      <!-- LOGIN -->
       <div class="tab-panel active" id="panel-login">
         <div>
           <div class="form-title">Bienvenido de vuelta</div>
@@ -73,7 +179,6 @@
         <p class="text-center text-sm text-muted">¿No tienes cuenta? <a href="#" onclick="switchTab('register')" style="color:var(--accent);font-weight:600">Regístrate aquí</a></p>
       </div>
 
-      <!-- REGISTER -->
       <div class="tab-panel" id="panel-register">
         <div>
           <div class="form-title">Crear cuenta</div>
