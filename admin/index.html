@@ -1445,12 +1445,12 @@ async function renderProducts(el) {
         <thead>
           <tr>
             <th>#</th><th>Producto</th><th>Categoría</th><th>Precio</th>
-            <th>Stock</th><th>Estado</th><th>QR</th><th>Acciones</th>
+            <th>Stock</th><th>Estado</th><th>Acciones</th>
           </tr>
         </thead>
         <tbody id="prod-tbody">
           ${products.map(p => `
-            <tr>
+            </tr>
               <td style="color:var(--muted);font-size:0.8rem">${p.id}</td>
               <td>
                 <div style="display:flex;align-items:center;gap:10px">
@@ -1466,11 +1466,8 @@ async function renderProducts(el) {
               <td style="font-weight:700;color:${p.stock>5?'var(--success)':p.stock>0?'var(--warning)':'var(--error)'}">${p.stock}</td>
               <td>${p.active ? '<span class="status-pill sp-active">✓ Activo</span>' : '<span class="status-pill sp-inactive">✕ Inactivo</span>'}</td>
               <td>
-                <div id="qr-container-${p.id}" style="width:50px;height:50px;"></div>
-                <button class="act-btn ab-ghost" style="margin-top:5px" onclick="showProductQR(${p.id},'${escapeStr(p.name)}',${p.price})">🔍 Ampliar</button>
-              </td>
-              <td>
                 <div style="display:flex;gap:6px">
+                  <button class="act-btn ab-ghost" onclick="showProductQRModal(${p.id},'${escapeStr(p.name)}',${p.price})">🔲 QR</button>
                   <button class="act-btn ab-ghost" onclick="openProductModal(${JSON.stringify(JSON.stringify(p)).slice(1,-1)})">✏️</button>
                   <button class="act-btn ab-danger" onclick="deleteProduct(${p.id})">🗑</button>
                 </div>
@@ -1481,19 +1478,6 @@ async function renderProducts(el) {
       </table>
     </div>
   `);
-
-  setTimeout(() => {
-    products.forEach(p => {
-      const qrContainer = document.getElementById(`qr-container-${p.id}`);
-      if (qrContainer && typeof QRCode !== 'undefined') {
-        new QRCode(qrContainer, {
-          text: JSON.stringify({ type: 'product', id: p.id, name: p.name, price: p.price }),
-          width: 50,
-          height: 50
-        });
-      }
-    });
-  }, 100);
 }
 
 function openProductModal(productJsonStr) {
@@ -1543,25 +1527,6 @@ async function deleteProduct(id) {
   });
 }
 
-function showProductQR(id, name, price) {
-  const qrId = 'qr-prod-' + id;
-  const m = modal(`
-    <div style="text-align:center">
-      <p style="color:var(--muted);font-size:0.875rem;margin-bottom:16px">${name} — ${fmtCurrency(price)}</p>
-      <div style="background:var(--cream);border-radius:20px;padding:24px;display:inline-block">
-        <div id="${qrId}" style="display:inline-block;background:white;padding:10px;border-radius:10px"></div>
-      </div>
-      <p style="color:var(--muted);font-size:0.75rem;margin-top:10px">ID del producto: ${id}</p>
-    </div>
-  `, { title: 'QR del producto' });
-  setTimeout(() => {
-    const qrEl = document.getElementById(qrId);
-    if (qrEl && typeof QRCode !== 'undefined') {
-      new QRCode(qrEl, { text: JSON.stringify({ type: 'product', id, name, price }), width: 180, height: 180 });
-    }
-  }, 100);
-}
-
 async function renderUsers(el) {
   let users = [];
   try { users = await api.get('/users'); }
@@ -1579,7 +1544,7 @@ async function renderUsers(el) {
         <thead>
           <tr>
             <th>Nombre</th><th>Email</th><th>Grado</th>
-            <th>Documento</th><th>Registro</th><th>QR</th><th>Estado</th><th>Acciones</th>
+            <th>Documento</th><th>Registro</th><th>Estado</th><th>Acciones</th>
           </tr>
         </thead>
         <tbody id="users-tbody">
@@ -1590,12 +1555,10 @@ async function renderUsers(el) {
               <td><span style="font-size:0.72rem;font-weight:700;background:var(--cream);padding:4px 10px;border-radius:100px">${u.grade}</span></td>
               <td style="font-size:0.8rem">${u.doc_type} ${u.doc_number}</td>
               <td style="font-size:0.75rem;color:var(--muted)">${fmtDate(u.created_at)}</td>
-              <td>
-                <div id="user-qr-${u.id}" style="width:50px;height:50px;"></div>
-              </td>
               <td>${u.blocked ? '<span class="status-pill sp-blocked">🔒 Bloqueado</span>' : '<span class="status-pill sp-active">✓ Activo</span>'}</td>
               <td>
                 <div style="display:flex;gap:6px">
+                  <button class="act-btn ab-ghost" onclick="showUserQRModal(${u.id},'${escapeStr(u.full_name)}','${u.doc_number}')">🔲 QR</button>
                   <button class="act-btn ${u.blocked?'ab-success':'ab-warning'}" onclick="toggleBlock(${u.id},${u.blocked?1:0})">${u.blocked?'🔓':'🔒'}</button>
                   <button class="act-btn ab-ghost" onclick="viewUser(${u.id})">👁</button>
                   <button class="act-btn ab-danger" onclick="deleteUser(${u.id})">🗑</button>
@@ -1607,21 +1570,7 @@ async function renderUsers(el) {
       </table>
     </div>
   `);
-
-  setTimeout(() => {
-    users.forEach(u => {
-      const qrContainer = document.getElementById(`user-qr-${u.id}`);
-      if (qrContainer && typeof QRCode !== 'undefined') {
-        new QRCode(qrContainer, {
-          text: JSON.stringify({ type: 'user', id: u.id, doc: u.doc_number, name: u.full_name }),
-          width: 50,
-          height: 50
-        });
-      }
-    });
-  }, 100);
 }
-
 async function toggleBlock(id, isBlocked) {
   try {
     const res = await api.put('/users/' + id + '/block', {});
@@ -1688,7 +1637,7 @@ async function renderOrders(el) {
         <thead>
           <tr>
             <th>#</th><th>Estudiante</th><th>Grado</th>
-            <th>Total</th><th>Estado</th><th>Fecha</th><th>QR</th><th>Acciones</th>
+            <th>Total</th><th>Estado</th><th>Fecha</th><th>Acciones</th>
           </tr>
         </thead>
         <tbody id="orders-tbody">
@@ -1701,10 +1650,8 @@ async function renderOrders(el) {
               <td>${statusPill(o.status)}</td>
               <td style="font-size:0.75rem;color:var(--muted)">${fmtDate(o.created_at)}</td>
               <td>
-                <div id="order-qr-${o.id}" style="width:50px;height:50px;"></div>
-              </td>
-              <td>
                 <div style="display:flex;gap:6px;flex-wrap:wrap">
+                  <button class="act-btn ab-ghost" onclick="showOrderQRModal(${o.id})">🔲 QR</button>
                   <button class="act-btn ab-ghost" onclick="viewOrder(${o.id})">👁 Ver</button>
                   ${o.status !== 'paid' ? `<button class="act-btn ab-success" onclick="setOrderStatus(${o.id},'paid')">✅</button>` : ''}
                   ${o.status === 'pending' ? `<button class="act-btn ab-danger" onclick="setOrderStatus(${o.id},'cancelled')">❌</button>` : ''}
@@ -1717,19 +1664,6 @@ async function renderOrders(el) {
       </table>
     </div>
   `);
-
-  setTimeout(() => {
-    orders.forEach(o => {
-      const qrContainer = document.getElementById(`order-qr-${o.id}`);
-      if (qrContainer && o.qr_token && typeof QRCode !== 'undefined') {
-        new QRCode(qrContainer, {
-          text: JSON.stringify({ token: o.qr_token, orderId: o.id }),
-          width: 50,
-          height: 50
-        });
-      }
-    });
-  }, 100);
 }
 
 function filterOrdersByStatus(status) {
@@ -1780,6 +1714,97 @@ async function setOrderStatus(id, status, fromModal = false) {
     if (fromModal) document.querySelector('.modal-overlay')?.remove();
     showPanel('orders');
   } catch(e) { toast(e.message, 'error'); }
+}
+
+function showProductQRModal(id, name, price) {
+  const qrId = 'qr-prod-modal-' + Date.now();
+  const modalContent = `
+    <div style="text-align:center">
+      <div style="margin-bottom:16px">
+        <div style="font-family:var(--font-display);font-weight:800;font-size:1.2rem;margin-bottom:4px">${escapeStr(name)}</div>
+        <div style="color:var(--accent);font-family:var(--font-display);font-weight:700">${fmtCurrency(price)}</div>
+      </div>
+      <div style="background:#f5f5f0;border-radius:20px;padding:24px;display:inline-block;margin-bottom:16px">
+        <div id="${qrId}" style="background:white;padding:12px;border-radius:12px"></div>
+      </div>
+      <p style="color:var(--muted);font-size:0.75rem">ID: ${id}</p>
+      <p style="color:var(--muted);font-size:0.7rem;margin-top:8px">Escanee para ver información del producto</p>
+    </div>
+  `;
+  const m = modal(modalContent, { title: 'QR del producto' });
+  setTimeout(() => {
+    const qrEl = document.getElementById(qrId);
+    if (qrEl && typeof QRCode !== 'undefined') {
+      new QRCode(qrEl, { 
+        text: JSON.stringify({ type: 'product', id, name, price }), 
+        width: 180, 
+        height: 180 
+      });
+    }
+  }, 100);
+}
+
+function showUserQRModal(id, name, docNumber) {
+  const qrId = 'qr-user-modal-' + Date.now();
+  const modalContent = `
+    <div style="text-align:center">
+      <div style="margin-bottom:16px">
+        <div style="font-family:var(--font-display);font-weight:800;font-size:1rem;margin-bottom:4px">${escapeStr(name)}</div>
+        <div style="color:var(--muted);font-size:0.85rem">Doc: ${docNumber}</div>
+      </div>
+      <div style="background:#f5f5f0;border-radius:20px;padding:24px;display:inline-block;margin-bottom:16px">
+        <div id="${qrId}" style="background:white;padding:12px;border-radius:12px"></div>
+      </div>
+      <p style="color:var(--muted);font-size:0.7rem">Escanee para identificar al estudiante</p>
+    </div>
+  `;
+  const m = modal(modalContent, { title: 'QR del estudiante' });
+  setTimeout(() => {
+    const qrEl = document.getElementById(qrId);
+    if (qrEl && typeof QRCode !== 'undefined') {
+      new QRCode(qrEl, { 
+        text: JSON.stringify({ type: 'user', id, doc: docNumber, name }), 
+        width: 180, 
+        height: 180 
+      });
+    }
+  }, 100);
+}
+
+async function showOrderQRModal(orderId) {
+  const o = await api.get('/orders/' + orderId);
+  const qrId = 'qr-order-modal-' + Date.now();
+  const modalContent = `
+    <div style="text-align:center">
+      <div style="margin-bottom:16px">
+        <div style="font-family:var(--font-display);font-weight:800;font-size:1rem;margin-bottom:4px">Pedido #${o.id}</div>
+        <div style="color:var(--accent);font-family:var(--font-display);font-weight:700">${fmtCurrency(o.total)}</div>
+        <div style="color:var(--muted);font-size:0.7rem">${o.full_name} - ${o.grade}</div>
+      </div>
+      <div style="background:#f5f5f0;border-radius:20px;padding:24px;display:inline-block;margin-bottom:16px">
+        <div id="${qrId}" style="background:white;padding:12px;border-radius:12px"></div>
+      </div>
+      <div style="margin-top:12px">
+        <span class="status-pill ${o.status === 'paid' ? 'sp-paid' : (o.status === 'pending' ? 'sp-pending' : 'sp-cancelled')}">
+          ${o.status === 'paid' ? '✅ Pagado' : (o.status === 'pending' ? '⏳ Pendiente' : '❌ Cancelado')}
+        </span>
+      </div>
+      <p style="color:var(--muted);font-size:0.7rem;margin-top:12px">Token: ${o.qr_token || 'N/A'}</p>
+    </div>
+  `;
+  const m = modal(modalContent, { title: `QR del pedido #${o.id}` });
+  setTimeout(() => {
+    const qrEl = document.getElementById(qrId);
+    if (qrEl && o.qr_token && typeof QRCode !== 'undefined') {
+      new QRCode(qrEl, { 
+        text: JSON.stringify({ token: o.qr_token, orderId: o.id }), 
+        width: 180, 
+        height: 180 
+      });
+    } else if (qrEl && !o.qr_token) {
+      qrEl.innerHTML = '<div style="color:var(--error);text-align:center">⚠️ QR no disponible</div>';
+    }
+  }, 100);
 }
 
 function filterTable(tbodyId, q, colIndexes) {
