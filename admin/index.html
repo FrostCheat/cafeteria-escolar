@@ -769,26 +769,30 @@ async function showUserResult(docOrId, el) {
     </div>`;
 }
 
+let scanCanvas = null;
+let scanCtx = null;
+let rafId = null;
+let scanning = false;
+
 async function startCamera() {
   const tipEl = document.getElementById('cam-perm-tip');
   if (tipEl) tipEl.style.display = 'none';
 
-  const constraints = [
-    { video: { facingMode, width: { ideal: 1280 }, height: { ideal: 960 } } },
+  let stream = null;
+  const attempts = [
+    { video: { facingMode, width: { ideal: 1280 }, height: { ideal: 720 }, focusMode: 'continuous' } },
+    { video: { facingMode, width: { ideal: 1280 }, height: { ideal: 720 } } },
     { video: { facingMode } },
     { video: { facingMode: 'environment' } },
     { video: true },
   ];
 
-  let stream = null;
-  for (const c of constraints) {
-    try {
-      stream = await navigator.mediaDevices.getUserMedia(c);
-      break;
-    } catch(e) {
+  for (const c of attempts) {
+    try { stream = await navigator.mediaDevices.getUserMedia(c); break; }
+    catch(e) {
       if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
         if (tipEl) tipEl.style.display = 'block';
-        toast('Permiso de cámara denegado. Revisa la configuración del navegador.', 'error');
+        toast('Permiso de cámara denegado.', 'error');
         return;
       }
     }
@@ -796,8 +800,13 @@ async function startCamera() {
 
   if (!stream) {
     if (tipEl) tipEl.style.display = 'block';
-    toast('No se pudo acceder a la cámara en este dispositivo.', 'error');
+    toast('No se pudo acceder a la cámara.', 'error');
     return;
+  }
+
+  const track = stream.getVideoTracks()[0];
+  if (track?.applyConstraints) {
+    try { await track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }); } catch(e) {}
   }
 
   cameraStream = stream;
@@ -816,18 +825,24 @@ async function startCamera() {
   document.getElementById('btn-stop-cam').style.display = '';
   document.getElementById('btn-flip-cam').style.display = '';
 
-  toast('Cámara activa — apuntando automáticamente', 'success');
-  scanInterval = setInterval(scanFrame, 250);
+  scanCanvas = document.getElementById('scanner-canvas');
+  scanCtx = scanCanvas.getContext('2d', { willReadFrequently: true });
+
+  scanning = true;
+  await video.play().catch(() => {});
+  rafLoop();
 }
 
 function stopCamera() {
+  scanning = false;
+  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
   if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
   if (scanInterval) { clearInterval(scanInterval); scanInterval = null; }
 
-  const video   = document.getElementById('scanner-video');
-  const ph      = document.getElementById('scanner-placeholder');
-  const aim     = document.getElementById('scanner-aim');
-  const status  = document.getElementById('scanner-status');
+  const video    = document.getElementById('scanner-video');
+  const ph       = document.getElementById('scanner-placeholder');
+  const aim      = document.getElementById('scanner-aim');
+  const status   = document.getElementById('scanner-status');
   const startBtn = document.getElementById('btn-start-cam');
   const stopBtn  = document.getElementById('btn-stop-cam');
   const flipBtn  = document.getElementById('btn-flip-cam');
@@ -847,36 +862,63 @@ async function flipCamera() {
   await startCamera();
 }
 
-async function scanFrame() {
-  const video  = document.getElementById('scanner-video');
-  const canvas = document.getElementById('scanner-canvas');
-  if (!video || !canvas || !video.videoWidth || video.readyState < 2) return;
+let lastFrameTime = 0;
+const FRAME_INTERVAL = 80;
 
-  canvas.width  = video.videoWidth;
-  canvas.height = video.videoHeight;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(video, 0, 0);
+function rafLoop(ts = 0) {
+  if (!scanning) return;
+  rafId = requestAnimationFrame(rafLoop);
+  if (ts - lastFrameTime < FRAME_INTERVAL) return;
+  lastFrameTime = ts;
+  scanFrame();
+}
+
+function scanFrame() {
+  const video = document.getElementById('scanner-video');
+  if (!video || !scanCanvas || !scanCtx || !video.videoWidth || video.readyState < 2) return;
+
+  const vw = video.videoWidth;
+  const vh = video.videoHeight;
+  const SCAN_SIZE = 400;
+  const sx = Math.max(0, (vw - SCAN_SIZE) / 2);
+  const sy = Math.max(0, (vh - SCAN_SIZE) / 2);
+  const sw = Math.min(SCAN_SIZE, vw);
+  const sh = Math.min(SCAN_SIZE, vh);
+
+  scanCanvas.width  = sw;
+  scanCanvas.height = sh;
+  scanCtx.drawImage(video, sx, sy, sw, sh, 0, 0, sw, sh);
 
   try {
-    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const imgData = scanCtx.getImageData(0, 0, sw, sh);
     if (!window.jsQR) return;
-    const code = jsQR(imgData.data, imgData.width, imgData.height, { inversionAttempts: 'attemptBoth' });
-    if (!code?.data) return;
+    const code = jsQR(imgData.data, sw, sh, { inversionAttempts: 'dontInvert' });
 
-    const now = Date.now();
-    if (code.data === lastScanned && now - lastScannedTime < 4000) return;
-    lastScanned = code.data;
-    lastScannedTime = now;
-
-    if (scanInterval) { clearInterval(scanInterval); scanInterval = null; }
-
-    const statusEl = document.getElementById('scanner-status');
-    if (statusEl) statusEl.textContent = '✓ QR detectado!';
-
-    stopCamera();
-    toast('✓ QR detectado', 'success');
-    await processScanResult(code.data);
+    if (!code?.data) {
+      const code2 = jsQR(imgData.data, sw, sh, { inversionAttempts: 'onlyInvert' });
+      if (!code2?.data) return;
+      handleDetected(code2.data);
+      return;
+    }
+    handleDetected(code.data);
   } catch(e) {}
+}
+
+async function handleDetected(data) {
+  const now = Date.now();
+  if (data === lastScanned && now - lastScannedTime < 4000) return;
+  lastScanned = data;
+  lastScannedTime = now;
+
+  scanning = false;
+  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+
+  const statusEl = document.getElementById('scanner-status');
+  if (statusEl) statusEl.textContent = '✓ QR detectado!';
+
+  stopCamera();
+  toast('✓ QR detectado', 'success');
+  await processScanResult(data);
 }
 
 async function renderProducts(el) {
