@@ -971,6 +971,8 @@ function setPanel(el, html) {
 
 async function renderDashboard(el) {
   let stats, allOrders = [], products = [];
+  let errorDetails = '';
+  
   try {
     [stats, allOrders, products] = await Promise.all([
       api.get('/orders/stats'),
@@ -978,7 +980,34 @@ async function renderDashboard(el) {
       api.get('/products?all=1'),
     ]);
   } catch(e) {
-    setPanel(el, `<div class="panel-title">Dashboard</div><div style="color:var(--error)">${e.message}</div>`);
+    errorDetails = `
+      <div style="background: #fff0f0; border: 2px solid var(--error); border-radius: var(--radius-lg); padding: 24px; margin-top: 20px;">
+        <div style="font-family: monospace; font-size: 0.85rem; color: #c00; background: #fff5f5; padding: 16px; border-radius: var(--radius); overflow-x: auto; white-space: pre-wrap; word-break: break-all;">
+          <strong style="font-size: 1rem;">🔴 ERROR DETECTADO</strong><br><br>
+          <strong>Mensaje:</strong> ${escapeStr(e.message)}<br><br>
+          <strong>Status HTTP:</strong> ${e.status || 'N/A'}<br><br>
+          <strong>Endpoint:</strong> ${e.endpoint || 'Desconocido'}<br><br>
+          <strong>Detalles completos:</strong><br>
+          ${e.details ? escapeStr(JSON.stringify(e.details, null, 2)) : 'Ninguno'}<br><br>
+          <strong>Stack trace:</strong><br>
+          ${e.stack ? escapeStr(e.stack) : 'No disponible'}
+        </div>
+        <div style="margin-top: 20px; padding: 12px; background: #fff8e0; border-left: 4px solid var(--warning);">
+          <strong>📌 Posibles causas:</strong><br>
+          • La base de datos no está configurada correctamente en InfinityFree<br>
+      • Las credenciales de la base de datos son incorrectas<br>
+      • El archivo api/config/database.php tiene errores de sintaxis<br>
+      • El servidor no tiene habilitada la extensión PDO MySQL
+        </div>
+        <button class="quick-btn qb-accent" style="margin-top: 20px;" onclick="location.reload()">🔄 Reintentar</button>
+      </div>
+    `;
+    
+    setPanel(el, `
+      <div class="panel-title">Dashboard</div>
+      <div class="panel-sub">${new Date().toLocaleDateString('es-CO', {weekday:'long', year:'numeric', month:'long', day:'numeric'})}</div>
+      ${errorDetails}
+    `);
     return;
   }
 
@@ -1013,7 +1042,9 @@ async function renderDashboard(el) {
   const productSales = {};
   allOrders.forEach(o => {
     (o.items || []).forEach(i => {
-      productSales[i.product_name] = (productSales[i.product_name] || 0) + parseInt(i.quantity || 1);
+      if (i && i.product_name) {
+        productSales[i.product_name] = (productSales[i.product_name] || 0) + parseInt(i.quantity || 1);
+      }
     });
   });
   const topProducts = Object.entries(productSales).sort((a,b) => b[1]-a[1]).slice(0,5);
@@ -1109,7 +1140,7 @@ async function renderDashboard(el) {
           <div class="top-product-row">
             <span class="tp-rank">${i+1}</span>
             <div class="tp-info">
-              <div class="tp-name">${name}</div>
+              <div class="tp-name">${escapeStr(name)}</div>
               <div class="tp-bar-wrap">
                 <div class="tp-bar" style="width:${(qty/(topProducts[0][1]||1)*100)}%"></div>
               </div>
@@ -1124,7 +1155,7 @@ async function renderDashboard(el) {
       <div class="low-stock-alert">
         <div class="low-stock-title">⚠️ Stock bajo (≤3 unidades)</div>
         <div class="stock-chips">
-          ${lowStock.map(p => `<span class="stock-chip">${p.name} (${p.stock})</span>`).join('')}
+          ${lowStock.map(p => `<span class="stock-chip">${escapeStr(p.name)} (${p.stock})</span>`).join('')}
         </div>
       </div>
     ` : ''}

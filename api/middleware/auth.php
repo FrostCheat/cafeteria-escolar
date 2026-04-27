@@ -2,7 +2,7 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
-ini_set('error_log', __DIR__ . '../logs/error.log');
+ini_set('error_log', __DIR__ . '/../logs/error.log');
 
 function base64url_encode(string $data): string {
     return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
@@ -32,21 +32,55 @@ function jwtDecode(string $token): ?array {
     return $payload;
 }
 
+function getBearerToken(): ?string {
+    $authHeader = null;
+
+    if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
+        $authHeader = $_SERVER['HTTP_AUTHORIZATION'];
+    } elseif (isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
+        $authHeader = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+    } elseif (isset($_SERVER['HTTP_AUTHORIZATION'])) {
+        $authHeader = $_SERVER['HTTP_AUTHORIZATION'];
+    }
+    
+    if ($authHeader && preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+        return $matches[1];
+    }
+    
+    foreach ($_SERVER as $key => $value) {
+        if (strtolower($key) === 'authorization') {
+            if (preg_match('/Bearer\s(\S+)/', $value, $matches)) {
+                return $matches[1];
+            }
+        }
+    }
+    
+    return null;
+}
+
 function getAuthUser(): ?array {
-    $headers = getallheaders();
-    $auth = $headers['Authorization'] ?? $headers['authorization'] ?? '';
-    if (!str_starts_with($auth, 'Bearer ')) return null;
-    return jwtDecode(substr($auth, 7));
+    $token = getBearerToken();
+    if (!$token) return null;
+    return jwtDecode($token);
 }
 
 function requireAuth(): array {
     $user = getAuthUser();
-    if (!$user) jsonError('No autorizado', 401);
+    if (!$user) {
+        http_response_code(401);
+        echo json_encode(['error' => 'No autorizado']);
+        exit;
+    }
     return $user;
 }
 
 function requireAdmin(): array {
     $user = requireAuth();
-    if ($user['role'] !== 'admin') jsonError('Acceso denegado', 403);
+    if ($user['role'] !== 'admin') {
+        http_response_code(403);
+        echo json_encode(['error' => 'Acceso denegado']);
+        exit;
+    }
     return $user;
 }
+?>

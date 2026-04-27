@@ -19,16 +19,26 @@ const api = {
     const token = localStorage.getItem('token');
     const headers = { 'Content-Type': 'application/json' };
     if (token) headers['Authorization'] = 'Bearer ' + token;
+
+    let url = API_BASE + path;
+    if (token) {
+      const separator = url.includes('?') ? '&' : '?';
+      url = url + separator + 'token=' + encodeURIComponent(token);
+    }
     
     try {
-      const res = await fetch(API_BASE + path, { ...opts, headers: { ...headers, ...(opts.headers || {}) } });
+      const res = await fetch(url, { ...opts, headers: { ...headers, ...(opts.headers || {}) } });
+      
+      console.log(`[API] ${opts.method || 'GET'} ${path} -> Status: ${res.status}`);
+      
       let data;
       const contentType = res.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
         data = await res.json();
       } else {
         const text = await res.text();
-        throw new Error(`Respuesta no JSON: ${text.substring(0, 200)}`);
+        console.error(`[API] Respuesta no JSON para ${path}:`, text.substring(0, 500));
+        throw new Error(`Respuesta no JSON (Status ${res.status}): ${text.substring(0, 200)}`);
       }
       
       if (!res.ok) {
@@ -36,6 +46,7 @@ const api = {
         error.status = res.status;
         error.details = data;
         error.endpoint = path;
+        console.error(`[API Error] ${path}:`, error);
         throw error;
       }
       return data;
