@@ -3,7 +3,8 @@ $db = getDB();
 
 if ($resource === 'products') {
     if ($method === 'GET' && $id === null) {
-        $where = "WHERE active=1";
+        $showAll = !empty($_GET['all']) && $_GET['all'] == '1';
+        $where = $showAll ? "WHERE 1=1" : "WHERE active=1";
         $params = [];
         if (!empty($_GET['category'])) {
             $where .= " AND category=?";
@@ -91,15 +92,6 @@ if ($resource === 'products') {
         requireAdmin();
         $db->prepare("UPDATE products SET active=0 WHERE id=?")->execute([$id]);
         jsonResponse(['message' => 'Producto eliminado']);
-    }
-
-    if ($method === 'GET' && $id !== null && $action === 'scan') {
-        requireAdmin();
-        $stmt = $db->prepare("SELECT * FROM products WHERE id=?");
-        $stmt->execute([$id]);
-        $p = $stmt->fetch();
-        if (!$p) jsonError('Producto no encontrado', 404);
-        jsonResponse($p);
     }
 
     jsonError('Ruta products no encontrada', 404);

@@ -84,9 +84,7 @@
       pointer-events: none; display: none;
       animation: scanPulse 2s ease-in-out infinite;
     }
-    .scanner-aim-corner {
-      position: absolute; width: 22px; height: 22px; border-color: #f0896a; border-style: solid;
-    }
+    .scanner-aim-corner { position: absolute; width: 22px; height: 22px; border-color: #f0896a; border-style: solid; }
     .scanner-aim-corner.tl { top: -3px; left: -3px; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
     .scanner-aim-corner.tr { top: -3px; right: -3px; border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
     .scanner-aim-corner.bl { bottom: -3px; left: -3px; border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
@@ -174,6 +172,7 @@
       .admin-mobile-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
       .toolbar { flex-direction: column; align-items: stretch; }
       .search-input { min-width: unset; }
+      .result-meta { grid-template-columns: 1fr; }
     }
     @media(min-width:901px) {
       .admin-mobile-tabs { display: none; }
@@ -233,6 +232,7 @@ let scanInterval = null;
 let currentScanType = 'order';
 let lastScanned = '';
 let lastScannedTime = 0;
+let facingMode = 'environment';
 
 function showPanel(name, btn, mobileTabName) {
   document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
@@ -269,7 +269,6 @@ function showPanel(name, btn, mobileTabName) {
 
 async function renderDashboard(el) {
   let stats, allOrders = [], products = [];
-
   try {
     [stats, allOrders, products] = await Promise.all([
       api.get('/orders/stats'),
@@ -526,7 +525,7 @@ function renderScanner(el) {
             <button class="btn btn-ghost btn-sm" id="btn-flip-cam" style="display:none" onclick="flipCamera()">🔄 Voltear</button>
           </div>
           <div class="cam-perm-tip" id="cam-perm-tip">
-            <strong>📋 Permitir cámara:</strong> Toca el ícono 🔒 en la barra de direcciones y permite el acceso a la cámara. Si usas Safari en iPhone, ve a Configuración → Safari → Cámara → Permitir.
+            <strong>📋 Permitir cámara:</strong> Toca el ícono 🔒 en la barra de direcciones y permite el acceso a la cámara. En Safari iOS: Configuración → Safari → Cámara → Permitir.
           </div>
         </div>
 
@@ -558,14 +557,16 @@ function renderScanner(el) {
   });
 }
 
-let facingMode = 'environment';
-
 function setScanType(type, btn) {
   currentScanType = type;
   document.querySelectorAll('.scan-type-tab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   clearScanResult();
-  const placeholders = { order: 'Token del QR o ID del pedido...', user: 'Número de documento del estudiante...', product: 'ID del producto...' };
+  const placeholders = {
+    order: 'Token del QR o ID del pedido...',
+    user: 'Número de documento del estudiante...',
+    product: 'ID del producto...'
+  };
   const inp = document.getElementById('manual-token');
   if (inp) inp.placeholder = placeholders[type] || '';
 }
@@ -583,26 +584,55 @@ async function manualSearch() {
   await processScanResult(token);
 }
 
+function extractTokenFromQR(raw) {
+  if (!raw) return null;
+
+  let parsed = null;
+
+  try { parsed = JSON.parse(raw); } catch(e) {}
+
+  if (!parsed) {
+    try {
+      const base64 = raw.replace(/-/g, '+').replace(/_/g, '/');
+      const padded = base64 + '==='.slice((base64.length + 3) % 4);
+      parsed = JSON.parse(atob(padded));
+    } catch(e) {}
+  }
+
+  if (parsed) {
+    return {
+      token: parsed.token || null,
+      type: parsed.type || null,
+      id: parsed.id || null,
+      raw: parsed
+    };
+  }
+
+  return { token: raw, type: null, id: null, raw: null };
+}
+
 async function processScanResult(raw) {
   const resultEl = document.getElementById('scan-result');
   if (!resultEl) return;
   resultEl.className = 'result-card';
   resultEl.innerHTML = '<div class="loading" style="min-height:120px"><div class="spinner"></div></div>';
 
-  let parsed = null;
-  try { parsed = JSON.parse(raw); } catch(e) {}
-  if (!parsed) {
-    try { parsed = JSON.parse(atob(raw.replace(/-/g,'+').replace(/_/g,'/'))); } catch(e) {}
-  }
-
+  const extracted = extractTokenFromQR(raw);
   let type = currentScanType;
-  if (parsed?.type === 'order') type = 'order';
-  else if (parsed?.type === 'product') type = 'product';
+
+  if (extracted.type === 'order') type = 'order';
+  else if (extracted.type === 'product') type = 'product';
 
   try {
-    if (type === 'order') await showOrderResult(parsed?.token || raw, resultEl);
-    else if (type === 'product') await showProductResult(parsed?.id || parseInt(raw), resultEl);
-    else await showUserResult(raw, resultEl);
+    if (type === 'order') {
+      const token = extracted.token || raw;
+      await showOrderResult(token, resultEl);
+    } else if (type === 'product') {
+      const productId = extracted.id || parseInt(raw);
+      await showProductResult(productId, resultEl);
+    } else {
+      await showUserResult(raw, resultEl);
+    }
   } catch(e) {
     resultEl.className = 'result-card';
     resultEl.innerHTML = `
@@ -615,7 +645,7 @@ async function processScanResult(raw) {
 }
 
 async function showOrderResult(token, el) {
-  const o = await api.get('/orders/scan/' + token);
+  const o = await api.get('/orders/scan/' + encodeURIComponent(token));
   el.className = 'result-card has-result';
   const qrId = 'res-qr-' + Date.now();
   el.innerHTML = `
@@ -649,7 +679,13 @@ async function showOrderResult(token, el) {
     </div>`;
   setTimeout(() => {
     const qrEl = document.getElementById(qrId);
-    if (qrEl) new QRCode(qrEl, { text: JSON.stringify({token: o.qr_token, orderId: o.id}), width: 110, height: 110 });
+    if (qrEl && typeof QRCode !== 'undefined') {
+      new QRCode(qrEl, {
+        text: JSON.stringify({ token: o.qr_token, orderId: o.id }),
+        width: 110,
+        height: 110
+      });
+    }
   }, 80);
 }
 
@@ -681,7 +717,13 @@ async function showProductResult(id, el) {
     </div>`;
   setTimeout(() => {
     const qrEl = document.getElementById(qrId);
-    if (qrEl) new QRCode(qrEl, { text: JSON.stringify({type:'product', id:p.id, name:p.name, price:p.price}), width: 110, height: 110 });
+    if (qrEl && typeof QRCode !== 'undefined') {
+      new QRCode(qrEl, {
+        text: JSON.stringify({ type: 'product', id: p.id, name: p.name, price: p.price }),
+        width: 110,
+        height: 110
+      });
+    }
   }, 80);
 }
 
@@ -775,7 +817,7 @@ async function startCamera() {
   document.getElementById('btn-flip-cam').style.display = '';
 
   toast('Cámara activa — apuntando automáticamente', 'success');
-  scanInterval = setInterval(scanFrame, 300);
+  scanInterval = setInterval(scanFrame, 250);
 }
 
 function stopCamera() {
@@ -826,11 +868,10 @@ async function scanFrame() {
     lastScanned = code.data;
     lastScannedTime = now;
 
-    clearInterval(scanInterval);
-    scanInterval = null;
+    if (scanInterval) { clearInterval(scanInterval); scanInterval = null; }
 
-    const status = document.getElementById('scanner-status');
-    if (status) status.textContent = '✓ QR detectado!';
+    const statusEl = document.getElementById('scanner-status');
+    if (statusEl) statusEl.textContent = '✓ QR detectado!';
 
     stopCamera();
     toast('✓ QR detectado', 'success');
@@ -941,10 +982,14 @@ function showProductQR(id, name, price) {
     </div>
   `, { title: 'QR del producto' });
   setTimeout(() => {
-    new QRCode(document.getElementById(qrId), {
-      text: JSON.stringify({ type: 'product', id, name, price }),
-      width: 180, height: 180
-    });
+    const qrEl = document.getElementById(qrId);
+    if (qrEl && typeof QRCode !== 'undefined') {
+      new QRCode(qrEl, {
+        text: JSON.stringify({ type: 'product', id, name, price }),
+        width: 180,
+        height: 180
+      });
+    }
   }, 100);
 }
 
@@ -1099,7 +1144,11 @@ async function viewOrder(id) {
         <div class="text-xs text-muted mb-2">Productos del pedido</div>
         ${(o.items||[]).map(i => `<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)"><span class="text-sm">${i.product_name}</span><span class="text-sm text-muted">×${i.quantity}</span><span class="price text-sm">${fmtCurrency(i.subtotal)}</span></div>`).join('')}
       </div>
-      <div style="text-align:center"><div class="text-xs text-muted mb-2">QR del pedido</div><div id="${qrId}" style="display:inline-block;background:white;padding:10px;border:1px solid var(--border);border-radius:8px"></div></div>
+      <div style="text-align:center">
+        <div class="text-xs text-muted mb-2">QR del pedido</div>
+        <div id="${qrId}" style="display:inline-block;background:white;padding:10px;border:1px solid var(--border);border-radius:8px"></div>
+        <div class="text-xs text-muted mt-1">Token: ${o.qr_token}</div>
+      </div>
       <div class="flex gap-2" style="flex-wrap:wrap">
         ${o.status !== 'paid' ? `<button class="btn btn-success" onclick="setOrderStatus(${o.id},'paid',true)">✅ Marcar pagado</button>` : ''}
         <button class="btn btn-warning btn-sm" onclick="setOrderStatus(${o.id},'pending',true)">⏳ Pendiente</button>
@@ -1108,7 +1157,14 @@ async function viewOrder(id) {
     </div>
   `, { title: `Pedido #${o.id}` });
   setTimeout(() => {
-    new QRCode(document.getElementById(qrId), { text: JSON.stringify({token: o.qr_token, orderId: o.id}), width: 140, height: 140 });
+    const qrEl = document.getElementById(qrId);
+    if (qrEl && typeof QRCode !== 'undefined') {
+      new QRCode(qrEl, {
+        text: JSON.stringify({ token: o.qr_token, orderId: o.id }),
+        width: 140,
+        height: 140
+      });
+    }
   }, 100);
 }
 

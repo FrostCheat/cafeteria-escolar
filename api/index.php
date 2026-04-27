@@ -28,9 +28,18 @@ $body = json_decode(file_get_contents('php://input'), true) ?? [];
 
 $segments = array_values(array_filter(explode('/', $request_uri)));
 $resource = $segments[0] ?? '';
-$id = isset($segments[1]) && is_numeric($segments[1]) ? (int)$segments[1] : null;
-$action = isset($segments[1]) && !is_numeric($segments[1]) ? $segments[1] : ($segments[2] ?? null);
-if ($id !== null && isset($segments[2])) $action = $segments[2];
+
+$id = null;
+$action = null;
+
+if (isset($segments[1])) {
+    if (is_numeric($segments[1])) {
+        $id = (int)$segments[1];
+        $action = $segments[2] ?? null;
+    } else {
+        $action = $segments[1];
+    }
+}
 
 getDB();
 
@@ -39,7 +48,7 @@ if ($resource === 'products') { require __DIR__ . '/controllers/products.php'; e
 if ($resource === 'cart') { require __DIR__ . '/controllers/cart.php'; exit; }
 if ($resource === 'orders') { require __DIR__ . '/controllers/orders.php'; exit; }
 if ($resource === 'users') { require __DIR__ . '/controllers/users.php'; exit; }
-if ($resource === 'health') { 
+if ($resource === 'health') {
     echo json_encode(['status' => 'ok', 'time' => date('c')]);
     exit;
 }
