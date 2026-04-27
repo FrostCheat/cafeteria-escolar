@@ -7,20 +7,173 @@
   <link rel="icon" href="/imgs/fav-icon.png" type="image/png"/>
   <link rel="stylesheet" href="assets/css/main.css"/>
   <style>
-    .hero { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; }
-    .hero-left { display: flex; flex-direction: column; justify-content: center; padding: 60px; }
-    .hero-right { background: var(--ink); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
-    .hero-tag { display: inline-flex; align-items: center; gap: 8px; background: var(--cream); border: 1px solid var(--border); border-radius: 100px; padding: 6px 16px; font-size: .8rem; font-weight: 700; color: var(--muted); margin-bottom: 24px; width: fit-content; }
-    .hero-title { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 800; line-height: 1.1; margin-bottom: 20px; }
-    .hero-title span { color: var(--accent); }
-    .hero-subtitle { font-size: 1.1rem; color: var(--muted); max-width: 480px; margin-bottom: 32px; }
-    .how-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius); padding: 20px; display: flex; gap: 15px; transition: 0.3s; }
-    .how-num { font-family: 'Syne', sans-serif; font-weight: 800; color: var(--accent); font-size: 1.2rem; }
-    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 40px; width: 100%; }
-    .modal-legal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
-    .modal-content { background: var(--surface); padding: 32px; border-radius: var(--radius-lg); max-width: 500px; width: 100%; box-shadow: var(--shadow-lg); }
-    .terms-box { height: 200px; overflow-y: auto; border: 1px solid var(--border); padding: 15px; border-radius: var(--radius); font-size: 0.85rem; color: var(--muted); margin: 15px 0; }
-    @media(max-width:900px) { .hero { grid-template-columns:1fr; } .hero-left { padding: 40px 24px; order: 2; } .hero-right { min-height: 300px; order: 1; } .footer-grid { grid-template-columns: 1fr; text-align: center; } }
+    :root { --hero-h: calc(100dvh - 64px); }
+
+    .hero {
+      min-height: var(--hero-h); display: grid; grid-template-columns: 1fr 1fr;
+      position: relative; overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+    }
+    .hero-orb {
+      position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.12;
+      animation: float 8s ease-in-out infinite;
+    }
+    .hero-orb-1 { width: 600px; height: 600px; background: var(--accent); top: -200px; right: -100px; animation-delay: 0s; }
+    .hero-orb-2 { width: 400px; height: 400px; background: var(--gold); bottom: -100px; left: -100px; animation-delay: 3s; }
+    .hero-orb-3 { width: 300px; height: 300px; background: var(--success); top: 50%; left: 30%; animation-delay: 5s; }
+
+    .hero-left {
+      display: flex; flex-direction: column; justify-content: center; padding: 80px 60px;
+      position: relative; z-index: 1;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px; background: rgba(255,77,31,.1);
+      border: 1px solid rgba(255,77,31,.2); border-radius: 100px; padding: 8px 18px;
+      font-size: .8rem; font-weight: 700; color: var(--accent); margin-bottom: 28px;
+      width: fit-content; animation: fadeUp .6s ease both;
+    }
+    .hero-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse-ring 2s ease-out infinite; }
+    .hero-title {
+      font-size: clamp(2.6rem, 5.5vw, 4.2rem); font-weight: 800; line-height: 1.05;
+      margin-bottom: 20px; animation: fadeUp .6s .1s ease both;
+    }
+    .hero-title span { color: var(--accent); position: relative; display: inline; }
+    .hero-title span::after {
+      content: ''; position: absolute; left: 0; bottom: -2px; right: 0; height: 4px;
+      background: var(--accent); border-radius: 2px; opacity: 0.4;
+    }
+    .hero-sub {
+      font-size: 1.05rem; color: var(--muted); max-width: 480px; margin-bottom: 36px;
+      line-height: 1.75; animation: fadeUp .6s .2s ease both;
+    }
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 48px; animation: fadeUp .6s .3s ease both; }
+    .hero-stats {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 20px;
+      padding-top: 32px; border-top: 1px solid var(--border);
+      animation: fadeUp .6s .4s ease both;
+    }
+    .hero-stat-num { font-family: var(--font-display); font-weight: 800; font-size: 1.6rem; color: var(--accent); letter-spacing: -0.03em; }
+    .hero-stat-label { font-size: .78rem; color: var(--muted); font-weight: 600; margin-top: 2px; }
+
+    .hero-right {
+      background: var(--ink); display: flex; flex-direction: column;
+      align-items: center; justify-content: center; position: relative; overflow: hidden; padding: 60px 48px;
+    }
+    .hero-right::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 80% 20%, rgba(255,77,31,.15) 0%, transparent 60%);
+    }
+    .steps-wrap { position: relative; z-index: 1; max-width: 380px; width: 100%; }
+    .steps-title { color: var(--paper); font-size: 1.8rem; margin-bottom: 28px; }
+    .step-card {
+      display: flex; gap: 16px; padding: 18px; border-radius: var(--radius-lg);
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+      margin-bottom: 12px; transition: var(--transition); animation: fadeUp .6s ease both;
+    }
+    .step-card:nth-child(1) { animation-delay: .1s; }
+    .step-card:nth-child(2) { animation-delay: .2s; }
+    .step-card:nth-child(3) { animation-delay: .3s; }
+    .step-card:hover { background: rgba(255,255,255,.1); transform: translateX(4px); }
+    .step-num {
+      width: 40px; height: 40px; border-radius: 12px; background: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display); font-weight: 800; color: #fff; font-size: .9rem; flex-shrink: 0;
+    }
+    .step-body { flex: 1; }
+    .step-body strong { display: block; color: var(--paper); font-family: var(--font-display); font-weight: 700; margin-bottom: 4px; font-size: .95rem; }
+    .step-body span { font-size: .82rem; color: rgba(247,243,236,.5); line-height: 1.5; }
+
+    .features-section { padding: 100px 24px; background: var(--cream); position: relative; overflow: hidden; }
+    .features-section::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); }
+    .section-inner { max-width: 1200px; margin: 0 auto; }
+    .section-eyebrow { font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; color: var(--accent); margin-bottom: 12px; }
+    .section-heading { font-size: clamp(1.8rem, 4vw, 2.8rem); margin-bottom: 16px; }
+    .section-sub { color: var(--muted); max-width: 560px; line-height: 1.75; font-size: 1.02rem; }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap: 20px; margin-top: 48px; }
+    .feature-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+      padding: 28px; transition: var(--spring); cursor: default;
+    }
+    .feature-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-md); border-color: rgba(255,77,31,.2); }
+    .feature-icon {
+      width: 52px; height: 52px; border-radius: var(--radius); margin-bottom: 16px;
+      background: rgba(255,77,31,.1); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+    }
+    .feature-title { font-size: 1rem; font-weight: 800; margin-bottom: 8px; }
+    .feature-desc { font-size: .875rem; color: var(--muted); line-height: 1.7; }
+
+    .menu-section { padding: 100px 24px; background: var(--surface); }
+    .menu-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(200px,1fr)); gap: 16px; margin-top: 48px; }
+    .menu-card {
+      background: var(--cream); border: 1px solid var(--border); border-radius: var(--radius-lg);
+      padding: 28px 20px; text-align: center; cursor: pointer; transition: var(--spring);
+    }
+    .menu-card:hover { background: var(--ink); color: var(--paper); transform: translateY(-6px) scale(1.02); box-shadow: var(--shadow-md); }
+    .menu-card:hover .menu-card-sub { color: rgba(247,243,236,.5); }
+    .menu-card-icon { font-size: 2.8rem; margin-bottom: 14px; display: block; }
+    .menu-card-title { font-weight: 800; font-family: var(--font-display); font-size: 1.05rem; margin-bottom: 6px; }
+    .menu-card-sub { font-size: .8rem; color: var(--muted); transition: var(--transition); }
+
+    .cta-section {
+      padding: 100px 24px; background: var(--ink); text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .cta-section::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 50%, rgba(255,77,31,.12) 0%, transparent 70%); }
+    .cta-inner { position: relative; z-index: 1; max-width: 640px; margin: 0 auto; }
+    .cta-title { color: var(--paper); font-size: clamp(2rem,5vw,3rem); margin-bottom: 16px; }
+    .cta-sub { color: rgba(247,243,236,.5); font-size: 1.05rem; margin-bottom: 36px; line-height: 1.7; }
+
+    .footer { background: var(--ink); border-top: 1px solid rgba(255,255,255,.06); padding: 60px 24px 30px; }
+    .footer-inner { max-width: 1200px; margin: 0 auto; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 48px; margin-bottom: 48px; }
+    .footer-brand { font-size: 1.3rem; font-family: var(--font-display); font-weight: 800; color: var(--paper); margin-bottom: 12px; }
+    .footer-brand span { color: var(--accent); }
+    .footer-desc { color: rgba(247,243,236,.4); font-size: .875rem; line-height: 1.75; max-width: 280px; }
+    .footer-heading { font-family: var(--font-display); font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: rgba(247,243,236,.3); margin-bottom: 16px; }
+    .footer-link { display: block; color: rgba(247,243,236,.5); font-size: .875rem; margin-bottom: 10px; transition: var(--transition); cursor: pointer; border: none; background: none; text-align: left; font-family: var(--font-body); }
+    .footer-link:hover { color: var(--paper); }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,.06); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .footer-copy { color: rgba(247,243,236,.2); font-size: .8rem; }
+
+    .modal-legal { position: fixed; inset: 0; background: rgba(10,10,15,0.7); z-index: 3000; display: none; align-items: flex-start; justify-content: center; padding: 24px 16px; overflow-y: auto; backdrop-filter: blur(8px); }
+    .modal-legal.open { display: flex; animation: fadeIn .2s ease; }
+    .modal-legal-box {
+      background: var(--surface); border-radius: var(--radius-xl); max-width: 640px; width: 100%;
+      margin: auto; box-shadow: 0 32px 80px rgba(0,0,0,0.3); animation: scaleIn .3s cubic-bezier(.34,1.56,.64,1);
+    }
+    .modal-legal-header { padding: 28px 28px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .modal-legal-header h2 { font-size: 1.3rem; }
+    .modal-legal-body { padding: 24px 28px; max-height: 60dvh; overflow-y: auto; }
+    .terms-section { margin-bottom: 24px; }
+    .terms-section h3 { font-size: .9rem; font-weight: 800; margin-bottom: 10px; color: var(--ink); }
+    .terms-section p, .terms-section li { font-size: .875rem; color: var(--muted); line-height: 1.75; }
+    .terms-section ul { padding-left: 18px; margin-top: 6px; }
+    .terms-section li { margin-bottom: 6px; }
+    .terms-highlight { background: rgba(255,59,92,.08); border: 1px solid rgba(255,59,92,.2); border-radius: var(--radius); padding: 16px 18px; margin: 16px 0; }
+    .terms-highlight h4 { color: var(--error); font-size: .88rem; margin-bottom: 6px; }
+    .terms-highlight p { color: #6b2233; font-size: .82rem; }
+    .modal-legal-footer { padding: 20px 28px; border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .terms-check-area { display: flex; align-items: flex-start; gap: 10px; font-size: .875rem; cursor: pointer; flex: 1; }
+    .terms-check-area input { margin-top: 2px; width: 16px; height: 16px; accent-color: var(--accent); flex-shrink: 0; }
+
+    @media(max-width:900px) {
+      .hero { grid-template-columns: 1fr; }
+      .hero-left { padding: 52px 24px 40px; }
+      .hero-right { padding: 48px 24px; min-height: 400px; }
+      .hero-stats { grid-template-columns: repeat(3,1fr); gap: 12px; }
+      .hero-stat-num { font-size: 1.3rem; }
+      .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+      .features-section, .menu-section, .cta-section { padding: 64px 20px; }
+    }
+    @media(max-width:480px) {
+      .hero-actions { flex-direction: column; }
+      .hero-actions .btn { width: 100%; }
+      .hero-stats { grid-template-columns: repeat(3,1fr); gap: 8px; }
+      .hero-stat-num { font-size: 1.1rem; }
+      .menu-grid { grid-template-columns: 1fr 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -28,126 +181,272 @@
 
 <main>
   <section class="hero">
-    <div class="hero-left animate-up">
-      <div class="hero-tag">✨ Evita filas, disfruta más</div>
+    <div class="hero-bg">
+      <div class="hero-orb hero-orb-1"></div>
+      <div class="hero-orb hero-orb-2"></div>
+      <div class="hero-orb hero-orb-3"></div>
+    </div>
+    <div class="hero-left">
+      <div class="hero-badge">Nuevo sistema digital · Sin filas</div>
       <h1 class="hero-title">Pide tu almuerzo<br/>sin <span>complicaciones</span></h1>
-      <p class="hero-subtitle">La solución digital para la Cafetería del Colegio Santa Juana. Elige, genera tu QR y recoge en segundos.</p>
-      
-      <div id="auth-actions" class="flex gap-2" style="flex-wrap:wrap">
-      </div>
-
-      <div class="hero-stats" style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 40px; padding-top: 30px; border-top: 1px solid var(--border);">
-        <div><div class="stat-num" style="font-family:'Syne'; font-weight:800; color:var(--accent); font-size:1.5rem">0</div><div class="stat-label" style="font-size:0.8rem; color:var(--muted)">Filas largas</div></div>
-        <div><div class="stat-num" style="font-family:'Syne'; font-weight:800; color:var(--accent); font-size:1.5rem">QR</div><div class="stat-label" style="font-size:0.8rem; color:var(--muted)">Acceso instantáneo</div></div>
-        <div><div class="stat-num" style="font-family:'Syne'; font-weight:800; color:var(--accent); font-size:1.5rem">100%</div><div class="stat-label" style="font-size:0.8rem; color:var(--muted)">Seguro</div></div>
+      <p class="hero-sub">La cafetería inteligente del Colegio Santa Juana. Elige tu menú, genera tu QR y recoge en segundos. Rápido, fácil y seguro.</p>
+      <div class="hero-actions" id="auth-actions"></div>
+      <div class="hero-stats">
+        <div><div class="hero-stat-num">0</div><div class="hero-stat-label">Filas largas</div></div>
+        <div><div class="hero-stat-num">QR</div><div class="hero-stat-label">Acceso rápido</div></div>
+        <div><div class="hero-stat-num">100%</div><div class="hero-stat-label">Digital</div></div>
       </div>
     </div>
-
     <div class="hero-right">
-      <div style="z-index:1; padding:40px; color:var(--paper); max-width:400px">
-        <h2 style="font-family:'Syne'; margin-bottom:24px; font-size:1.8rem">¿Cómo funciona?</h2>
-        <div style="display:flex; flex-direction:column; gap:16px">
-          <div class="how-card"><span class="how-num">01</span><div><strong style="display:block; margin-bottom:4px">Regístrate</strong><span style="font-size:0.85rem; opacity:0.7">Usa tu cuenta institucional para empezar.</span></div></div>
-          <div class="how-card"><span class="how-num">02</span><div><strong style="display:block; margin-bottom:4px">Ordena</strong><span style="font-size:0.85rem; opacity:0.7">Selecciona tus productos favoritos del menú.</span></div></div>
-          <div class="how-card"><span class="how-num">03</span><div><strong style="display:block; margin-bottom:4px">Escanea</strong><span style="font-size:0.85rem; opacity:0.7">Muestra tu QR en caja, paga y disfruta.</span></div></div>
+      <div class="steps-wrap">
+        <h2 class="steps-title">¿Cómo funciona?</h2>
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <div class="step-body"><strong>Regístrate</strong><span>Usa tu correo institucional @santajuanalestonnac.edu.co para crear tu cuenta.</span></div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">02</div>
+          <div class="step-body"><strong>Ordena tu menú</strong><span>Selecciona tus productos favoritos del catálogo digital.</span></div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <div class="step-body"><strong>Escanea y paga</strong><span>Muestra tu QR en caja, paga en efectivo y disfruta.</span></div>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="section" style="background:var(--cream); padding: 80px 24px;">
-    <div style="max-width:1200px; margin:0 auto; text-align:center">
-      <h2 style="font-size:2.2rem; font-weight:800; margin-bottom:40px">Explora el Menú</h2>
-      <div class="grid-auto">
-        <div class="card" onclick="location.href='/store/?cat=almuerzos'"><span style="font-size:2.5rem">🍛</span><h3 style="margin-top:10px">Almuerzos</h3><p style="font-size:0.8rem; color:var(--muted)">Nutritivos y caseros</p></div>
-        <div class="card" onclick="location.href='/store/?cat=snacks'"><span style="font-size:2.5rem">🥟</span><h3 style="margin-top:10px">Snacks</h3><p style="font-size:0.8rem; color:var(--muted)">Para el descanso</p></div>
-        <div class="card" onclick="location.href='/store/?cat=bebidas'"><span style="font-size:2.5rem">🥤</span><h3 style="margin-top:10px">Bebidas</h3><p style="font-size:0.8rem; color:var(--muted)">Refrescantes e hídricas</p></div>
-        <div class="card" onclick="location.href='/store/'"><span style="font-size:2.5rem">✨</span><h3 style="margin-top:10px">Mucho más</h3><p style="font-size:0.8rem; color:var(--muted)">Ver catálogo completo</p></div>
+  <section class="features-section">
+    <div class="section-inner">
+      <div class="section-eyebrow">Beneficios</div>
+      <h2 class="section-heading">Una cafetería más<br/>inteligente para todos</h2>
+      <p class="section-sub">Diseñado pensando en estudiantes y administradores. Rápido, justo y sin contratiempos.</p>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <div class="feature-title">Súper rápido</div>
+          <div class="feature-desc">Ordena en segundos desde tu celular. Sin esperar en filas largas durante el recreo.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📱</div>
+          <div class="feature-title">100% móvil</div>
+          <div class="feature-desc">Diseñado primero para celulares. Funciona perfectamente en cualquier dispositivo.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔐</div>
+          <div class="feature-title">Acceso seguro</div>
+          <div class="feature-desc">Solo correos institucionales. Tu cuenta y pedidos protegidos con autenticación JWT.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <div class="feature-title">Panel admin</div>
+          <div class="feature-desc">Gestión completa de productos, pedidos y usuarios desde un dashboard centralizado.</div>
+        </div>
       </div>
+    </div>
+  </section>
+
+  <section class="menu-section">
+    <div class="section-inner">
+      <div style="text-align:center;max-width:600px;margin:0 auto">
+        <div class="section-eyebrow">Nuestro menú</div>
+        <h2 class="section-heading">Explora lo que tenemos para ti</h2>
+        <p class="section-sub">Desde almuerzos completos hasta snacks de recreo. Siempre fresco.</p>
+      </div>
+      <div class="menu-grid">
+        <div class="menu-card" onclick="location.href='/store/?cat=almuerzos'">
+          <span class="menu-card-icon">🍛</span>
+          <div class="menu-card-title">Almuerzos</div>
+          <div class="menu-card-sub">Nutritivos y caseros</div>
+        </div>
+        <div class="menu-card" onclick="location.href='/store/?cat=desayunos'">
+          <span class="menu-card-icon">🍳</span>
+          <div class="menu-card-title">Desayunos</div>
+          <div class="menu-card-sub">Energía para el día</div>
+        </div>
+        <div class="menu-card" onclick="location.href='/store/?cat=rapidos'">
+          <span class="menu-card-icon">🌭</span>
+          <div class="menu-card-title">Platos Rápidos</div>
+          <div class="menu-card-sub">Para el recreo corto</div>
+        </div>
+        <div class="menu-card" onclick="location.href='/store/?cat=bebidas'">
+          <span class="menu-card-icon">🥤</span>
+          <div class="menu-card-title">Bebidas</div>
+          <div class="menu-card-sub">Refrescantes</div>
+        </div>
+        <div class="menu-card" onclick="location.href='/store/?cat=snacks'">
+          <span class="menu-card-icon">🍿</span>
+          <div class="menu-card-title">Snacks</div>
+          <div class="menu-card-sub">Para el antojo</div>
+        </div>
+        <div class="menu-card" onclick="location.href='/store/?cat=postres'">
+          <span class="menu-card-icon">🍮</span>
+          <div class="menu-card-title">Postres</div>
+          <div class="menu-card-sub">Dulces momentos</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <div class="cta-inner">
+      <div style="font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);margin-bottom:12px">Únete ahora</div>
+      <h2 class="cta-title">¿Listo para ordenar sin filas?</h2>
+      <p class="cta-sub">Crea tu cuenta con tu correo institucional y empieza a pedir desde hoy. Es gratis y toma menos de un minuto.</p>
+      <div class="hero-actions" style="justify-content:center" id="cta-actions"></div>
     </div>
   </section>
 </main>
 
-<footer style="background:var(--ink); color:var(--paper); padding:60px 24px 30px;">
-  <div style="max-width:1200px; margin:0 auto">
+<footer class="footer">
+  <div class="footer-inner">
     <div class="footer-grid">
       <div>
-        <h2 style="font-family:'Syne'; font-size:1.5rem; margin-bottom:15px">Cafetería <span style="color:var(--accent)">Santa Juana</span></h2>
-        <p style="opacity:0.6; font-size:0.9rem; max-width:300px">Comprometidos con una alimentación sana y ágil para la comunidad Lestonnac.</p>
+        <div class="footer-brand">Cafetería <span>Santa Juana</span></div>
+        <p class="footer-desc">Comprometidos con una alimentación sana y un servicio ágil para toda la comunidad Lestonnac.</p>
       </div>
       <div>
-        <h4 style="margin-bottom:15px; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px">Contacto</h4>
-        <ul style="list-style:none; font-size:0.9rem; opacity:0.8; line-height:2">
-          <li>📞 +57 (300) 000-0000</li>
-          <li>📧 cafeteria@lestonnac.edu.co</li>
-          <li>📍 Sede Principal - Patio Central</li>
-        </ul>
+        <div class="footer-heading">Contacto</div>
+        <div class="footer-link">📞 +57 (300) 000-0000</div>
+        <div class="footer-link">📧 cafeteria@lestonnac.edu.co</div>
+        <div class="footer-link">📍 Sede Principal - Patio Central</div>
       </div>
       <div>
-        <h4 style="margin-bottom:15px; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px">Legal</h4>
-        <ul style="list-style:none; font-size:0.9rem; opacity:0.8; line-height:2">
-          <li><a href="#" onclick="showTerms()">Términos y Condiciones</a></li>
-          <li><a href="https://lestonnac.edu.co" target="_blank">Página Oficial</a></li>
-        </ul>
+        <div class="footer-heading">Legal</div>
+        <button class="footer-link" onclick="openTerms()">Términos y Condiciones</button>
+        <button class="footer-link" onclick="location.href='/store/'">Tienda</button>
+        <a class="footer-link" href="https://lestonnac.edu.co" target="_blank">Página Oficial</a>
       </div>
     </div>
-    <div style="margin-top:50px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.05); text-align:center; font-size:0.8rem; opacity:0.4">
-      © 2026 Colegio Santa Juana de Lestonnac. Todos los derechos reservados.
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 Colegio Santa Juana de Lestonnac. Todos los derechos reservados.</div>
+      <div class="footer-copy">Hecho con ❤️ para la comunidad estudiantil</div>
     </div>
   </div>
 </footer>
 
 <div id="modal-terms" class="modal-legal">
-  <div class="modal-content">
-    <h2 style="font-family:'Syne'">Términos y Condiciones</h2>
-    <div class="terms-box">
-      <strong>1. Uso de la Plataforma:</strong> Esta aplicación es exclusiva para estudiantes y personal del Colegio Santa Juana de Lestonnac.<br><br>
-      <strong>2. Pedidos:</strong> Los pedidos realizados generan un compromiso de pago en efectivo en el punto de venta físico.<br><br>
-      <strong>3. Privacidad:</strong> Sus datos se utilizan únicamente para la gestión interna de pedidos y entrega de productos.<br><br>
-      <strong>4. Cancelaciones:</strong> Un pedido no reclamado puede resultar en la suspensión temporal de la cuenta.
+  <div class="modal-legal-box">
+    <div class="modal-legal-header">
+      <h2>📋 Términos y Condiciones</h2>
+      <button class="modal-close" onclick="closeTerms()">✕</button>
     </div>
-    <div id="register-check-area" style="display:none">
-      <label style="display:flex; gap:10px; font-size:0.9rem; cursor:pointer; align-items:center">
-        <input type="checkbox" id="accept-terms"> Acepto los términos y condiciones para crear mi cuenta.
-      </label>
-      <button class="btn btn-accent btn-full mt-2" onclick="processRegister()">Continuar al Registro</button>
+    <div class="modal-legal-body">
+      <div class="terms-section">
+        <h3>1. Uso de la plataforma</h3>
+        <p>Esta aplicación es de uso exclusivo para estudiantes y personal del Colegio Santa Juana de Lestonnac. El acceso requiere un correo institucional válido (@santajuanalestonnac.edu.co). El uso indebido de la plataforma puede resultar en la suspensión permanente de la cuenta.</p>
+      </div>
+      <div class="terms-section">
+        <h3>2. Proceso de pedidos y pagos</h3>
+        <p>Al confirmar un pedido en la plataforma:</p>
+        <ul>
+          <li>El estudiante adquiere un compromiso formal de pago en efectivo en el punto de venta físico.</li>
+          <li>Se generará un código QR único que debe ser presentado al personal de la cafetería.</li>
+          <li>El pago debe realizarse al momento de retirar el pedido.</li>
+          <li>No se aceptan cancelaciones después de confirmado el pedido, salvo circunstancias excepcionales autorizadas por el administrador.</li>
+        </ul>
+      </div>
+      <div class="terms-highlight">
+        <h4>⚠️ OBLIGACIÓN DE PAGO — FALTA DISCIPLINARIA TIPO 2</h4>
+        <p>Si un estudiante realiza un pedido a través de la plataforma y <strong>no realiza el pago correspondiente antes del cierre de la jornada escolar</strong>, esto se considerará una <strong>falta disciplinaria de Tipo 2</strong> según el Manual de Convivencia del colegio, y tendrá las siguientes consecuencias:</p>
+        <ul style="margin-top:10px;padding-left:18px">
+          <li style="margin-bottom:6px;color:#6b2233;font-size:.82rem">Citación formal al acudiente o padre de familia.</li>
+          <li style="margin-bottom:6px;color:#6b2233;font-size:.82rem">Anotación en el observador del estudiante.</li>
+          <li style="margin-bottom:6px;color:#6b2233;font-size:.82rem">Pago obligatorio de una <strong>multa equivalente al doble (2x) del valor del pedido no pagado</strong>, adicional al valor original del pedido.</li>
+          <li style="margin-bottom:6px;color:#6b2233;font-size:.82rem">Bloqueo temporal de la cuenta hasta que se regularice la situación.</li>
+          <li style="color:#6b2233;font-size:.82rem">Reincidencia: bloqueo permanente de la plataforma para el estudiante.</li>
+        </ul>
+      </div>
+      <div class="terms-section">
+        <h3>3. Privacidad y datos personales</h3>
+        <p>Los datos personales proporcionados (nombre, documento, grado, correo) se utilizan únicamente para la gestión interna de pedidos y la operación de la cafetería. No se comparten con terceros. El almacenamiento cumple con la Ley 1581 de 2012 (Habeas Data - Colombia).</p>
+      </div>
+      <div class="terms-section">
+        <h3>4. Disponibilidad del servicio</h3>
+        <ul>
+          <li>Los productos están disponibles según el stock publicado en la plataforma.</li>
+          <li>La cafetería se reserva el derecho de modificar el menú y los precios sin previo aviso.</li>
+          <li>El servicio opera en días y horarios escolares regulares.</li>
+        </ul>
+      </div>
+      <div class="terms-section">
+        <h3>5. Responsabilidades del usuario</h3>
+        <ul>
+          <li>No compartir credenciales de acceso con otros estudiantes.</li>
+          <li>Reportar inmediatamente cualquier uso no autorizado de la cuenta.</li>
+          <li>No realizar pedidos en nombre de otros estudiantes sin autorización.</li>
+          <li>Mantener información personal actualizada y verídica.</li>
+        </ul>
+      </div>
+      <div class="terms-section">
+        <h3>6. Modificaciones</h3>
+        <p>El colegio se reserva el derecho de modificar estos términos en cualquier momento. Los cambios entrarán en vigor inmediatamente después de su publicación. El uso continuo de la plataforma constituye la aceptación de los términos actualizados.</p>
+      </div>
     </div>
-    <button class="btn btn-primary btn-full mt-1" onclick="closeTerms()">Cerrar</button>
+    <div class="modal-legal-footer">
+      <div id="terms-check-container" style="display:none;flex:1">
+        <label class="terms-check-area">
+          <input type="checkbox" id="accept-terms"/>
+          <span>He leído y acepto los Términos y Condiciones, incluyendo la política de pagos y consecuencias disciplinarias.</span>
+        </label>
+      </div>
+      <div id="terms-btn-register" style="display:none">
+        <button class="btn btn-accent" onclick="processRegister()">Continuar al registro →</button>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeTerms()">Cerrar</button>
+    </div>
   </div>
 </div>
 
 <script src="assets/js/app.js"></script>
 <script>
-  function showTerms(isRegister = false) {
-    document.getElementById('modal-terms').style.display = 'flex';
-    document.getElementById('register-check-area').style.display = isRegister ? 'block' : 'none';
+  buildNav('home');
+
+  function openTerms(isRegister) {
+    const modal = document.getElementById('modal-terms');
+    modal.classList.add('open');
+    document.getElementById('terms-check-container').style.display = isRegister ? 'flex' : 'none';
+    document.getElementById('terms-btn-register').style.display = isRegister ? 'block' : 'none';
   }
-  function closeTerms() { document.getElementById('modal-terms').style.display = 'none'; }
-  
+  function closeTerms() {
+    document.getElementById('modal-terms').classList.remove('open');
+  }
+  document.getElementById('modal-terms').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal-terms')) closeTerms();
+  });
+
   function processRegister() {
-    if(document.getElementById('accept-terms').checked) {
-      window.location.href = '/auth/?action=register';
-    } else {
-      alert("Debes aceptar los términos para registrarte.");
+    if (!document.getElementById('accept-terms').checked) {
+      toast('Debes aceptar los términos para continuar', 'warning'); return;
     }
+    window.location.href = '/auth/?tab=register';
   }
 
   function initHero() {
-    const actions = document.getElementById('auth-actions');
     const user = JSON.parse(localStorage.getItem('user'));
-    
+    const actionsEl = document.getElementById('auth-actions');
+    const ctaEl = document.getElementById('cta-actions');
     if (user) {
       const target = user.role === 'admin' ? '/admin/' : '/store/';
-      const label = user.role === 'admin' ? 'Panel de Control' : 'Ir a la Tienda';
-      actions.innerHTML = `<a href="${target}" class="btn btn-accent btn-lg">${label} →</a>`;
+      const label = user.role === 'admin' ? '📊 Panel Admin' : '🍽️ Ir a la Tienda';
+      const html = `<a href="${target}" class="btn btn-accent btn-lg">${label}</a><button class="btn btn-outline btn-lg" onclick="auth.logout()">Salir</button>`;
+      actionsEl.innerHTML = html;
+      ctaEl.innerHTML = html;
     } else {
-      actions.innerHTML = `
-        <a href="/auth/?action=login" class="btn btn-primary btn-lg">Iniciar Sesión</a>
-        <button onclick="showTerms(true)" class="btn btn-accent btn-lg">Registrarse</button>
-      `;
+      const html = `<a href="/auth/" class="btn btn-accent btn-lg">Iniciar sesión</a><button onclick="openTerms(true)" class="btn btn-outline btn-lg">Registrarse gratis</button>`;
+      actionsEl.innerHTML = html;
+      ctaEl.innerHTML = html;
     }
   }
   initHero();
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.style.animationPlayState = 'running'; observer.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.feature-card, .menu-card, .step-card').forEach(el => {
+    el.style.animationPlayState = 'paused';
+    observer.observe(el);
+  });
 </script>
 </body>
 </html>
