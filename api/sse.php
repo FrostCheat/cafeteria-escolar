@@ -1,8 +1,8 @@
 <?php
-require_once __DIR__ . '/api/config/logger.php';
-require_once __DIR__ . '/api/config/database.php';
-require_once __DIR__ . '/api/config/helpers.php';
-require_once __DIR__ . '/api/middleware/auth.php';
+require_once __DIR__ . '/config/logger.php';
+require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/config/helpers.php';
+require_once __DIR__ . '/middleware/auth.php';
 
 ini_set('output_buffering', 'off');
 ini_set('zlib.output_compression', false);
@@ -46,10 +46,10 @@ function getQueueState(PDO $db): array {
         $currentOrder = $stmt->fetch() ?: null;
     }
     return [
-        'enabled'       => $cfg ? (bool)$cfg['enabled'] : false,
-        'current_turn'  => $cfg ? (int)$cfg['current_turn'] : 0,
-        'current_order' => $currentOrder,
-        'last_updated'  => $cfg ? $cfg['updated_at'] : null,
+        'enabled'      => $cfg ? (bool)$cfg['enabled'] : false,
+        'current_turn' => $cfg ? (int)$cfg['current_turn'] : 0,
+        'current_order'=> $currentOrder,
+        'last_updated' => $cfg ? $cfg['updated_at'] : null,
     ];
 }
 
@@ -78,28 +78,22 @@ function getAdminOrders(PDO $db): array {
 }
 
 function getUserOrders(PDO $db, int $userId): array {
-    $stmt = $db->prepare("
-        SELECT o.id, o.status, o.total, o.created_at, o.turn_number, o.qr_token, o.qr_code
-        FROM orders o WHERE o.user_id=? ORDER BY o.created_at DESC LIMIT 50
-    ");
+    $stmt = $db->prepare("SELECT o.id, o.status, o.total, o.created_at, o.turn_number, o.qr_token, o.qr_code FROM orders o WHERE o.user_id=? ORDER BY o.created_at DESC LIMIT 50");
     $stmt->execute([$userId]);
     $orders = $stmt->fetchAll();
-
     if (!$orders) return [];
-
     $ids = array_column($orders, 'id');
     $in  = implode(',', array_fill(0, count($ids), '?'));
     $stmt = $db->prepare("SELECT order_id, product_name, quantity, subtotal FROM order_items WHERE order_id IN ($in)");
     $stmt->execute($ids);
-
     $grouped = [];
-    foreach ($stmt->fetchAll() as $item) {
-        $grouped[$item['order_id']][] = $item;
-    }
-    foreach ($orders as &$o) {
-        $o['items'] = $grouped[$o['id']] ?? [];
-    }
+    foreach ($stmt->fetchAll() as $item) $grouped[$item['order_id']][] = $item;
+    foreach ($orders as &$o) $o['items'] = $grouped[$o['id']] ?? [];
     return $orders;
+}
+
+function getProducts(PDO $db): array {
+    return $db->query("SELECT id, name, description, price, stock, category, image, active FROM products WHERE active=1 ORDER BY category, created_at ASC")->fetchAll();
 }
 
 $isAdmin = $user['role'] === 'admin';
@@ -112,13 +106,13 @@ $start   = time();
 $maxTime = 55;
 
 sseFlush('connected', ['status' => 'ok', 'role' => $user['role'], 'user_id' => $userId]);
-
 sseFlush('queue', getQueueState($db));
+sseFlush('products_updated', ['products' => getProducts($db)]);
 
 if ($isAdmin) {
     sseFlush('orders_updated', ['orders' => getAdminOrders($db)]);
     sseFlush('stats_updated', getStats($db));
-    sseFlush('products_updated', ['products' => $db->query("SELECT id, name, stock, active, price, category FROM products ORDER BY id")->fetchAll()]);
+    sseFlush('admin_products_updated', ['products' => $db->query("SELECT id, name, stock, active, price, category FROM products ORDER BY id")->fetchAll()]);
 } else {
     sseFlush('my_orders_updated', ['orders' => getUserOrders($db, $userId)]);
 }
@@ -132,44 +126,27 @@ while ((time() - $start) < $maxTime) {
         $newEvents = $stmt->fetchAll();
 
         if ($newEvents) {
-            $lastEventId = (int)end($newEvents)['id'];
-
-            $types = array_unique(array_column($newEvents, 'type'));
-
+            $lastEventId   = (int)end($newEvents)['id'];
+            $types         = array_unique(array_column($newEvents, 'type'));
             $needsQueue    = in_array('queue_changed', $types);
-            $needsOrders   = array_intersect(['order_created', 'order_updated'], $types);
+            $needsOrders   = (bool)array_intersect(['order_created', 'order_updated'], $types);
             $needsProducts = in_array('product_changed', $types);
             $needsStats    = $needsOrders || $needsProducts;
 
-            if ($needsQueue || $needsOrders) {
-                sseFlush('queue', getQueueState($db));
-            }
+            if ($needsQueue || $needsOrders) sseFlush('queue', getQueueState($db));
+
+            if ($needsProducts) sseFlush('products_updated', ['products' => getProducts($db)]);
 
             if ($isAdmin) {
-                if ($needsOrders) {
-                    sseFlush('orders_updated', ['orders' => getAdminOrders($db)]);
-                }
-                if ($needsStats) {
-                    sseFlush('stats_updated', getStats($db));
-                }
-                if ($needsProducts) {
-                    sseFlush('products_updated', ['products' => $db->query("SELECT id, name, stock, active, price, category FROM products ORDER BY id")->fetchAll()]);
-                }
+                if ($needsOrders) sseFlush('orders_updated', ['orders' => getAdminOrders($db)]);
+                if ($needsStats) sseFlush('stats_updated', getStats($db));
+                if ($needsProducts) sseFlush('admin_products_updated', ['products' => $db->query("SELECT id, name, stock, active, price, category FROM products ORDER BY id")->fetchAll()]);
             } else {
                 if ($needsOrders) {
-                    $relevant = array_filter($newEvents, function($e) use ($userId) {
-                        $payload = json_decode($e['payload'], true);
-                        return isset($payload['user_id']) && (int)$payload['user_id'] === $userId;
-                    });
-                    if ($relevant || $needsQueue) {
-                        sseFlush('my_orders_updated', ['orders' => getUserOrders($db, $userId)]);
-                    } elseif ($needsQueue) {
-                        sseFlush('my_orders_updated', ['orders' => getUserOrders($db, $userId)]);
-                    }
+                    $relevant = array_filter($newEvents, fn($e) => isset(json_decode($e['payload'], true)['user_id']) && (int)json_decode($e['payload'], true)['user_id'] === $userId);
+                    if ($relevant || $needsQueue) sseFlush('my_orders_updated', ['orders' => getUserOrders($db, $userId)]);
                 }
-                if ($needsQueue) {
-                    sseFlush('my_orders_updated', ['orders' => getUserOrders($db, $userId)]);
-                }
+                if ($needsQueue && !$needsOrders) sseFlush('my_orders_updated', ['orders' => getUserOrders($db, $userId)]);
             }
         }
 
