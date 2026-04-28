@@ -26,9 +26,9 @@ register_shutdown_function(function() {
         http_response_code(500);
         echo json_encode([
             'fatal_error' => true,
-            'message' => $error['message'],
-            'file' => $error['file'],
-            'line' => $error['line']
+            'message'     => $error['message'],
+            'file'        => $error['file'],
+            'line'        => $error['line']
         ]);
         exit;
     }
@@ -37,16 +37,16 @@ register_shutdown_function(function() {
 set_exception_handler(function($exception) {
     logError('Excepción no capturada', [
         'message' => $exception->getMessage(),
-        'file' => $exception->getFile(),
-        'line' => $exception->getLine(),
-        'trace' => $exception->getTraceAsString()
+        'file'    => $exception->getFile(),
+        'line'    => $exception->getLine(),
+        'trace'   => $exception->getTraceAsString()
     ]);
     http_response_code(500);
     echo json_encode([
         'exception' => true,
-        'message' => $exception->getMessage(),
-        'file' => $exception->getFile(),
-        'line' => $exception->getLine()
+        'message'   => $exception->getMessage(),
+        'file'      => $exception->getFile(),
+        'line'      => $exception->getLine()
     ]);
     exit;
 });
@@ -54,16 +54,16 @@ set_exception_handler(function($exception) {
 set_error_handler(function($errno, $errstr, $errfile, $errline) {
     logWarning('Error capturado', [
         'message' => $errstr,
-        'file' => $errfile,
-        'line' => $errline,
-        'type' => $errno
+        'file'    => $errfile,
+        'line'    => $errline,
+        'type'    => $errno
     ]);
     http_response_code(500);
     echo json_encode([
-        'error' => true,
+        'error'   => true,
         'message' => $errstr,
-        'file' => $errfile,
-        'line' => $errline
+        'file'    => $errfile,
+        'line'    => $errline
     ]);
     exit;
 });
@@ -79,34 +79,41 @@ try {
     $request_uri = '/' . ltrim($request_uri, '/');
 
     $method = $_SERVER['REQUEST_METHOD'];
-    $body = json_decode(file_get_contents('php://input'), true) ?? [];
+    $body   = json_decode(file_get_contents('php://input'), true) ?? [];
 
     $segments = array_values(array_filter(explode('/', $request_uri)));
     $resource = $segments[0] ?? '';
-    $id = isset($segments[1]) && is_numeric($segments[1]) ? (int)$segments[1] : null;
-    $action = isset($segments[1]) && !is_numeric($segments[1]) ? $segments[1] : ($segments[2] ?? null);
+    $id       = isset($segments[1]) && is_numeric($segments[1]) ? (int)$segments[1] : null;
+    $action   = isset($segments[1]) && !is_numeric($segments[1]) ? $segments[1] : ($segments[2] ?? null);
     if ($id !== null && isset($segments[2])) $action = $segments[2];
 
     logInfo('Procesando solicitud', ['resource' => $resource, 'id' => $id, 'action' => $action]);
 
     getDB();
 
-    $controllerFile = null;
-    if ($resource === 'auth') $controllerFile = __DIR__ . '/controllers/auth.php';
-    elseif ($resource === 'products') $controllerFile = __DIR__ . '/controllers/products.php';
-    elseif ($resource === 'cart') $controllerFile = __DIR__ . '/controllers/cart.php';
-    elseif ($resource === 'orders') $controllerFile = __DIR__ . '/controllers/orders.php';
-    elseif ($resource === 'users') $controllerFile = __DIR__ . '/controllers/users.php';
-    
     if ($resource === 'health') {
         logInfo('Health check solicitado');
         echo json_encode(['status' => 'ok', 'time' => date('c')]);
         exit;
     }
-    
-    if ($controllerFile && file_exists($controllerFile)) {
-        logInfo('Cargando controlador', ['file' => $controllerFile]);
-        require $controllerFile;
+
+    if ($resource === 'sse') {
+        require __DIR__ . '/sse.php';
+        exit;
+    }
+
+    $controllerMap = [
+        'auth'     => __DIR__ . '/controllers/auth.php',
+        'products' => __DIR__ . '/controllers/products.php',
+        'cart'     => __DIR__ . '/controllers/cart.php',
+        'orders'   => __DIR__ . '/controllers/orders.php',
+        'users'    => __DIR__ . '/controllers/users.php',
+        'queue'    => __DIR__ . '/controllers/queue.php',
+    ];
+
+    if (isset($controllerMap[$resource]) && file_exists($controllerMap[$resource])) {
+        logInfo('Cargando controlador', ['file' => $controllerMap[$resource]]);
+        require $controllerMap[$resource];
         exit;
     }
 
@@ -120,21 +127,20 @@ try {
     http_response_code(500);
     echo json_encode([
         'db_error' => true,
-        'message' => $e->getMessage(),
-        'code' => $e->getCode()
+        'message'  => $e->getMessage(),
+        'code'     => $e->getCode()
     ]);
     exit;
 } catch (Exception $e) {
     logError('Excepción general en index.php', [
         'message' => $e->getMessage(),
-        'file' => $e->getFile(),
-        'line' => $e->getLine()
+        'file'    => $e->getFile(),
+        'line'    => $e->getLine()
     ]);
     http_response_code(500);
     echo json_encode([
-        'error' => true,
+        'error'   => true,
         'message' => $e->getMessage()
     ]);
     exit;
 }
-?>

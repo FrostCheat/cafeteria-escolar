@@ -35,7 +35,7 @@ function getDB(): PDO {
 function initDB(PDO $pdo): void {
     try {
         logInfo('Inicializando tablas');
-        
+
         $pdo->exec("
             CREATE TABLE IF NOT EXISTS users (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -53,7 +53,7 @@ function initDB(PDO $pdo): void {
                 UNIQUE INDEX idx_email (email)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ");
-        
+
         $pdo->exec("
             CREATE TABLE IF NOT EXISTS products (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -68,7 +68,7 @@ function initDB(PDO $pdo): void {
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ");
-        
+
         $pdo->exec("
             CREATE TABLE IF NOT EXISTS cart_items (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -80,7 +80,7 @@ function initDB(PDO $pdo): void {
                 UNIQUE KEY unique_cart (user_id, product_id)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ");
-        
+
         $pdo->exec("
             CREATE TABLE IF NOT EXISTS orders (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -90,13 +90,24 @@ function initDB(PDO $pdo): void {
                 qr_code VARCHAR(255),
                 qr_token VARCHAR(100),
                 notes TEXT,
+                turn_number INT DEFAULT NULL,
                 paid_at TIMESTAMP NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id),
                 UNIQUE INDEX idx_qr_token (qr_token)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ");
-        
+
+        try {
+            $cols = $pdo->query("SHOW COLUMNS FROM orders LIKE 'turn_number'")->fetchAll();
+            if (empty($cols)) {
+                $pdo->exec("ALTER TABLE orders ADD COLUMN turn_number INT DEFAULT NULL AFTER notes");
+                logInfo('Columna turn_number agregada a orders');
+            }
+        } catch (PDOException $e) {
+            logWarning('No se pudo verificar columna turn_number', ['error' => $e->getMessage()]);
+        }
+
         $pdo->exec("
             CREATE TABLE IF NOT EXISTS order_items (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -110,10 +121,26 @@ function initDB(PDO $pdo): void {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ");
 
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS queue_config (
+                id INT PRIMARY KEY DEFAULT 1,
+                enabled TINYINT(1) NOT NULL DEFAULT 0,
+                current_turn INT NOT NULL DEFAULT 0,
+                current_order_id INT DEFAULT NULL,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        ");
+
+        $existing = $pdo->query("SELECT id FROM queue_config WHERE id=1")->fetch();
+        if (!$existing) {
+            $pdo->exec("INSERT INTO queue_config (id, enabled, current_turn) VALUES (1, 0, 0)");
+            logInfo('queue_config inicializado');
+        }
+
         $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
         $stmt->execute(['admin@santajuanalestonnac.edu.co']);
         $admin = $stmt->fetch();
-        
+
         if (!$admin) {
             logInfo('Creando usuario administrador por defecto');
             $hash = password_hash('admin123', PASSWORD_BCRYPT);
@@ -124,12 +151,11 @@ function initDB(PDO $pdo): void {
             $stmt->execute([$hash]);
             logInfo('Usuario administrador creado');
         }
-        
+
         logInfo('Inicialización de tablas completada');
-        
+
     } catch (PDOException $e) {
         logDatabaseError('initDB', $e);
         throw new Exception('InitDB failed: ' . $e->getMessage());
     }
 }
-?>

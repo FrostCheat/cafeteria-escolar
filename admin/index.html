@@ -13,516 +13,102 @@
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <style>
     :root {
-      --c1: #0d0d0d;
-      --c2: #111;
-      --c3: #191919;
-      --c4: #222;
-      --accent: #ff3c00;
-      --accent2: #ff6b35;
-      --gold: #ffd166;
-      --paper: #faf9f7;
-      --cream: #f2ede4;
-      --surface: #ffffff;
-      --muted: #888;
-      --border: rgba(0,0,0,0.08);
-      --border-dark: rgba(255,255,255,0.07);
-      --success: #06d6a0;
-      --warning: #ffd166;
-      --error: #ff3b5c;
-      --info: #4cc9f0;
-      --font-display: 'Unbounded', sans-serif;
-      --font-body: 'Outfit', sans-serif;
-      --radius: 16px;
-      --radius-lg: 22px;
-      --shadow: 0 4px 24px rgba(0,0,0,0.07);
-      --shadow-lg: 0 12px 48px rgba(0,0,0,0.12);
-      --spring: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
-      --transition: all 0.2s ease;
+      --c1: #0d0d0d; --c2: #111; --c3: #191919; --c4: #222;
+      --accent: #ff3c00; --accent2: #ff6b35; --gold: #ffd166;
+      --paper: #faf9f7; --cream: #f2ede4; --surface: #ffffff;
+      --muted: #888; --border: rgba(0,0,0,0.08); --border-dark: rgba(255,255,255,0.07);
+      --success: #06d6a0; --warning: #ffd166; --error: #ff3b5c; --info: #4cc9f0;
+      --font-display: 'Unbounded', sans-serif; --font-body: 'Outfit', sans-serif;
+      --radius: 16px; --radius-lg: 22px;
+      --shadow: 0 4px 24px rgba(0,0,0,0.07); --shadow-lg: 0 12px 48px rgba(0,0,0,0.12);
+      --spring: all 0.4s cubic-bezier(0.34,1.56,0.64,1); --transition: all 0.2s ease;
     }
-
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     html { -webkit-font-smoothing: antialiased; }
+    body { font-family: var(--font-body); background: var(--paper); color: var(--c1); overflow-x: hidden; }
 
-    body {
-      font-family: var(--font-body);
-      background: var(--paper);
-      color: var(--c1);
-      overflow-x: hidden;
-    }
-
-    .admin-shell {
-      display: grid;
-      grid-template-columns: 240px 1fr;
-      min-height: calc(100dvh - 64px);
-    }
-
-    .sidebar {
-      background: var(--c1);
-      position: sticky;
-      top: 64px;
-      height: calc(100dvh - 64px);
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      padding: 20px 0;
-    }
-
+    .admin-shell { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100dvh - 64px); }
+    .sidebar { background: var(--c1); position: sticky; top: 64px; height: calc(100dvh - 64px); overflow-y: auto; display: flex; flex-direction: column; padding: 20px 0; }
     .sidebar::-webkit-scrollbar { width: 0; }
-
-    .sidebar-top {
-      padding: 0 20px 20px;
-      border-bottom: 1px solid var(--border-dark);
-      margin-bottom: 12px;
-    }
-
-    .sidebar-role {
-      font-size: 0.58rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.25);
-      margin-bottom: 4px;
-    }
-
-    .sidebar-name {
-      font-family: var(--font-display);
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--paper);
-    }
-
-    .sidebar-section {
-      font-size: 0.55rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.2);
-      padding: 10px 20px 4px;
-    }
-
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      width: 100%;
-      padding: 10px 20px;
-      border: none;
-      background: transparent;
-      color: rgba(255,255,255,0.45);
-      font-family: var(--font-body);
-      font-size: 0.875rem;
-      font-weight: 500;
-      cursor: pointer;
-      text-align: left;
-      transition: all 0.15s ease;
-      position: relative;
-    }
-
+    .sidebar-top { padding: 0 20px 20px; border-bottom: 1px solid var(--border-dark); margin-bottom: 12px; }
+    .sidebar-role { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.25); margin-bottom: 4px; }
+    .sidebar-name { font-family: var(--font-display); font-size: 0.85rem; font-weight: 700; color: var(--paper); }
+    .sidebar-section { font-size: 0.55rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.2); padding: 10px 20px 4px; }
+    .nav-item { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 20px; border: none; background: transparent; color: rgba(255,255,255,0.45); font-family: var(--font-body); font-size: 0.875rem; font-weight: 500; cursor: pointer; text-align: left; transition: all 0.15s ease; position: relative; }
     .nav-item:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.8); }
-
-    .nav-item.active {
-      background: rgba(255,60,0,0.15);
-      color: var(--paper);
-    }
-
-    .nav-item.active::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 3px;
-      height: 22px;
-      background: var(--accent);
-      border-radius: 0 3px 3px 0;
-    }
-
-    .nav-icon {
-      width: 30px;
-      height: 30px;
-      border-radius: 9px;
-      background: rgba(255,255,255,0.06);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.85rem;
-      flex-shrink: 0;
-      transition: background 0.15s;
-    }
-
+    .nav-item.active { background: rgba(255,60,0,0.15); color: var(--paper); }
+    .nav-item.active::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 3px; height: 22px; background: var(--accent); border-radius: 0 3px 3px 0; }
+    .nav-icon { width: 30px; height: 30px; border-radius: 9px; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; font-size: 0.85rem; flex-shrink: 0; transition: background 0.15s; }
     .nav-item.active .nav-icon { background: rgba(255,60,0,0.28); }
-
     .nav-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 8px 20px; }
-
-    .main-content {
-      background: var(--paper);
-      min-height: calc(100dvh - 64px);
-      overflow-y: auto;
-    }
-
-    .panel {
-      padding: 28px 32px;
-      max-width: 1400px;
-      animation: panelIn 0.35s ease;
-    }
-
-    @keyframes panelIn {
-      from { opacity: 0; transform: translateY(16px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .panel-title {
-      font-family: var(--font-display);
-      font-size: 1.4rem;
-      font-weight: 900;
-      letter-spacing: -0.04em;
-      margin-bottom: 4px;
-    }
-
-    .panel-sub {
-      font-size: 0.85rem;
-      color: var(--muted);
-      margin-bottom: 28px;
-    }
-
-    .quick-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 28px;
-    }
-
-    .quick-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 10px 18px;
-      border-radius: 12px;
-      border: none;
-      font-family: var(--font-display);
-      font-size: 0.68rem;
-      font-weight: 700;
-      letter-spacing: 0.03em;
-      cursor: pointer;
-      transition: var(--spring);
-    }
-
+    .main-content { background: var(--paper); min-height: calc(100dvh - 64px); overflow-y: auto; }
+    .panel { padding: 28px 32px; max-width: 1400px; animation: panelIn 0.35s ease; }
+    @keyframes panelIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    .panel-title { font-family: var(--font-display); font-size: 1.4rem; font-weight: 900; letter-spacing: -0.04em; margin-bottom: 4px; }
+    .panel-sub { font-size: 0.85rem; color: var(--muted); margin-bottom: 28px; }
+    .quick-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
+    .quick-btn { display: inline-flex; align-items: center; gap: 7px; padding: 10px 18px; border-radius: 12px; border: none; font-family: var(--font-display); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.03em; cursor: pointer; transition: var(--spring); }
     .quick-btn:hover { transform: translateY(-2px); }
     .quick-btn:active { transform: scale(0.97); }
-
     .qb-accent { background: var(--accent); color: #fff; box-shadow: 0 4px 16px rgba(255,60,0,0.3); }
     .qb-accent:hover { box-shadow: 0 8px 28px rgba(255,60,0,0.45); }
     .qb-dark { background: var(--c1); color: var(--paper); }
     .qb-dark:hover { background: var(--c3); }
     .qb-outline { background: transparent; border: 1.5px solid var(--border); color: var(--c1); }
     .qb-outline:hover { border-color: var(--c1); background: var(--c1); color: var(--paper); }
-
-    .section-label {
-      font-family: var(--font-display);
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 14px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
+    .qb-success { background: var(--success); color: #fff; }
+    .qb-warning { background: var(--warning); color: var(--c1); }
+    .qb-danger { background: var(--error); color: #fff; }
+    .section-label { font-family: var(--font-display); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
     .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-
-    .stats-grid {
-      display: grid;
-      gap: 14px;
-      margin-bottom: 20px;
-    }
-
+    .stats-grid { display: grid; gap: 14px; margin-bottom: 20px; }
     .stats-4 { grid-template-columns: repeat(4, 1fr); }
     .stats-6 { grid-template-columns: repeat(6, 1fr); }
-
-    .stat-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 20px;
-      position: relative;
-      overflow: hidden;
-      transition: var(--transition);
-    }
-
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; position: relative; overflow: hidden; transition: var(--transition); }
     .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
-
-    .stat-card::after {
-      content: '';
-      position: absolute;
-      right: -16px;
-      top: -16px;
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      opacity: 0.08;
-    }
-
-    .sc-accent::after { background: var(--accent); }
-    .sc-success::after { background: var(--success); }
-    .sc-info::after { background: var(--info); }
-    .sc-warning::after { background: var(--warning); }
-
-    .stat-label {
-      font-family: var(--font-display);
-      font-size: 0.58rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .stat-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .stat-val {
-      font-family: var(--font-display);
-      font-size: 1.65rem;
-      font-weight: 900;
-      letter-spacing: -0.05em;
-      line-height: 1;
-    }
-
-    .stat-sub {
-      font-size: 0.72rem;
-      color: var(--muted);
-      margin-top: 6px;
-    }
-
-    .sv-accent { color: var(--accent); }
-    .sv-success { color: var(--success); }
-    .sv-info { color: var(--info); }
-    .sv-warning { color: var(--warning); }
-    .sv-error { color: var(--error); }
-
-    .charts-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-      margin-bottom: 24px;
-    }
-
-    .chart-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 22px;
-    }
-
-    .chart-title {
-      font-family: var(--font-display);
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-      margin-bottom: 18px;
-    }
-
-    .bar-chart {
-      display: flex;
-      align-items: flex-end;
-      gap: 7px;
-      height: 110px;
-    }
-
-    .bar-wrap {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .bar {
-      width: 100%;
-      border-radius: 6px 6px 0 0;
-      background: linear-gradient(180deg, var(--accent) 0%, var(--accent2) 100%);
-      min-height: 4px;
-      cursor: pointer;
-      transition: opacity 0.2s ease, height 0.6s cubic-bezier(0.34,1.56,0.64,1);
-      position: relative;
-    }
-
+    .stat-card::after { content: ''; position: absolute; right: -16px; top: -16px; width: 80px; height: 80px; border-radius: 50%; opacity: 0.08; }
+    .sc-accent::after { background: var(--accent); } .sc-success::after { background: var(--success); } .sc-info::after { background: var(--info); } .sc-warning::after { background: var(--warning); }
+    .stat-label { font-family: var(--font-display); font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+    .stat-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .stat-val { font-family: var(--font-display); font-size: 1.65rem; font-weight: 900; letter-spacing: -0.05em; line-height: 1; }
+    .stat-sub { font-size: 0.72rem; color: var(--muted); margin-top: 6px; }
+    .sv-accent { color: var(--accent); } .sv-success { color: var(--success); } .sv-info { color: var(--info); } .sv-warning { color: var(--warning); } .sv-error { color: var(--error); }
+    .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 24px; }
+    .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px; }
+    .chart-title { font-family: var(--font-display); font-size: 0.75rem; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 18px; }
+    .bar-chart { display: flex; align-items: flex-end; gap: 7px; height: 110px; }
+    .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .bar { width: 100%; border-radius: 6px 6px 0 0; background: linear-gradient(180deg, var(--accent) 0%, var(--accent2) 100%); min-height: 4px; cursor: pointer; transition: opacity 0.2s ease, height 0.6s cubic-bezier(0.34,1.56,0.64,1); }
     .bar:hover { opacity: 0.8; }
-
-    .bar-label {
-      font-size: 0.58rem;
-      color: var(--muted);
-      text-align: center;
-      white-space: nowrap;
-      font-family: var(--font-display);
-      font-weight: 600;
-    }
-
-    .top-product-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .tp-rank {
-      font-family: var(--font-display);
-      font-size: 0.65rem;
-      font-weight: 900;
-      color: var(--muted);
-      width: 16px;
-      flex-shrink: 0;
-    }
-
+    .bar-label { font-size: 0.58rem; color: var(--muted); text-align: center; white-space: nowrap; font-family: var(--font-display); font-weight: 600; }
+    .top-product-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .tp-rank { font-family: var(--font-display); font-size: 0.65rem; font-weight: 900; color: var(--muted); width: 16px; flex-shrink: 0; }
     .tp-info { flex: 1; min-width: 0; }
-
-    .tp-name {
-      font-size: 0.82rem;
-      font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-bottom: 4px;
-    }
-
-    .tp-bar-wrap {
-      height: 5px;
-      background: var(--cream);
-      border-radius: 3px;
-      overflow: hidden;
-    }
-
-    .tp-bar {
-      height: 100%;
-      background: var(--accent);
-      border-radius: 3px;
-      transition: width 0.8s cubic-bezier(0.34,1.56,0.64,1);
-    }
-
-    .tp-count {
-      font-family: var(--font-display);
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: var(--muted);
-      white-space: nowrap;
-    }
-
-    .toolbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .s-input {
-      padding: 10px 16px;
-      border: 2px solid var(--border);
-      border-radius: 14px;
-      font-family: var(--font-body);
-      font-size: 0.875rem;
-      min-width: 200px;
-      outline: none;
-      transition: all 0.2s ease;
-      background: var(--surface);
-    }
-
+    .tp-name { font-size: 0.82rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
+    .tp-bar-wrap { height: 5px; background: var(--cream); border-radius: 3px; overflow: hidden; }
+    .tp-bar { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.8s cubic-bezier(0.34,1.56,0.64,1); }
+    .tp-count { font-family: var(--font-display); font-size: 0.72rem; font-weight: 700; color: var(--muted); white-space: nowrap; }
+    .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 12px; flex-wrap: wrap; }
+    .s-input { padding: 10px 16px; border: 2px solid var(--border); border-radius: 14px; font-family: var(--font-body); font-size: 0.875rem; min-width: 200px; outline: none; transition: all 0.2s ease; background: var(--surface); }
     .s-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(255,60,0,0.08); }
-
-    .table-wrap {
-      overflow-x: auto;
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border);
-      background: var(--surface);
-    }
-
+    .table-wrap { overflow-x: auto; border-radius: var(--radius-lg); border: 1px solid var(--border); background: var(--surface); }
     table { width: 100%; border-collapse: collapse; }
-
-    thead th {
-      background: var(--cream);
-      font-family: var(--font-display);
-      font-size: 0.6rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
-      padding: 12px 16px;
-      text-align: left;
-      white-space: nowrap;
-    }
-
-    tbody td {
-      padding: 12px 16px;
-      border-top: 1px solid var(--border);
-      font-size: 0.875rem;
-      vertical-align: middle;
-    }
-
+    thead th { background: var(--cream); font-family: var(--font-display); font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding: 12px 16px; text-align: left; white-space: nowrap; }
+    tbody td { padding: 12px 16px; border-top: 1px solid var(--border); font-size: 0.875rem; vertical-align: middle; }
     tbody tr { transition: background 0.15s ease; }
     tbody tr:hover td { background: rgba(255,60,0,0.02); }
-
-    .prod-thumb {
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      background: var(--cream);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.3rem;
-      overflow: hidden;
-      flex-shrink: 0;
-    }
-
+    .prod-thumb { width: 40px; height: 40px; border-radius: 12px; background: var(--cream); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; overflow: hidden; flex-shrink: 0; }
     .prod-thumb img { width: 100%; height: 100%; object-fit: cover; }
-
-    .status-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 5px 11px;
-      border-radius: 100px;
-      font-family: var(--font-display);
-      font-size: 0.6rem;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-    }
-
+    .status-pill { display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; border-radius: 100px; font-family: var(--font-display); font-size: 0.6rem; font-weight: 700; letter-spacing: 0.04em; }
     .sp-paid { background: rgba(6,214,160,0.12); color: #04a87d; }
     .sp-pending { background: rgba(255,209,102,0.15); color: #b08800; }
     .sp-cancelled { background: rgba(255,59,92,0.12); color: var(--error); }
     .sp-active { background: rgba(6,214,160,0.12); color: #04a87d; }
     .sp-inactive { background: rgba(255,59,92,0.12); color: var(--error); }
     .sp-blocked { background: rgba(255,59,92,0.12); color: var(--error); }
-
-    .act-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 7px 14px;
-      border-radius: 10px;
-      border: none;
-      font-family: var(--font-display);
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 0.03em;
-      cursor: pointer;
-      transition: var(--spring);
-    }
-
+    .act-btn { display: inline-flex; align-items: center; justify-content: center; padding: 7px 14px; border-radius: 10px; border: none; font-family: var(--font-display); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.03em; cursor: pointer; transition: var(--spring); }
     .act-btn:hover { transform: scale(1.05); }
     .act-btn:active { transform: scale(0.97); }
-
     .ab-ghost { background: var(--cream); color: var(--c1); }
     .ab-ghost:hover { background: var(--c1); color: var(--paper); }
     .ab-success { background: rgba(6,214,160,0.12); color: #04a87d; }
@@ -533,338 +119,100 @@
     .ab-warning:hover { background: var(--warning); color: var(--c1); }
     .ab-accent { background: var(--accent); color: #fff; }
     .ab-primary { background: var(--c1); color: var(--paper); }
-
-    .scanner-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      align-items: start;
-    }
-
-    .scanner-box {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 22px;
-    }
-
-    .scanner-box-title {
-      font-family: var(--font-display);
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      margin-bottom: 14px;
-    }
-
-    .scan-tabs {
-      display: flex;
-      background: var(--cream);
-      border-radius: 12px;
-      padding: 4px;
-      margin-bottom: 18px;
-      gap: 2px;
-    }
-
-    .scan-tab {
-      flex: 1;
-      padding: 9px 6px;
-      border: none;
-      border-radius: 8px;
-      background: transparent;
-      font-family: var(--font-display);
-      font-size: 0.6rem;
-      font-weight: 700;
-      letter-spacing: 0.03em;
-      cursor: pointer;
-      color: var(--muted);
-      transition: all 0.2s ease;
-    }
-
+    .scanner-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+    .scanner-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px; }
+    .scanner-box-title { font-family: var(--font-display); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em; margin-bottom: 14px; }
+    .scan-tabs { display: flex; background: var(--cream); border-radius: 12px; padding: 4px; margin-bottom: 18px; gap: 2px; }
+    .scan-tab { flex: 1; padding: 9px 6px; border: none; border-radius: 8px; background: transparent; font-family: var(--font-display); font-size: 0.6rem; font-weight: 700; letter-spacing: 0.03em; cursor: pointer; color: var(--muted); transition: all 0.2s ease; }
     .scan-tab.active { background: var(--c1); color: var(--paper); }
-
-    .cam-wrap {
-      border-radius: var(--radius);
-      overflow: hidden;
-      background: #0a0a0a;
-      min-height: 240px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-    }
-
+    .cam-wrap { border-radius: var(--radius); overflow: hidden; background: #0a0a0a; min-height: 240px; display: flex; align-items: center; justify-content: center; position: relative; }
     #qr-reader { width: 100% !important; border: none !important; }
     #qr-reader video { width: 100% !important; object-fit: cover !important; }
     #qr-reader img { display: none !important; }
     #qr-reader__scan_region { border: none !important; }
     #qr-reader__dashboard { background: transparent !important; border: none !important; padding: 8px 0 0 !important; }
-    #qr-reader__dashboard_section_csr button {
-      background: var(--accent) !important; color: white !important; border: none !important;
-      border-radius: 10px !important; padding: 8px 16px !important; cursor: pointer !important;
-    }
+    #qr-reader__dashboard_section_csr button { background: var(--accent) !important; color: white !important; border: none !important; border-radius: 10px !important; padding: 8px 16px !important; cursor: pointer !important; }
     #qr-reader__dashboard_section_fsr { display: none !important; }
     #qr-reader__status_span { font-size: .75rem !important; color: var(--muted) !important; }
-
-    .cam-placeholder {
-      text-align: center;
-      color: rgba(255,255,255,0.3);
-      padding: 40px 24px;
-    }
-
+    .cam-placeholder { text-align: center; color: rgba(255,255,255,0.3); padding: 40px 24px; }
     .cam-placeholder-icon { font-size: 3rem; margin-bottom: 12px; }
     .cam-placeholder-text { font-size: 0.8rem; line-height: 1.6; }
-
-    .cam-controls {
-      display: flex;
-      gap: 8px;
-      margin-top: 14px;
-      flex-wrap: wrap;
-    }
-
-    .manual-row {
-      display: flex;
-      gap: 8px;
-      margin-top: 14px;
-    }
-
-    .manual-input {
-      flex: 1;
-      padding: 12px 16px;
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      font-family: var(--font-body);
-      font-size: 0.875rem;
-      outline: none;
-      transition: all 0.2s;
-    }
-
+    .cam-controls { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+    .manual-row { display: flex; gap: 8px; margin-top: 14px; }
+    .manual-input { flex: 1; padding: 12px 16px; border: 2px solid var(--border); border-radius: 12px; font-family: var(--font-body); font-size: 0.875rem; outline: none; transition: all 0.2s; }
     .manual-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(255,60,0,0.08); }
-
-    .result-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 24px;
-      min-height: 220px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .result-card.has-result {
-      align-items: flex-start;
-      animation: panelIn 0.3s ease;
-    }
-
-    .result-empty {
-      text-align: center;
-      color: var(--muted);
-    }
-
+    .result-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; min-height: 220px; display: flex; align-items: center; justify-content: center; }
+    .result-card.has-result { align-items: flex-start; animation: panelIn 0.3s ease; }
+    .result-empty { text-align: center; color: var(--muted); }
     .result-empty-icon { font-size: 2.5rem; margin-bottom: 10px; }
     .result-empty-title { font-family: var(--font-display); font-size: 0.9rem; font-weight: 700; margin-bottom: 6px; }
     .result-empty-sub { font-size: 0.8rem; }
-
-    .result-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      padding-bottom: 14px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 14px;
-      width: 100%;
-    }
-
-    .result-meta {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      width: 100%;
-      margin-bottom: 16px;
-    }
-
-    .rmeta-label {
-      font-family: var(--font-display);
-      font-size: 0.58rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 3px;
-    }
-
+    .result-header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 14px; border-bottom: 1px solid var(--border); margin-bottom: 14px; width: 100%; }
+    .result-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-bottom: 16px; }
+    .rmeta-label { font-family: var(--font-display); font-size: 0.58rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
     .rmeta-val { font-size: 0.875rem; font-weight: 600; }
-
-    .result-actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      width: 100%;
-      margin-top: 16px;
-    }
-
-    .low-stock-alert {
-      background: #fffbf0;
-      border: 1px solid rgba(255,209,102,0.4);
-      border-radius: var(--radius-lg);
-      padding: 16px 20px;
-      margin-bottom: 20px;
-    }
-
-    .low-stock-title {
-      font-family: var(--font-display);
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: #8a5a00;
-      margin-bottom: 8px;
-    }
-
+    .result-actions { display: flex; gap: 8px; flex-wrap: wrap; width: 100%; margin-top: 16px; }
+    .low-stock-alert { background: #fffbf0; border: 1px solid rgba(255,209,102,0.4); border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 20px; }
+    .low-stock-title { font-family: var(--font-display); font-size: 0.72rem; font-weight: 700; color: #8a5a00; margin-bottom: 8px; }
     .stock-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-
-    .stock-chip {
-      padding: 4px 10px;
-      border-radius: 100px;
-      background: rgba(255,209,102,0.2);
-      color: #8a5a00;
-      font-size: 0.72rem;
-      font-weight: 600;
-    }
-
-    .pending-rev-card {
-      background: var(--c1);
-      color: var(--paper);
-      border-radius: var(--radius-lg);
-      padding: 22px 24px;
-      display: flex;
-      gap: 24px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .pr-amount {
-      font-family: var(--font-display);
-      font-size: 1.6rem;
-      font-weight: 900;
-      color: var(--warning);
-      letter-spacing: -0.04em;
-    }
-
-    .pr-label {
-      font-size: 0.68rem;
-      font-weight: 700;
-      font-family: var(--font-display);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.3);
-      margin-bottom: 4px;
-    }
-
+    .stock-chip { padding: 4px 10px; border-radius: 100px; background: rgba(255,209,102,0.2); color: #8a5a00; font-size: 0.72rem; font-weight: 600; }
+    .pending-rev-card { background: var(--c1); color: var(--paper); border-radius: var(--radius-lg); padding: 22px 24px; display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
+    .pr-amount { font-family: var(--font-display); font-size: 1.6rem; font-weight: 900; color: var(--warning); letter-spacing: -0.04em; }
+    .pr-label { font-size: 0.68rem; font-weight: 700; font-family: var(--font-display); letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 4px; }
     .pr-sub { font-size: 0.8rem; color: rgba(255,255,255,0.45); flex: 1; min-width: 160px; line-height: 1.6; }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-    }
-
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .form-grid .full { grid-column: 1 / -1; }
-
     .field-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
-
-    .field-label {
-      font-family: var(--font-display);
-      font-size: 0.6rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .field-input {
-      padding: 12px 16px;
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      font-family: var(--font-body);
-      font-size: 0.875rem;
-      outline: none;
-      transition: all 0.2s;
-    }
-
+    .field-label { font-family: var(--font-display); font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+    .field-input { padding: 12px 16px; border: 2px solid var(--border); border-radius: 12px; font-family: var(--font-body); font-size: 0.875rem; outline: none; transition: all 0.2s; }
     .field-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(255,60,0,0.08); }
+    .cam-perm-tip { background: #fff8f0; border: 1px solid #f0c070; border-radius: 12px; padding: 12px 14px; font-size: 0.78rem; color: #6a4400; margin-top: 10px; display: none; }
 
-    .mobile-bottom-nav {
-      display: none;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: var(--c1);
-      border-top: 1px solid var(--border-dark);
-      z-index: 100;
-      padding: 8px 0 env(safe-area-inset-bottom, 0);
-    }
+    .queue-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+    .queue-card { background: var(--c1); color: var(--paper); border-radius: var(--radius-lg); padding: 28px; display: flex; flex-direction: column; gap: 16px; }
+    .queue-card-title { font-family: var(--font-display); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.3); }
+    .queue-turn-num { font-family: var(--font-display); font-size: 5rem; font-weight: 900; line-height: 1; letter-spacing: -0.06em; color: var(--warning); text-align: center; padding: 12px 0; }
+    .queue-turn-num.inactive { color: rgba(255,255,255,0.15); font-size: 3rem; }
+    .queue-controls { display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap; }
+    .qc-btn { width: 52px; height: 52px; border-radius: 16px; border: none; font-size: 1.4rem; font-weight: 900; cursor: pointer; transition: var(--spring); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); }
+    .qc-btn:hover { transform: scale(1.08); }
+    .qc-btn:active { transform: scale(0.96); }
+    .qc-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+    .qc-prev { background: rgba(255,255,255,0.1); color: var(--paper); }
+    .qc-prev:hover { background: rgba(255,255,255,0.18); }
+    .qc-next { background: var(--accent); color: #fff; box-shadow: 0 4px 20px rgba(255,60,0,0.45); }
+    .qc-next:hover { box-shadow: 0 8px 32px rgba(255,60,0,0.6); }
+    .toggle-btn { width: 100%; padding: 14px; border: none; border-radius: 14px; font-family: var(--font-display); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em; cursor: pointer; transition: var(--spring); }
+    .toggle-btn:hover { transform: translateY(-2px); }
+    .toggle-btn.on { background: var(--error); color: #fff; box-shadow: 0 4px 16px rgba(255,59,92,0.35); }
+    .toggle-btn.off { background: var(--success); color: #fff; box-shadow: 0 4px 16px rgba(6,214,160,0.35); }
+    .queue-status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+    .queue-status-dot.on { background: var(--success); animation: pulse-dot 1.5s ease-in-out infinite; }
+    .queue-status-dot.off { background: rgba(255,255,255,0.2); }
+    @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .queue-order-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius); padding: 16px; }
+    .queue-order-name { font-size: 0.9rem; font-weight: 700; margin-bottom: 4px; }
+    .queue-order-meta { font-size: 0.75rem; color: rgba(255,255,255,0.45); }
+    .queue-order-total { font-family: var(--font-display); font-size: 1.1rem; font-weight: 900; color: var(--warning); margin-top: 8px; }
+    .queue-input-row { display: flex; gap: 8px; }
+    .queue-num-input { flex: 1; padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.07); color: var(--paper); font-family: var(--font-display); font-size: 0.9rem; font-weight: 700; outline: none; text-align: center; }
+    .queue-num-input:focus { border-color: var(--accent); }
+    .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); display: inline-block; margin-right: 6px; animation: pulse-dot 1.5s ease-in-out infinite; }
+    .sse-status { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; color: var(--muted); padding: 6px 12px; border-radius: 100px; background: var(--cream); }
+    .sse-status.connected .sse-dot { background: var(--success); }
+    .sse-status.disconnected .sse-dot { background: var(--error); }
+    .sse-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
 
-    .mbn-inner {
-      display: flex;
-      justify-content: space-around;
-    }
-
-    .mbn-btn {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3px;
-      padding: 8px 16px;
-      border: none;
-      background: transparent;
-      color: rgba(255,255,255,0.35);
-      font-family: var(--font-display);
-      font-size: 0.55rem;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
+    .mobile-bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--c1); border-top: 1px solid var(--border-dark); z-index: 100; padding: 8px 0 env(safe-area-inset-bottom, 0); }
+    .mbn-inner { display: flex; justify-content: space-around; }
+    .mbn-btn { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 16px; border: none; background: transparent; color: rgba(255,255,255,0.35); font-family: var(--font-display); font-size: 0.55rem; font-weight: 700; letter-spacing: 0.04em; cursor: pointer; transition: all 0.2s; }
     .mbn-btn.active { color: var(--accent); }
     .mbn-icon { font-size: 1.3rem; }
 
-    .cam-perm-tip {
-      background: #fff8f0;
-      border: 1px solid #f0c070;
-      border-radius: 12px;
-      padding: 12px 14px;
-      font-size: 0.78rem;
-      color: #6a4400;
-      margin-top: 10px;
-      display: none;
-    }
-
-    @media (max-width: 1100px) {
-      .stats-4 { grid-template-columns: repeat(2, 1fr); }
-      .stats-6 { grid-template-columns: repeat(3, 1fr); }
-      .charts-row { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 900px) {
-      .admin-shell { grid-template-columns: 1fr; }
-      .sidebar { display: none; }
-      .mobile-bottom-nav { display: block; }
-      .main-content { padding-bottom: 72px; }
-      .panel { padding: 16px 16px; }
-      .scanner-grid { grid-template-columns: 1fr; }
-      .form-grid { grid-template-columns: 1fr; }
-      .stats-4 { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-      .stats-6 { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-      .toolbar { flex-direction: column; align-items: stretch; }
-      .s-input { min-width: unset; }
-      .result-meta { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 480px) {
-      .stats-6 { grid-template-columns: repeat(2, 1fr); }
-      .stat-val { font-size: 1.3rem; }
-    }
+    @media (max-width: 1100px) { .stats-4 { grid-template-columns: repeat(2, 1fr); } .stats-6 { grid-template-columns: repeat(3, 1fr); } .charts-row { grid-template-columns: 1fr; } .queue-panel { grid-template-columns: 1fr; } }
+    @media (max-width: 900px) { .admin-shell { grid-template-columns: 1fr; } .sidebar { display: none; } .mobile-bottom-nav { display: block; } .main-content { padding-bottom: 72px; } .panel { padding: 16px; } .scanner-grid { grid-template-columns: 1fr; } .form-grid { grid-template-columns: 1fr; } .stats-4 { grid-template-columns: repeat(2, 1fr); gap: 10px; } .stats-6 { grid-template-columns: repeat(2, 1fr); gap: 10px; } .toolbar { flex-direction: column; align-items: stretch; } .s-input { min-width: unset; } .result-meta { grid-template-columns: 1fr; } }
+    @media (max-width: 480px) { .stats-6 { grid-template-columns: repeat(2, 1fr); } .stat-val { font-size: 1.3rem; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -874,20 +222,22 @@
   <aside class="sidebar">
     <div class="sidebar-top">
       <div class="sidebar-role">Panel de control</div>
-      <div class="sidebar-name">Administrador</div>
+      <div class="sidebar-name" id="sidebar-admin-name">Administrador</div>
     </div>
-
     <div class="sidebar-section">Principal</div>
     <button class="nav-item active" data-panel="dashboard" onclick="showPanel('dashboard',this)">
       <div class="nav-icon">📊</div> Dashboard
     </button>
-
+    <div class="nav-divider"></div>
+    <div class="sidebar-section">Turnos</div>
+    <button class="nav-item" data-panel="queue" onclick="showPanel('queue',this)">
+      <div class="nav-icon">🎫</div> Turnos
+    </button>
     <div class="nav-divider"></div>
     <div class="sidebar-section">Escanear</div>
     <button class="nav-item" data-panel="scanner" onclick="showPanel('scanner',this)">
       <div class="nav-icon">📷</div> Escanear QR
     </button>
-
     <div class="nav-divider"></div>
     <div class="sidebar-section">Gestión</div>
     <button class="nav-item" data-panel="products" onclick="showPanel('products',this)">
@@ -910,40 +260,142 @@
 
 <div class="mobile-bottom-nav">
   <div class="mbn-inner">
-    <button class="mbn-btn active" onclick="showPanel('dashboard',null,'dashboard')">
-      <span class="mbn-icon">📊</span>Dashboard
-    </button>
-    <button class="mbn-btn" onclick="showPanel('scanner',null,'scanner')">
-      <span class="mbn-icon">📷</span>Escáner
-    </button>
-    <button class="mbn-btn" onclick="showPanel('products',null,'products')">
-      <span class="mbn-icon">📦</span>Productos
-    </button>
-    <button class="mbn-btn" onclick="showPanel('users',null,'users')">
-      <span class="mbn-icon">👥</span>Usuarios
-    </button>
-    <button class="mbn-btn" onclick="showPanel('orders',null,'orders')">
-      <span class="mbn-icon">📋</span>Pedidos
-    </button>
+    <button class="mbn-btn active" onclick="showPanel('dashboard',null,'dashboard')"><span class="mbn-icon">📊</span>Dashboard</button>
+    <button class="mbn-btn" onclick="showPanel('queue',null,'queue')"><span class="mbn-icon">🎫</span>Turnos</button>
+    <button class="mbn-btn" onclick="showPanel('scanner',null,'scanner')"><span class="mbn-icon">📷</span>Escáner</button>
+    <button class="mbn-btn" onclick="showPanel('products',null,'products')"><span class="mbn-icon">📦</span>Productos</button>
+    <button class="mbn-btn" onclick="showPanel('orders',null,'orders')"><span class="mbn-icon">📋</span>Pedidos</button>
   </div>
 </div>
 
-<style>
-@keyframes spin { to { transform: rotate(360deg); } }
-</style>
-
 <script src="../assets/js/app.js"></script>
+<script src="../assets/js/sse.js"></script>
 <script>
 auth.requireAdmin();
 buildNav('admin');
+
+const user = auth.getUser();
+if (user) document.getElementById('sidebar-admin-name').textContent = user.full_name?.split(' ')[0] || 'Admin';
 
 let html5QrCode = null;
 let isScanning = false;
 let currentScanType = 'order';
 let lastScanned = '';
 let lastScannedTime = 0;
+let currentQueueState = { enabled: false, current_turn: 0, current_order: null };
 
-const panels = ['dashboard','scanner','products','users','orders'];
+const panels = ['dashboard','queue','scanner','products','users','orders'];
+
+SSE.on('stats_updated', (stats) => {
+  if (document.getElementById('live-paid-today')) refreshDashboardStats(stats);
+});
+
+SSE.on('orders_updated', (data) => {
+  if (document.getElementById('orders-tbody')) refreshOrdersTable(data.orders);
+});
+
+SSE.on('products_updated', (data) => {
+  updateLowStockBadge(data.products);
+});
+
+SSE.on('queue', (state) => {
+  currentQueueState = state;
+  updateQueueUI(state);
+});
+
+SSE.on('connected', () => {
+  const dot = document.getElementById('sse-dot');
+  const label = document.getElementById('sse-label');
+  if (dot) { dot.parentElement.className = 'sse-status connected'; label.textContent = 'En vivo'; }
+});
+
+function updateLowStockBadge(products) {
+  const low = products.filter(p => p.active && parseInt(p.stock) <= 3);
+  const el = document.getElementById('low-stock-count');
+  if (el) el.textContent = low.length > 0 ? `⚠️ ${low.length} bajo stock` : '';
+}
+
+function updateQueueUI(state) {
+  const numEl = document.getElementById('queue-turn-num');
+  const toggleBtn = document.getElementById('queue-toggle-btn');
+  const prevBtn = document.getElementById('queue-prev-btn');
+  const nextBtn = document.getElementById('queue-next-btn');
+  const orderEl = document.getElementById('queue-current-order');
+  const statusLabel = document.getElementById('queue-status-label');
+  const statusDot = document.getElementById('queue-status-dot');
+
+  if (numEl) {
+    if (state.enabled) {
+      numEl.className = 'queue-turn-num';
+      numEl.textContent = state.current_turn > 0 ? String(state.current_turn).padStart(3, '0') : '---';
+    } else {
+      numEl.className = 'queue-turn-num inactive';
+      numEl.textContent = 'OFF';
+    }
+  }
+
+  if (toggleBtn) {
+    toggleBtn.className = state.enabled ? 'toggle-btn on' : 'toggle-btn off';
+    toggleBtn.textContent = state.enabled ? '⏹ Desactivar turnos' : '▶ Activar turnos';
+  }
+
+  if (prevBtn) prevBtn.disabled = !state.enabled || state.current_turn <= 1;
+  if (nextBtn) nextBtn.disabled = !state.enabled;
+
+  if (statusLabel) statusLabel.textContent = state.enabled ? 'Sistema activo' : 'Sistema inactivo';
+  if (statusDot) { statusDot.className = 'queue-status-dot ' + (state.enabled ? 'on' : 'off'); }
+
+  if (orderEl) {
+    if (state.enabled && state.current_order) {
+      const o = state.current_order;
+      orderEl.innerHTML = `
+        <div class="queue-order-card">
+          <div class="queue-order-name">${escapeStr(o.full_name)}</div>
+          <div class="queue-order-meta">${o.grade} · Pedido #${o.id}</div>
+          <div class="queue-order-total">${fmtCurrency(o.total)}</div>
+          <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+            ${o.status !== 'paid' ? `<button class="act-btn ab-success" style="font-size:0.6rem" onclick="setOrderStatus(${o.id},'paid')">✅ Marcar pagado</button>` : ''}
+            ${o.status === 'pending' ? `<button class="act-btn ab-danger" style="font-size:0.6rem" onclick="setOrderStatus(${o.id},'cancelled')">❌ Cancelar</button>` : ''}
+          </div>
+        </div>`;
+    } else if (state.enabled) {
+      orderEl.innerHTML = `<div style="font-size:0.8rem;color:rgba(255,255,255,0.3);text-align:center;padding:16px">Ningún turno activo aún.<br/>Presiona ➜ para avanzar.</div>`;
+    } else {
+      orderEl.innerHTML = `<div style="font-size:0.8rem;color:rgba(255,255,255,0.3);text-align:center;padding:16px">Activa el sistema de turnos para comenzar.</div>`;
+    }
+  }
+}
+
+function refreshDashboardStats(stats) {
+  const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setEl('live-paid', stats.paid_orders);
+  setEl('live-pending', stats.pending_orders);
+  setEl('live-cancelled', stats.cancelled_orders);
+  setEl('live-users', stats.total_users);
+  setEl('live-products', stats.total_products);
+}
+
+function refreshOrdersTable(orders) {
+  const tbody = document.getElementById('orders-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = orders.map(o => `
+    <tr data-status="${o.status}">
+      <td style="font-family:var(--font-display);font-weight:900">#${o.id}</td>
+      <td><div style="font-weight:600">${o.full_name}</div></td>
+      <td><span style="font-size:0.72rem;font-weight:700;background:var(--cream);padding:4px 10px;border-radius:100px">${o.grade}</span></td>
+      <td style="font-family:var(--font-display);font-weight:800;color:var(--accent)">${fmtCurrency(o.total)}</td>
+      <td>${o.turn_number ? `<span style="font-family:var(--font-display);font-weight:900;font-size:1rem;color:var(--warning)">#${String(o.turn_number).padStart(3,'0')}</span>` : '<span style="color:var(--muted);font-size:0.75rem">—</span>'}</td>
+      <td>${statusPill(o.status)}</td>
+      <td style="font-size:0.75rem;color:var(--muted)">${fmtDate(o.created_at)}</td>
+      <td>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          ${o.status !== 'paid' ? `<button class="act-btn ab-success" onclick="setOrderStatus(${o.id},'paid')">✅</button>` : ''}
+          ${o.status === 'pending' ? `<button class="act-btn ab-danger" onclick="setOrderStatus(${o.id},'cancelled')">❌</button>` : ''}
+          ${o.status !== 'pending' ? `<button class="act-btn ab-warning" onclick="setOrderStatus(${o.id},'pending')">⏳</button>` : ''}
+        </div>
+      </td>
+    </tr>`).join('');
+}
 
 function showPanel(name, btn, mobilePanel) {
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -959,6 +411,7 @@ function showPanel(name, btn, mobilePanel) {
   el.innerHTML = `<div style="display:flex;justify-content:center;padding:64px"><div style="width:36px;height:36px;border:3px solid rgba(0,0,0,0.1);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite"></div></div>`;
 
   if (name === 'dashboard') renderDashboard(el);
+  else if (name === 'queue') renderQueue(el);
   else if (name === 'products') renderProducts(el);
   else if (name === 'users') renderUsers(el);
   else if (name === 'orders') renderOrders(el);
@@ -971,8 +424,6 @@ function setPanel(el, html) {
 
 async function renderDashboard(el) {
   let stats, allOrders = [], products = [];
-  let errorDetails = '';
-  
   try {
     [stats, allOrders, products] = await Promise.all([
       api.get('/orders/stats'),
@@ -980,49 +431,19 @@ async function renderDashboard(el) {
       api.get('/products?all=1'),
     ]);
   } catch(e) {
-    errorDetails = `
-      <div style="background: #fff0f0; border: 2px solid var(--error); border-radius: var(--radius-lg); padding: 24px; margin-top: 20px;">
-        <div style="font-family: monospace; font-size: 0.85rem; color: #c00; background: #fff5f5; padding: 16px; border-radius: var(--radius); overflow-x: auto; white-space: pre-wrap; word-break: break-all;">
-          <strong style="font-size: 1rem;">🔴 ERROR DETECTADO</strong><br><br>
-          <strong>Mensaje:</strong> ${escapeStr(e.message)}<br><br>
-          <strong>Status HTTP:</strong> ${e.status || 'N/A'}<br><br>
-          <strong>Endpoint:</strong> ${e.endpoint || 'Desconocido'}<br><br>
-          <strong>Detalles completos:</strong><br>
-          ${e.details ? escapeStr(JSON.stringify(e.details, null, 2)) : 'Ninguno'}<br><br>
-          <strong>Stack trace:</strong><br>
-          ${e.stack ? escapeStr(e.stack) : 'No disponible'}
-        </div>
-        <div style="margin-top: 20px; padding: 12px; background: #fff8e0; border-left: 4px solid var(--warning);">
-          <strong>📌 Posibles causas:</strong><br>
-          • La base de datos no está configurada correctamente en InfinityFree<br>
-          • Las credenciales de la base de datos son incorrectas<br>
-          • El archivo api/config/database.php tiene errores de sintaxis<br>
-          • El servidor no tiene habilitada la extensión PDO MySQL
-        </div>
-        <button class="quick-btn qb-accent" style="margin-top: 20px;" onclick="location.reload()">🔄 Reintentar</button>
-      </div>
-    `;
-    
-    setPanel(el, `
-      <div class="panel-title">Dashboard</div>
-      <div class="panel-sub">${new Date().toLocaleDateString('es-CO', {timeZone: 'America/Bogota', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'})}</div>
-      ${errorDetails}
-    `);
+    setPanel(el, `<div class="panel-title">Dashboard</div><div style="color:var(--error);margin-top:20px">Error: ${escapeStr(e.message)}</div>`);
     return;
   }
 
   const now = new Date();
   const colombiaDate = new Date(now.toLocaleString('en-US', { timeZone: 'America/Bogota' }));
-  
   const todayStr = colombiaDate.toISOString().slice(0,10);
   const monthStr = colombiaDate.toISOString().slice(0,7);
   const yearStr  = colombiaDate.getFullYear().toString();
   const paidOrders = allOrders.filter(o => o.status === 'paid');
 
-  const revByPeriod = (orders, period) =>
-    orders.filter(o => o.created_at?.startsWith(period)).reduce((s,o) => s + parseFloat(o.total || 0), 0);
-  const countByPeriod = (orders, period) =>
-    orders.filter(o => o.created_at?.startsWith(period)).length;
+  const revByPeriod = (orders, period) => orders.filter(o => o.created_at?.startsWith(period)).reduce((s,o) => s + parseFloat(o.total || 0), 0);
+  const countByPeriod = (orders, period) => orders.filter(o => o.created_at?.startsWith(period)).length;
 
   const revToday = revByPeriod(paidOrders, todayStr);
   const revMonth = revByPeriod(paidOrders, monthStr);
@@ -1044,15 +465,12 @@ async function renderDashboard(el) {
   const productSales = {};
   allOrders.forEach(o => {
     (o.items || []).forEach(i => {
-      if (i && i.product_name) {
-        productSales[i.product_name] = (productSales[i.product_name] || 0) + parseInt(i.quantity || 1);
-      }
+      if (i && i.product_name) productSales[i.product_name] = (productSales[i.product_name] || 0) + parseInt(i.quantity || 1);
     });
   });
   const topProducts = Object.entries(productSales).sort((a,b) => b[1]-a[1]).slice(0,5);
   const maxRev = Math.max(...monthlyData.map(m => m.rev), 1);
 
-  const totalOrders    = parseInt(stats.total_orders   || 0);
   const paidCount      = parseInt(stats.paid_orders    || 0);
   const pendingCount   = parseInt(stats.pending_orders || 0);
   const cancelledCount = parseInt(stats.cancelled_orders || 0);
@@ -1061,79 +479,48 @@ async function renderDashboard(el) {
   const paidRev        = parseFloat(stats.total_revenue   || 0);
 
   setPanel(el, `
-    <div class="panel-title">Dashboard</div>
-    <div class="panel-sub">${colombiaDate.toLocaleDateString('es-CO', {timeZone: 'America/Bogota', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'})}</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:4px">
+      <div>
+        <div class="panel-title">Dashboard</div>
+        <div class="panel-sub">${colombiaDate.toLocaleDateString('es-CO', {timeZone:'America/Bogota',weekday:'long',year:'numeric',month:'long',day:'numeric'})}</div>
+      </div>
+      <div class="sse-status connected" id="sse-status-widget">
+        <span class="sse-dot" id="sse-dot"></span>
+        <span id="sse-label">En vivo</span>
+      </div>
+    </div>
 
     <div class="quick-row">
       <button class="quick-btn qb-accent" onclick="showPanel('scanner')">📷 Escanear QR</button>
-      <button class="quick-btn qb-dark" onclick="showPanel('orders')">📋 Ver pedidos</button>
+      <button class="quick-btn qb-dark" onclick="showPanel('queue')">🎫 Turnos</button>
+      <button class="quick-btn qb-outline" onclick="showPanel('orders')">📋 Pedidos</button>
       <button class="quick-btn qb-outline" onclick="showPanel('products')">📦 Productos</button>
-      <button class="quick-btn qb-outline" onclick="showPanel('users')">👥 Usuarios</button>
+      <span id="low-stock-count" style="font-size:0.72rem;color:var(--warning);align-self:center;font-weight:700"></span>
     </div>
 
     <div class="section-label">💰 Ganancias cobradas</div>
     <div class="stats-grid stats-4" style="margin-bottom:20px">
-      <div class="stat-card sc-success">
-        <div class="stat-label"><span class="stat-dot" style="background:var(--success)"></span>Hoy</div>
-        <div class="stat-val sv-success">${fmtCurrency(revToday)}</div>
-        <div class="stat-sub">${countByPeriod(paidOrders, todayStr)} pagados</div>
-      </div>
-      <div class="stat-card sc-success">
-        <div class="stat-label"><span class="stat-dot" style="background:var(--success)"></span>Este mes</div>
-        <div class="stat-val sv-success">${fmtCurrency(revMonth)}</div>
-        <div class="stat-sub">${countByPeriod(paidOrders, monthStr)} pagados</div>
-      </div>
-      <div class="stat-card sc-success">
-        <div class="stat-label"><span class="stat-dot" style="background:var(--success)"></span>Este año</div>
-        <div class="stat-val sv-success">${fmtCurrency(revYear)}</div>
-        <div class="stat-sub">${countByPeriod(paidOrders, yearStr)} pagados</div>
-      </div>
-      <div class="stat-card sc-success">
-        <div class="stat-label"><span class="stat-dot" style="background:var(--success)"></span>Total histórico</div>
-        <div class="stat-val sv-success">${fmtCurrency(revTotal)}</div>
-        <div class="stat-sub">${paidOrders.length} pagados</div>
-      </div>
+      <div class="stat-card sc-success"><div class="stat-label"><span class="stat-dot" style="background:var(--success)"></span>Hoy</div><div class="stat-val sv-success">${fmtCurrency(revToday)}</div><div class="stat-sub">${countByPeriod(paidOrders, todayStr)} pagados</div></div>
+      <div class="stat-card sc-success"><div class="stat-label"><span class="stat-dot" style="background:var(--success)"></span>Este mes</div><div class="stat-val sv-success">${fmtCurrency(revMonth)}</div><div class="stat-sub">${countByPeriod(paidOrders, monthStr)} pagados</div></div>
+      <div class="stat-card sc-success"><div class="stat-label"><span class="stat-dot" style="background:var(--success)"></span>Este año</div><div class="stat-val sv-success">${fmtCurrency(revYear)}</div><div class="stat-sub">${countByPeriod(paidOrders, yearStr)} pagados</div></div>
+      <div class="stat-card sc-success"><div class="stat-label"><span class="stat-dot" style="background:var(--success)"></span>Total histórico</div><div class="stat-val sv-success">${fmtCurrency(revTotal)}</div><div class="stat-sub">${paidOrders.length} pagados</div></div>
     </div>
 
     <div class="section-label">🛒 Pedidos</div>
     <div class="stats-grid stats-6" style="margin-bottom:20px">
-      <div class="stat-card sc-success">
-        <div class="stat-label"><span class="stat-dot" style="background:var(--success)"></span>Pagados</div>
-        <div class="stat-val sv-success">${paidCount}</div>
-      </div>
-      <div class="stat-card sc-warning">
-        <div class="stat-label"><span class="stat-dot" style="background:var(--warning)"></span>Pendientes</div>
-        <div class="stat-val sv-warning">${pendingCount}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label"><span class="stat-dot" style="background:var(--error)"></span>Cancelados</div>
-        <div class="stat-val sv-error">${cancelledCount}</div>
-      </div>
-      <div class="stat-card sc-info">
-        <div class="stat-label"><span class="stat-dot" style="background:var(--info)"></span>Productos activos</div>
-        <div class="stat-val sv-info">${activeProds}</div>
-      </div>
-      <div class="stat-card sc-info">
-        <div class="stat-label"><span class="stat-dot" style="background:var(--info)"></span>Stock total</div>
-        <div class="stat-val sv-info">${totalStock}</div>
-        <div class="stat-sub">unidades</div>
-      </div>
-      <div class="stat-card sc-info">
-        <div class="stat-label"><span class="stat-dot" style="background:var(--info)"></span>Usuarios</div>
-        <div class="stat-val sv-info">${totalUsers}</div>
-      </div>
+      <div class="stat-card sc-success"><div class="stat-label"><span class="stat-dot" style="background:var(--success)"></span>Pagados</div><div class="stat-val sv-success" id="live-paid">${paidCount}</div></div>
+      <div class="stat-card sc-warning"><div class="stat-label"><span class="stat-dot" style="background:var(--warning)"></span>Pendientes</div><div class="stat-val sv-warning" id="live-pending">${pendingCount}</div></div>
+      <div class="stat-card"><div class="stat-label"><span class="stat-dot" style="background:var(--error)"></span>Cancelados</div><div class="stat-val sv-error" id="live-cancelled">${cancelledCount}</div></div>
+      <div class="stat-card sc-info"><div class="stat-label"><span class="stat-dot" style="background:var(--info)"></span>Productos activos</div><div class="stat-val sv-info" id="live-products">${activeProds}</div></div>
+      <div class="stat-card sc-info"><div class="stat-label"><span class="stat-dot" style="background:var(--info)"></span>Stock total</div><div class="stat-val sv-info">${totalStock}</div><div class="stat-sub">unidades</div></div>
+      <div class="stat-card sc-info"><div class="stat-label"><span class="stat-dot" style="background:var(--info)"></span>Usuarios</div><div class="stat-val sv-info" id="live-users">${totalUsers}</div></div>
     </div>
 
     <div class="charts-row">
       <div class="chart-card">
         <div class="chart-title">📈 Ganancias últimos 6 meses</div>
         <div class="bar-chart">
-          ${monthlyData.map(m => `
-            <div class="bar-wrap">
-              <div class="bar" style="height:${Math.max(8,(m.rev/maxRev)*100)}px" title="${fmtCurrency(m.rev)}"></div>
-              <div class="bar-label">${m.label}</div>
-            </div>
-          `).join('')}
+          ${monthlyData.map(m => `<div class="bar-wrap"><div class="bar" style="height:${Math.max(8,(m.rev/maxRev)*100)}px" title="${fmtCurrency(m.rev)}"></div><div class="bar-label">${m.label}</div></div>`).join('')}
         </div>
       </div>
       <div class="chart-card">
@@ -1141,26 +528,13 @@ async function renderDashboard(el) {
         ${topProducts.length ? topProducts.map(([name, qty], i) => `
           <div class="top-product-row">
             <span class="tp-rank">${i+1}</span>
-            <div class="tp-info">
-              <div class="tp-name">${escapeStr(name)}</div>
-              <div class="tp-bar-wrap">
-                <div class="tp-bar" style="width:${(qty/(topProducts[0][1]||1)*100)}%"></div>
-              </div>
-            </div>
+            <div class="tp-info"><div class="tp-name">${escapeStr(name)}</div><div class="tp-bar-wrap"><div class="tp-bar" style="width:${(qty/(topProducts[0][1]||1)*100)}%"></div></div></div>
             <span class="tp-count">${qty} uds</span>
-          </div>
-        `).join('') : '<div style="font-size:0.85rem;color:var(--muted)">Sin datos de ventas aún</div>'}
+          </div>`).join('') : '<div style="font-size:0.85rem;color:var(--muted)">Sin datos de ventas aún</div>'}
       </div>
     </div>
 
-    ${lowStock.length ? `
-      <div class="low-stock-alert">
-        <div class="low-stock-title">⚠️ Stock bajo (≤3 unidades)</div>
-        <div class="stock-chips">
-          ${lowStock.map(p => `<span class="stock-chip">${escapeStr(p.name)} (${p.stock})</span>`).join('')}
-        </div>
-      </div>
-    ` : ''}
+    ${lowStock.length ? `<div class="low-stock-alert"><div class="low-stock-title">⚠️ Stock bajo (≤3 unidades)</div><div class="stock-chips">${lowStock.map(p => `<span class="stock-chip">${escapeStr(p.name)} (${p.stock})</span>`).join('')}</div></div>` : ''}
 
     <div class="pending-rev-card">
       <div>
@@ -1171,39 +545,172 @@ async function renderDashboard(el) {
       <button class="quick-btn qb-accent" onclick="showPanel('scanner')">📷 Ir al escáner</button>
     </div>
   `);
+  updateLowStockBadge(products);
+}
+
+async function renderQueue(el) {
+  let queueState;
+  try {
+    queueState = await api.get('/queue');
+    currentQueueState = queueState;
+  } catch(e) {
+    setPanel(el, `<div class="panel-title">Turnos</div><div style="color:var(--error);margin-top:16px">Error: ${escapeStr(e.message)}</div>`);
+    return;
+  }
+
+  setPanel(el, `
+    <div class="panel-title">🎫 Sistema de Turnos</div>
+    <div class="panel-sub">Gestiona el orden de atención en la cafetería en tiempo real</div>
+
+    <div class="queue-panel">
+      <div class="queue-card">
+        <div class="queue-card-title">
+          <span class="queue-status-dot off" id="queue-status-dot"></span>
+          <span id="queue-status-label">Sistema inactivo</span>
+        </div>
+        <div class="queue-turn-num inactive" id="queue-turn-num">OFF</div>
+        <div class="queue-controls">
+          <button class="qc-btn qc-prev" id="queue-prev-btn" onclick="queuePrev()" disabled title="Turno anterior">◀</button>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+            <div class="queue-input-row">
+              <input class="queue-num-input" id="queue-jump-input" type="number" min="1" placeholder="Nº" style="width:70px"/>
+              <button class="act-btn ab-ghost" onclick="queueJump()" style="background:rgba(255,255,255,0.1);color:var(--paper);">Ir</button>
+            </div>
+            <div style="font-size:0.62rem;color:rgba(255,255,255,0.25)">Saltar a turno</div>
+          </div>
+          <button class="qc-btn qc-next" id="queue-next-btn" onclick="queueNext()" disabled title="Siguiente turno">▶</button>
+        </div>
+        <button class="toggle-btn off" id="queue-toggle-btn" onclick="queueToggle()">▶ Activar turnos</button>
+        <button class="quick-btn" onclick="queueReset()" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);font-size:0.62rem;width:100%;justify-content:center">↺ Reiniciar conteo</button>
+      </div>
+
+      <div class="queue-card">
+        <div class="queue-card-title">Pedido en turno actual</div>
+        <div id="queue-current-order">
+          <div style="font-size:0.8rem;color:rgba(255,255,255,0.3);text-align:center;padding:32px 0">Activa el sistema de turnos para comenzar.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">📋 Pedidos de hoy con turno</div>
+    <div class="table-wrap" id="queue-orders-table">
+      <div style="display:flex;justify-content:center;padding:32px"><div style="width:28px;height:28px;border:3px solid rgba(0,0,0,0.08);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite"></div></div>
+    </div>
+  `);
+
+  updateQueueUI(queueState);
+  await loadQueueOrders();
+}
+
+async function loadQueueOrders() {
+  const el = document.getElementById('queue-orders-table');
+  if (!el) return;
+  try {
+    const orders = await api.get('/orders');
+    const today = new Date().toISOString().slice(0, 10);
+    const todayOrders = orders.filter(o => o.created_at?.startsWith(today) && o.turn_number);
+    if (!todayOrders.length) {
+      el.innerHTML = '<div style="padding:24px;text-align:center;font-size:0.85rem;color:var(--muted)">No hay pedidos con turno asignado hoy.</div>';
+      return;
+    }
+    el.innerHTML = `<table>
+      <thead><tr><th>Turno</th><th>Pedido</th><th>Estudiante</th><th>Total</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <tbody>${todayOrders.sort((a,b) => a.turn_number - b.turn_number).map(o => `
+        <tr>
+          <td><span style="font-family:var(--font-display);font-size:1.1rem;font-weight:900;color:var(--warning)">#${String(o.turn_number).padStart(3,'0')}</span></td>
+          <td style="font-family:var(--font-display);font-weight:900">#${o.id}</td>
+          <td><div style="font-weight:600">${o.full_name}</div><div style="font-size:0.72rem;color:var(--muted)">${o.grade}</div></td>
+          <td style="font-family:var(--font-display);font-weight:800;color:var(--accent)">${fmtCurrency(o.total)}</td>
+          <td>${statusPill(o.status)}</td>
+          <td>
+            <div style="display:flex;gap:6px">
+              ${o.status !== 'paid' ? `<button class="act-btn ab-success" onclick="setOrderStatus(${o.id},'paid',false,loadQueueOrders)">✅</button>` : ''}
+              ${o.status === 'pending' ? `<button class="act-btn ab-danger" onclick="setOrderStatus(${o.id},'cancelled',false,loadQueueOrders)">❌</button>` : ''}
+            </div>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+  } catch(e) {
+    el.innerHTML = `<div style="padding:24px;color:var(--error);font-size:0.85rem">Error: ${escapeStr(e.message)}</div>`;
+  }
+}
+
+async function queueToggle() {
+  const btn = document.getElementById('queue-toggle-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '...'; }
+  try {
+    const res = await api.put('/queue/toggle', {});
+    currentQueueState = { ...currentQueueState, ...res };
+    updateQueueUI(currentQueueState);
+    toast(res.enabled ? '✅ Sistema de turnos activado' : '⏹ Sistema de turnos desactivado', 'success');
+    await loadQueueOrders();
+  } catch(e) {
+    toast(e.message, 'error');
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+async function queueNext() {
+  try {
+    const res = await api.put('/queue/next', {});
+    currentQueueState.current_turn = res.current_turn;
+    await loadQueueOrders();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function queuePrev() {
+  try {
+    const res = await api.put('/queue/prev', {});
+    currentQueueState.current_turn = res.current_turn;
+    await loadQueueOrders();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function queueJump() {
+  const input = document.getElementById('queue-jump-input');
+  const num = parseInt(input?.value);
+  if (!num || num < 0) { toast('Ingresa un número válido', 'warning'); return; }
+  try {
+    await api.put('/queue/set/' + num, {});
+    if (input) input.value = '';
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function queueReset() {
+  confirm('¿Reiniciar el conteo de turnos a 0?', async () => {
+    try {
+      await api.post('/queue/reset', {});
+      toast('Turnos reiniciados', 'success');
+      await loadQueueOrders();
+    } catch(e) { toast(e.message, 'error'); }
+  });
 }
 
 function renderScanner(el) {
   setPanel(el, `
     <div class="panel-title">Escanear QR</div>
     <div class="panel-sub">Apunta la cámara al código — detección automática</div>
-
     <div class="scan-tabs">
       <button class="scan-tab active" onclick="setScanType('order',this)">🧾 Pedidos</button>
       <button class="scan-tab" onclick="setScanType('user',this)">👤 Usuarios</button>
       <button class="scan-tab" onclick="setScanType('product',this)">📦 Productos</button>
     </div>
-
     <div class="scanner-grid">
       <div>
         <div class="scanner-box" style="margin-bottom:14px">
           <div class="scanner-box-title">📹 Cámara</div>
           <div class="cam-wrap">
-            <div id="qr-reader-placeholder" class="cam-placeholder">
-              <div class="cam-placeholder-icon">📷</div>
-              <div class="cam-placeholder-text">Toca "Activar cámara"<br/>para escanear</div>
-            </div>
+            <div id="qr-reader-placeholder" class="cam-placeholder"><div class="cam-placeholder-icon">📷</div><div class="cam-placeholder-text">Toca "Activar cámara"<br/>para escanear</div></div>
             <div id="qr-reader" style="width:100%;display:none;"></div>
           </div>
           <div class="cam-controls">
             <button class="quick-btn qb-accent" id="btn-start-cam" onclick="startCamera()">▶ Activar cámara</button>
             <button class="quick-btn qb-outline" id="btn-stop-cam" style="display:none" onclick="stopCamera()">⏹ Detener</button>
           </div>
-          <div class="cam-perm-tip" id="cam-perm-tip">
-            <strong>📋 Permitir cámara:</strong> Toca el ícono 🔒 en la barra de direcciones. En Safari iOS: Configuración → Safari → Cámara → Permitir.
-          </div>
+          <div class="cam-perm-tip" id="cam-perm-tip"><strong>📋 Permitir cámara:</strong> Toca el ícono 🔒 en la barra de direcciones.</div>
         </div>
-
         <div class="scanner-box">
           <div class="scanner-box-title">⌨️ Ingresar manualmente</div>
           <div class="manual-row">
@@ -1212,23 +719,15 @@ function renderScanner(el) {
           </div>
         </div>
       </div>
-
       <div>
         <div class="scanner-box-title">📋 Resultado</div>
         <div class="result-card" id="scan-result">
-          <div class="result-empty">
-            <div class="result-empty-icon">🔍</div>
-            <div class="result-empty-title">Sin resultado</div>
-            <div class="result-empty-sub">Escanea un QR o ingresa un token/ID</div>
-          </div>
+          <div class="result-empty"><div class="result-empty-icon">🔍</div><div class="result-empty-title">Sin resultado</div><div class="result-empty-sub">Escanea un QR o ingresa un token/ID</div></div>
         </div>
       </div>
     </div>
   `);
-
-  document.getElementById('manual-token').addEventListener('keydown', e => {
-    if (e.key === 'Enter') manualSearch();
-  });
+  document.getElementById('manual-token').addEventListener('keydown', e => { if (e.key === 'Enter') manualSearch(); });
 }
 
 function setScanType(type, btn) {
@@ -1294,8 +793,6 @@ function statusPill(s) {
   return `<span class="status-pill ${cls}">${ic} ${label}</span>`;
 }
 
-function statusBadge(s) { return statusPill(s); }
-
 async function showOrderResult(token, el) {
   const o = await api.get('/orders/scan/' + encodeURIComponent(token));
   el.className = 'result-card has-result';
@@ -1305,6 +802,7 @@ async function showOrderResult(token, el) {
       <div class="result-header">
         <div>
           <div style="font-family:var(--font-display);font-weight:900;font-size:1rem;letter-spacing:-0.02em">Pedido #${o.id}</div>
+          ${o.turn_number ? `<div style="font-family:var(--font-display);font-size:1.4rem;font-weight:900;color:var(--warning);margin-top:2px">Turno #${String(o.turn_number).padStart(3,'0')}</div>` : ''}
           <div style="font-size:0.75rem;color:var(--muted)">${fmtDate(o.created_at)}</div>
         </div>
         ${statusPill(o.status)}
@@ -1317,10 +815,7 @@ async function showOrderResult(token, el) {
       </div>
       <div style="margin-bottom:14px">
         <div style="font-family:var(--font-display);font-size:0.6rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Productos:</div>
-        ${(o.items||[]).map(i => `
-          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:0.85rem">
-            <span>${i.product_name}</span><span style="color:var(--muted)">×${i.quantity}</span><span style="color:var(--accent);font-weight:700">${fmtCurrency(i.subtotal)}</span>
-          </div>`).join('')}
+        ${(o.items||[]).map(i => `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:0.85rem"><span>${i.product_name}</span><span style="color:var(--muted)">×${i.quantity}</span><span style="color:var(--accent);font-weight:700">${fmtCurrency(i.subtotal)}</span></div>`).join('')}
       </div>
       <div id="${qrId}" style="text-align:center;margin-bottom:12px"></div>
       <div class="result-actions">
@@ -1331,9 +826,7 @@ async function showOrderResult(token, el) {
     </div>`;
   setTimeout(() => {
     const qrEl = document.getElementById(qrId);
-    if (qrEl && typeof QRCode !== 'undefined') {
-      new QRCode(qrEl, { text: JSON.stringify({ token: o.qr_token, orderId: o.id }), width: 110, height: 110 });
-    }
+    if (qrEl && typeof QRCode !== 'undefined') new QRCode(qrEl, { text: JSON.stringify({ token: o.qr_token, orderId: o.id }), width: 110, height: 110 });
   }, 80);
 }
 
@@ -1345,29 +838,18 @@ async function showProductResult(id, el) {
   el.innerHTML = `
     <div style="width:100%">
       <div class="result-header">
-        <div>
-          <div style="font-family:var(--font-display);font-weight:900;font-size:1rem">${p.name}</div>
-          <span style="font-size:0.75rem;color:var(--muted)">${p.category}</span>
-        </div>
+        <div><div style="font-family:var(--font-display);font-weight:900;font-size:1rem">${p.name}</div><span style="font-size:0.75rem;color:var(--muted)">${p.category}</span></div>
         ${p.active ? '<span class="status-pill sp-active">✓ Activo</span>' : '<span class="status-pill sp-inactive">✕ Inactivo</span>'}
       </div>
       <div class="result-meta">
         <div><div class="rmeta-label">Precio</div><div class="rmeta-val" style="color:var(--accent);font-family:var(--font-display);font-weight:900">${fmtCurrency(p.price)}</div></div>
         <div><div class="rmeta-label">Stock</div><div class="rmeta-val" style="color:${p.stock>5?'var(--success)':p.stock>0?'var(--warning)':'var(--error)'}">${p.stock} unidades</div></div>
-        <div><div class="rmeta-label">ID</div><div class="rmeta-val">#${p.id}</div></div>
-        <div><div class="rmeta-label">Creado</div><div class="rmeta-val">${fmtDate(p.created_at)}</div></div>
       </div>
-      ${p.description ? `<div style="font-size:0.82rem;color:var(--muted);margin-bottom:14px">${p.description}</div>` : ''}
       <div id="${qrId}" style="text-align:center;margin-bottom:12px"></div>
-      <div class="result-actions">
-        <button class="act-btn ab-primary" onclick="showPanel('products')">📦 Ir a productos</button>
-      </div>
     </div>`;
   setTimeout(() => {
     const qrEl = document.getElementById(qrId);
-    if (qrEl && typeof QRCode !== 'undefined') {
-      new QRCode(qrEl, { text: JSON.stringify({ type: 'product', id: p.id, name: p.name, price: p.price }), width: 110, height: 110 });
-    }
+    if (qrEl && typeof QRCode !== 'undefined') new QRCode(qrEl, { text: JSON.stringify({ type: 'product', id: p.id, name: p.name, price: p.price }), width: 110, height: 110 });
   }, 80);
 }
 
@@ -1384,38 +866,21 @@ async function showUserResult(docOrId, el) {
   el.innerHTML = `
     <div style="width:100%">
       <div class="result-header">
-        <div>
-          <div style="font-family:var(--font-display);font-weight:900;font-size:1rem">${user.full_name}</div>
-          <div style="font-size:0.75rem;color:var(--muted)">Registrado: ${fmtDate(user.created_at)}</div>
-        </div>
+        <div><div style="font-family:var(--font-display);font-weight:900;font-size:1rem">${user.full_name}</div></div>
         ${user.blocked ? '<span class="status-pill sp-blocked">🔒 Bloqueado</span>' : '<span class="status-pill sp-active">✓ Activo</span>'}
       </div>
       <div class="result-meta">
         <div><div class="rmeta-label">Grado</div><div class="rmeta-val">${user.grade}</div></div>
         <div><div class="rmeta-label">Documento</div><div class="rmeta-val">${user.doc_type} ${user.doc_number}</div></div>
-        <div><div class="rmeta-label">Email</div><div class="rmeta-val" style="font-size:0.8rem">${user.email}</div></div>
-        <div><div class="rmeta-label">Pedidos</div><div class="rmeta-val">${(user.orders||[]).length}</div></div>
       </div>
-      ${(user.orders||[]).length ? `
-        <div style="margin-bottom:12px">
-          <div style="font-family:var(--font-display);font-size:0.6rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Últimos pedidos:</div>
-          ${user.orders.slice(0,3).map(o => `
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:0.85rem">
-              <span>Pedido #${o.id}</span>${statusPill(o.status)}<span style="color:var(--accent);font-weight:700">${fmtCurrency(o.total)}</span>
-            </div>`).join('')}
-        </div>` : ''}
       <div class="result-actions">
-        <button class="act-btn ${user.blocked?'ab-success':'ab-warning'}" onclick="toggleBlock(${user.id},${user.blocked?1:0})">
-          ${user.blocked ? '🔓 Desbloquear' : '🔒 Bloquear'}
-        </button>
-        <button class="act-btn ab-ghost" onclick="showPanel('users')">👥 Ir a usuarios</button>
+        <button class="act-btn ${user.blocked?'ab-success':'ab-warning'}" onclick="toggleBlock(${user.id},${user.blocked?1:0})">${user.blocked?'🔓 Desbloquear':'🔒 Bloquear'}</button>
       </div>
     </div>`;
 }
 
 async function startCamera() {
   const tipEl = document.getElementById('cam-perm-tip');
-  if (tipEl) tipEl.style.display = 'none';
   const placeholder = document.getElementById('qr-reader-placeholder');
   const readerEl = document.getElementById('qr-reader');
   if (!readerEl) return;
@@ -1458,14 +923,13 @@ async function stopCamera() {
   if (readerEl) readerEl.style.display = 'none';
   if (placeholder) placeholder.style.display = '';
   if (startBtn) startBtn.style.display = '';
-  if (stopBtn) stopBtn.style.display = 'none';
+  if (stopBtn)  stopBtn.style.display  = 'none';
 }
 
 async function renderProducts(el) {
   let products = [];
   try { products = await api.get('/products?all=1'); }
   catch(e) { setPanel(el, `<div style="color:var(--error)">Error: ${e.message}</div>`); return; }
-
   setPanel(el, `
     <div class="panel-title">Productos</div>
     <div class="panel-sub">${products.length} productos en el catálogo</div>
@@ -1475,38 +939,22 @@ async function renderProducts(el) {
     </div>
     <div class="table-wrap">
       <table>
-        <thead>
-          <tr>
-            <th>#</th><th>Producto</th><th>Categoría</th><th>Precio</th>
-            <th>Stock</th><th>Estado</th><th>Acciones</th>
-          </tr>
-        </thead>
+        <thead><tr><th>#</th><th>Producto</th><th>Categoría</th><th>Precio</th><th>Stock</th><th>Estado</th><th>Acciones</th></tr></thead>
         <tbody id="prod-tbody">
           ${products.map(p => `
-            </tr>
+            <tr>
               <td style="color:var(--muted);font-size:0.8rem">${p.id}</td>
-              <td>
-                <div style="display:flex;align-items:center;gap:10px">
-                  <div class="prod-thumb">${p.image ? `<img src="${p.image}" onerror="this.parentElement.innerHTML='📦'">` : '📦'}</div>
-                  <div>
-                    <div style="font-weight:600">${p.name}</div>
-                    <div style="font-size:0.75rem;color:var(--muted)">${(p.description||'').substring(0,40)}</div>
-                  </div>
-                </div>
-              </td>
+              <td><div style="display:flex;align-items:center;gap:10px"><div class="prod-thumb">${p.image ? `<img src="${p.image}" onerror="this.parentElement.innerHTML='📦'">` : '📦'}</div><div><div style="font-weight:600">${p.name}</div><div style="font-size:0.75rem;color:var(--muted)">${(p.description||'').substring(0,40)}</div></div></div></td>
               <td><span style="font-size:0.75rem;font-weight:600;color:var(--muted);background:var(--cream);padding:4px 10px;border-radius:100px">${p.category}</span></td>
               <td style="font-family:var(--font-display);font-weight:800;color:var(--accent)">${fmtCurrency(p.price)}</td>
               <td style="font-weight:700;color:${p.stock>5?'var(--success)':p.stock>0?'var(--warning)':'var(--error)'}">${p.stock}</td>
               <td>${p.active ? '<span class="status-pill sp-active">✓ Activo</span>' : '<span class="status-pill sp-inactive">✕ Inactivo</span>'}</td>
-              <td>
-                <div style="display:flex;gap:6px">
-                  <button class="act-btn ab-ghost" onclick="showProductQRModal(${p.id},'${escapeStr(p.name)}',${p.price})">🔲 QR</button>
-                  <button class="act-btn ab-ghost" onclick="openProductModal(${JSON.stringify(JSON.stringify(p)).slice(1,-1)})">✏️</button>
-                  <button class="act-btn ab-danger" onclick="deleteProduct(${p.id})">🗑</button>
-                </div>
-              </td>
-            </tr>
-          `).join('')}
+              <td><div style="display:flex;gap:6px">
+                <button class="act-btn ab-ghost" onclick="showProductQRModal(${p.id},'${escapeStr(p.name)}',${p.price})">🔲 QR</button>
+                <button class="act-btn ab-ghost" onclick="openProductModal(${JSON.stringify(JSON.stringify(p)).slice(1,-1)})">✏️</button>
+                <button class="act-btn ab-danger" onclick="deleteProduct(${p.id})">🗑</button>
+              </div></td>
+            </tr>`).join('')}
         </tbody>
       </table>
     </div>
@@ -1518,14 +966,12 @@ function openProductModal(productJsonStr) {
   const isEdit = !!p;
   const m = modal(`
     <div class="form-grid">
-      <div class="field-group full"><label class="field-label">Nombre del producto</label><input class="field-input" id="pf-name" value="${p?.name||''}" placeholder="Ej: Cuaderno universitario"/></div>
-      <div class="field-group full"><label class="field-label">Descripción</label><textarea class="field-input" id="pf-desc" placeholder="Descripción del producto" style="resize:vertical;min-height:80px">${p?.description||''}</textarea></div>
+      <div class="field-group full"><label class="field-label">Nombre del producto</label><input class="field-input" id="pf-name" value="${p?.name||''}" placeholder="Ej: Gaseosa"/></div>
+      <div class="field-group full"><label class="field-label">Descripción</label><textarea class="field-input" id="pf-desc" placeholder="Descripción" style="resize:vertical;min-height:80px">${p?.description||''}</textarea></div>
       <div class="field-group"><label class="field-label">Precio (COP)</label><input class="field-input" id="pf-price" type="number" value="${p?.price||''}" placeholder="5000"/></div>
       <div class="field-group"><label class="field-label">Stock</label><input class="field-input" id="pf-stock" type="number" value="${p?.stock||''}" placeholder="10"/></div>
       <div class="field-group"><label class="field-label">Categoría</label>
-        <select class="field-input" id="pf-cat">
-          ${['almuerzos','desayunos','rapidos','bebidas','snacks','postres','general'].map(c => `<option value="${c}" ${p?.category===c?'selected':''}>${c}</option>`).join('')}
-        </select>
+        <select class="field-input" id="pf-cat">${['almuerzos','desayunos','rapidos','bebidas','snacks','postres','general'].map(c => `<option value="${c}" ${p?.category===c?'selected':''}>${c}</option>`).join('')}</select>
       </div>
       <div class="field-group"><label class="field-label">URL de imagen (opcional)</label><input class="field-input" id="pf-img" value="${p?.image||''}" placeholder="https://..."/></div>
     </div>
@@ -1534,16 +980,8 @@ function openProductModal(productJsonStr) {
       <button class="quick-btn qb-outline" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
     </div>
   `, { title: isEdit ? 'Editar producto' : 'Nuevo producto' });
-
   m.querySelector('#btn-save-prod').onclick = async () => {
-    const body = {
-      name: m.querySelector('#pf-name').value.trim(),
-      description: m.querySelector('#pf-desc').value.trim(),
-      price: parseFloat(m.querySelector('#pf-price').value),
-      stock: parseInt(m.querySelector('#pf-stock').value),
-      category: m.querySelector('#pf-cat').value,
-      image: m.querySelector('#pf-img').value.trim() || null,
-    };
+    const body = { name: m.querySelector('#pf-name').value.trim(), description: m.querySelector('#pf-desc').value.trim(), price: parseFloat(m.querySelector('#pf-price').value), stock: parseInt(m.querySelector('#pf-stock').value), category: m.querySelector('#pf-cat').value, image: m.querySelector('#pf-img').value.trim() || null };
     if (!body.name || isNaN(body.price)) { toast('Nombre y precio son requeridos', 'warning'); return; }
     try {
       isEdit ? await api.put('/products/' + p.id, body) : await api.post('/products', body);
@@ -1564,22 +1002,16 @@ async function renderUsers(el) {
   let users = [];
   try { users = await api.get('/users'); }
   catch(e) { setPanel(el, `<div style="color:var(--error)">Error: ${e.message}</div>`); return; }
-
   setPanel(el, `
     <div class="panel-title">Usuarios</div>
     <div class="panel-sub">${users.length} estudiantes registrados</div>
     <div class="toolbar">
-      <input class="s-input" placeholder="Buscar por nombre, email, grado..." oninput="filterTable('users-tbody',this.value,[0,1,2,3])"/>
+      <input class="s-input" placeholder="Buscar..." oninput="filterTable('users-tbody',this.value,[0,1,2,3])"/>
       <span style="font-size:0.8rem;color:var(--muted)">${users.filter(u=>!u.blocked).length} activos · ${users.filter(u=>u.blocked).length} bloqueados</span>
     </div>
     <div class="table-wrap">
       <table>
-        <thead>
-          <tr>
-            <th>Nombre</th><th>Email</th><th>Grado</th>
-            <th>Documento</th><th>Registro</th><th>Estado</th><th>Acciones</th>
-          </tr>
-        </thead>
+        <thead><tr><th>Nombre</th><th>Email</th><th>Grado</th><th>Documento</th><th>Registro</th><th>Estado</th><th>Acciones</th></tr></thead>
         <tbody id="users-tbody">
           ${users.map(u => `
             <tr>
@@ -1589,28 +1021,23 @@ async function renderUsers(el) {
               <td style="font-size:0.8rem">${u.doc_type} ${u.doc_number}</td>
               <td style="font-size:0.75rem;color:var(--muted)">${fmtDate(u.created_at)}</td>
               <td>${u.blocked ? '<span class="status-pill sp-blocked">🔒 Bloqueado</span>' : '<span class="status-pill sp-active">✓ Activo</span>'}</td>
-              <td>
-                <div style="display:flex;gap:6px">
-                  <button class="act-btn ab-ghost" onclick="showUserQRModal(${u.id},'${escapeStr(u.full_name)}','${u.doc_number}')">🔲 QR</button>
-                  <button class="act-btn ${u.blocked?'ab-success':'ab-warning'}" onclick="toggleBlock(${u.id},${u.blocked?1:0})">${u.blocked?'🔓':'🔒'}</button>
-                  <button class="act-btn ab-ghost" onclick="viewUser(${u.id})">👁</button>
-                  <button class="act-btn ab-danger" onclick="deleteUser(${u.id})">🗑</button>
-                </div>
-              </td>
-            </tr>
-          `).join('')}
+              <td><div style="display:flex;gap:6px">
+                <button class="act-btn ${u.blocked?'ab-success':'ab-warning'}" onclick="toggleBlock(${u.id},${u.blocked?1:0})">${u.blocked?'🔓':'🔒'}</button>
+                <button class="act-btn ab-ghost" onclick="viewUser(${u.id})">👁</button>
+                <button class="act-btn ab-danger" onclick="deleteUser(${u.id})">🗑</button>
+              </div></td>
+            </tr>`).join('')}
         </tbody>
       </table>
     </div>
   `);
 }
+
 async function toggleBlock(id, isBlocked) {
   try {
     const res = await api.put('/users/' + id + '/block', {});
     toast(res.blocked ? 'Usuario bloqueado' : 'Usuario desbloqueado', 'success');
-    const scanResultEl = document.getElementById('scan-result');
-    if (scanResultEl?.classList.contains('has-result')) await showUserResult(String(id), scanResultEl);
-    else showPanel('users');
+    showPanel('users');
   } catch(e) { toast(e.message, 'error'); }
 }
 
@@ -1623,16 +1050,10 @@ async function viewUser(id) {
         <div><div style="font-size:0.7rem;color:var(--muted);margin-bottom:3px">Grado</div><div style="font-weight:600">${user.grade}</div></div>
         <div><div style="font-size:0.7rem;color:var(--muted);margin-bottom:3px">Documento</div><div>${user.doc_type} ${user.doc_number}</div></div>
         <div><div style="font-size:0.7rem;color:var(--muted);margin-bottom:3px">Email</div><div style="font-size:0.82rem">${user.email}</div></div>
-        <div><div style="font-size:0.7rem;color:var(--muted);margin-bottom:3px">Nacimiento</div><div>${user.birth_date}</div></div>
-        <div><div style="font-size:0.7rem;color:var(--muted);margin-bottom:3px">Estado</div><div>${user.blocked ? '🔒 Bloqueado' : '✓ Activo'}</div></div>
       </div>
-      <div style="height:1px;background:var(--border)"></div>
       <div>
         <div style="font-size:0.7rem;color:var(--muted);margin-bottom:10px">Pedidos (${(user.orders||[]).length})</div>
-        ${(user.orders||[]).map(o => `
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
-            <span style="font-size:0.875rem">Pedido #${o.id}</span>${statusPill(o.status)}<span style="color:var(--accent);font-weight:700;font-size:0.875rem">${fmtCurrency(o.total)}</span>
-          </div>`).join('') || '<div style="font-size:0.875rem;color:var(--muted)">Sin pedidos</div>'}
+        ${(user.orders||[]).map(o => `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)"><span>Pedido #${o.id}</span>${statusPill(o.status)}<span style="color:var(--accent);font-weight:700">${fmtCurrency(o.total)}</span></div>`).join('') || '<div style="font-size:0.875rem;color:var(--muted)">Sin pedidos</div>'}
       </div>
     </div>
   `, { title: 'Detalle del usuario' });
@@ -1649,7 +1070,6 @@ async function renderOrders(el) {
   let orders = [];
   try { orders = await api.get('/orders'); }
   catch(e) { setPanel(el, `<div style="color:var(--error)">Error: ${e.message}</div>`); return; }
-
   setPanel(el, `
     <div class="panel-title">Pedidos</div>
     <div class="panel-sub">${orders.length} pedidos en total</div>
@@ -1667,12 +1087,7 @@ async function renderOrders(el) {
     </div>
     <div class="table-wrap">
       <table>
-        <thead>
-          <tr>
-            <th>#</th><th>Estudiante</th><th>Grado</th>
-            <th>Total</th><th>Estado</th><th>Fecha</th><th>Acciones</th>
-          </tr>
-        </thead>
+        <thead><tr><th>#</th><th>Estudiante</th><th>Grado</th><th>Total</th><th>Turno</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr></thead>
         <tbody id="orders-tbody">
           ${orders.map(o => `
             <tr data-status="${o.status}">
@@ -1680,19 +1095,16 @@ async function renderOrders(el) {
               <td><div style="font-weight:600">${o.full_name}</div><div style="font-size:0.75rem;color:var(--muted)">${o.doc_number}</div></td>
               <td><span style="font-size:0.72rem;font-weight:700;background:var(--cream);padding:4px 10px;border-radius:100px">${o.grade}</span></td>
               <td style="font-family:var(--font-display);font-weight:800;color:var(--accent)">${fmtCurrency(o.total)}</td>
+              <td>${o.turn_number ? `<span style="font-family:var(--font-display);font-weight:900;font-size:1rem;color:var(--warning)">#${String(o.turn_number).padStart(3,'0')}</span>` : '<span style="color:var(--muted);font-size:0.75rem">—</span>'}</td>
               <td>${statusPill(o.status)}</td>
               <td style="font-size:0.75rem;color:var(--muted)">${fmtDate(o.created_at)}</td>
-              <td>
-                <div style="display:flex;gap:6px;flex-wrap:wrap">
-                  <button class="act-btn ab-ghost" onclick="showOrderQRModal(${o.id})">🔲 QR</button>
-                  <button class="act-btn ab-ghost" onclick="viewOrder(${o.id})">👁 Ver</button>
-                  ${o.status !== 'paid' ? `<button class="act-btn ab-success" onclick="setOrderStatus(${o.id},'paid')">✅</button>` : ''}
-                  ${o.status === 'pending' ? `<button class="act-btn ab-danger" onclick="setOrderStatus(${o.id},'cancelled')">❌</button>` : ''}
-                  ${o.status !== 'pending' ? `<button class="act-btn ab-warning" onclick="setOrderStatus(${o.id},'pending')">⏳</button>` : ''}
-                </div>
-              </td>
-            </tr>
-          `).join('')}
+              <td><div style="display:flex;gap:6px;flex-wrap:wrap">
+                <button class="act-btn ab-ghost" onclick="viewOrder(${o.id})">👁</button>
+                ${o.status !== 'paid' ? `<button class="act-btn ab-success" onclick="setOrderStatus(${o.id},'paid')">✅</button>` : ''}
+                ${o.status === 'pending' ? `<button class="act-btn ab-danger" onclick="setOrderStatus(${o.id},'cancelled')">❌</button>` : ''}
+                ${o.status !== 'pending' ? `<button class="act-btn ab-warning" onclick="setOrderStatus(${o.id},'pending')">⏳</button>` : ''}
+              </div></td>
+            </tr>`).join('')}
         </tbody>
       </table>
     </div>
@@ -1715,15 +1127,15 @@ async function viewOrder(id) {
         <div><div style="font-size:0.7rem;color:var(--muted);margin-bottom:3px">Grado</div><div style="font-weight:600">${o.grade}</div></div>
         <div><div style="font-size:0.7rem;color:var(--muted);margin-bottom:3px">Total</div><div style="font-family:var(--font-display);font-weight:900;color:var(--accent)">${fmtCurrency(o.total)}</div></div>
         <div><div style="font-size:0.7rem;color:var(--muted);margin-bottom:3px">Estado</div>${statusPill(o.status)}</div>
+        ${o.turn_number ? `<div><div style="font-size:0.7rem;color:var(--muted);margin-bottom:3px">Turno</div><div style="font-family:var(--font-display);font-weight:900;font-size:1.4rem;color:var(--warning)">#${String(o.turn_number).padStart(3,'0')}</div></div>` : ''}
       </div>
       <div>
         <div style="font-size:0.7rem;color:var(--muted);margin-bottom:10px">Productos</div>
-        ${(o.items||[]).map(i => `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span style="font-size:0.875rem">${i.product_name}</span><span style="font-size:0.875rem;color:var(--muted)">×${i.quantity}</span><span style="font-weight:700;font-size:0.875rem;color:var(--accent)">${fmtCurrency(i.subtotal)}</span></div>`).join('')}
+        ${(o.items||[]).map(i => `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span>${i.product_name}</span><span style="color:var(--muted)">×${i.quantity}</span><span style="font-weight:700;color:var(--accent)">${fmtCurrency(i.subtotal)}</span></div>`).join('')}
       </div>
       <div style="text-align:center">
         <div style="font-size:0.7rem;color:var(--muted);margin-bottom:10px">QR del pedido</div>
         <div id="${qrId}" style="display:inline-block;background:white;padding:10px;border:1px solid var(--border);border-radius:12px"></div>
-        <div style="font-size:0.72rem;color:var(--muted);margin-top:8px">Token: ${o.qr_token}</div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         ${o.status !== 'paid' ? `<button class="act-btn ab-success" onclick="setOrderStatus(${o.id},'paid',true)">✅ Marcar pagado</button>` : ''}
@@ -1734,109 +1146,31 @@ async function viewOrder(id) {
   `, { title: `Pedido #${o.id}` });
   setTimeout(() => {
     const qrEl = document.getElementById(qrId);
-    if (qrEl && typeof QRCode !== 'undefined') {
-      new QRCode(qrEl, { text: JSON.stringify({ token: o.qr_token, orderId: o.id }), width: 140, height: 140 });
-    }
+    if (qrEl && typeof QRCode !== 'undefined') new QRCode(qrEl, { text: JSON.stringify({ token: o.qr_token, orderId: o.id }), width: 140, height: 140 });
   }, 100);
 }
 
-async function setOrderStatus(id, status, fromModal = false) {
+async function setOrderStatus(id, status, fromModal = false, callback = null) {
   try {
     await api.put('/orders/' + id + '/status', { status });
     toast('Estado actualizado: ' + status, 'success');
     if (fromModal) document.querySelector('.modal-overlay')?.remove();
-    showPanel('orders');
+    if (callback) await callback();
+    else showPanel('orders');
   } catch(e) { toast(e.message, 'error'); }
 }
 
 function showProductQRModal(id, name, price) {
   const qrId = 'qr-prod-modal-' + Date.now();
-  const modalContent = `
+  const m = modal(`
     <div style="text-align:center">
-      <div style="margin-bottom:16px">
-        <div style="font-family:var(--font-display);font-weight:800;font-size:1.2rem;margin-bottom:4px">${escapeStr(name)}</div>
-        <div style="color:var(--accent);font-family:var(--font-display);font-weight:700">${fmtCurrency(price)}</div>
-      </div>
-      <div style="background:#f5f5f0;border-radius:20px;padding:24px;display:inline-block;margin-bottom:16px">
-        <div id="${qrId}" style="background:white;padding:12px;border-radius:12px"></div>
-      </div>
-      <p style="color:var(--muted);font-size:0.75rem">ID: ${id}</p>
-      <p style="color:var(--muted);font-size:0.7rem;margin-top:8px">Escanee para ver información del producto</p>
+      <div style="margin-bottom:16px"><div style="font-family:var(--font-display);font-weight:800;font-size:1.2rem;margin-bottom:4px">${escapeStr(name)}</div><div style="color:var(--accent);font-family:var(--font-display);font-weight:700">${fmtCurrency(price)}</div></div>
+      <div style="background:#f5f5f0;border-radius:20px;padding:24px;display:inline-block;margin-bottom:16px"><div id="${qrId}" style="background:white;padding:12px;border-radius:12px"></div></div>
     </div>
-  `;
-  const m = modal(modalContent, { title: 'QR del producto' });
+  `, { title: 'QR del producto' });
   setTimeout(() => {
     const qrEl = document.getElementById(qrId);
-    if (qrEl && typeof QRCode !== 'undefined') {
-      new QRCode(qrEl, { 
-        text: JSON.stringify({ type: 'product', id, name, price }), 
-        width: 180, 
-        height: 180 
-      });
-    }
-  }, 100);
-}
-
-function showUserQRModal(id, name, docNumber) {
-  const qrId = 'qr-user-modal-' + Date.now();
-  const modalContent = `
-    <div style="text-align:center">
-      <div style="margin-bottom:16px">
-        <div style="font-family:var(--font-display);font-weight:800;font-size:1rem;margin-bottom:4px">${escapeStr(name)}</div>
-        <div style="color:var(--muted);font-size:0.85rem">Doc: ${docNumber}</div>
-      </div>
-      <div style="background:#f5f5f0;border-radius:20px;padding:24px;display:inline-block;margin-bottom:16px">
-        <div id="${qrId}" style="background:white;padding:12px;border-radius:12px"></div>
-      </div>
-      <p style="color:var(--muted);font-size:0.7rem">Escanee para identificar al estudiante</p>
-    </div>
-  `;
-  const m = modal(modalContent, { title: 'QR del estudiante' });
-  setTimeout(() => {
-    const qrEl = document.getElementById(qrId);
-    if (qrEl && typeof QRCode !== 'undefined') {
-      new QRCode(qrEl, { 
-        text: JSON.stringify({ type: 'user', id, doc: docNumber, name }), 
-        width: 180, 
-        height: 180 
-      });
-    }
-  }, 100);
-}
-
-async function showOrderQRModal(orderId) {
-  const o = await api.get('/orders/' + orderId);
-  const qrId = 'qr-order-modal-' + Date.now();
-  const modalContent = `
-    <div style="text-align:center">
-      <div style="margin-bottom:16px">
-        <div style="font-family:var(--font-display);font-weight:800;font-size:1rem;margin-bottom:4px">Pedido #${o.id}</div>
-        <div style="color:var(--accent);font-family:var(--font-display);font-weight:700">${fmtCurrency(o.total)}</div>
-        <div style="color:var(--muted);font-size:0.7rem">${o.full_name} - ${o.grade}</div>
-      </div>
-      <div style="background:#f5f5f0;border-radius:20px;padding:24px;display:inline-block;margin-bottom:16px">
-        <div id="${qrId}" style="background:white;padding:12px;border-radius:12px"></div>
-      </div>
-      <div style="margin-top:12px">
-        <span class="status-pill ${o.status === 'paid' ? 'sp-paid' : (o.status === 'pending' ? 'sp-pending' : 'sp-cancelled')}">
-          ${o.status === 'paid' ? '✅ Pagado' : (o.status === 'pending' ? '⏳ Pendiente' : '❌ Cancelado')}
-        </span>
-      </div>
-      <p style="color:var(--muted);font-size:0.7rem;margin-top:12px">Token: ${o.qr_token || 'N/A'}</p>
-    </div>
-  `;
-  const m = modal(modalContent, { title: `QR del pedido #${o.id}` });
-  setTimeout(() => {
-    const qrEl = document.getElementById(qrId);
-    if (qrEl && o.qr_token && typeof QRCode !== 'undefined') {
-      new QRCode(qrEl, { 
-        text: JSON.stringify({ token: o.qr_token, orderId: o.id }), 
-        width: 180, 
-        height: 180 
-      });
-    } else if (qrEl && !o.qr_token) {
-      qrEl.innerHTML = '<div style="color:var(--error);text-align:center">⚠️ QR no disponible</div>';
-    }
+    if (qrEl && typeof QRCode !== 'undefined') new QRCode(qrEl, { text: JSON.stringify({ type: 'product', id, name, price }), width: 180, height: 180 });
   }, 100);
 }
 
@@ -1848,9 +1182,10 @@ function filterTable(tbodyId, q, colIndexes) {
 }
 
 function escapeStr(str) {
-  return String(str).replace(/'/g, "\\'").replace(/"/g, '\\"');
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&#39;').replace(/"/g,'&quot;');
 }
 
+SSE.connect();
 showPanel('dashboard', document.querySelector('.nav-item[data-panel="dashboard"]'));
 </script>
 </body>
