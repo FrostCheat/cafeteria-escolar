@@ -4,6 +4,7 @@ require_once __DIR__ . '/../config/logger.php';
 $db = getDB();
 
 if ($resource === 'queue') {
+
     if ($method === 'GET' && $action === null && $id === null) {
         $cfg = $db->query("SELECT * FROM queue_config WHERE id=1")->fetch();
         $currentOrder = null;
@@ -27,12 +28,13 @@ if ($resource === 'queue') {
 
     if ($method === 'PUT' && $action === 'toggle') {
         requireAdmin();
-        $cfg = $db->query("SELECT enabled FROM queue_config WHERE id=1")->fetch();
+        $cfg      = $db->query("SELECT enabled FROM queue_config WHERE id=1")->fetch();
         $newState = $cfg ? !$cfg['enabled'] : true;
+
         if ($newState) {
             $db->exec("UPDATE queue_config SET enabled=1, current_turn=0, current_order_id=NULL, updated_at=NOW() WHERE id=1");
             $db->exec("UPDATE orders SET turn_number=NULL WHERE DATE(created_at)=CURDATE() AND status='pending'");
-            $nextTurn = 1;
+            $nextTurn     = 1;
             $pendingOrders = $db->query("SELECT id FROM orders WHERE status='pending' AND DATE(created_at)=CURDATE() ORDER BY created_at ASC")->fetchAll();
             foreach ($pendingOrders as $o) {
                 $db->prepare("UPDATE orders SET turn_number=? WHERE id=?")->execute([$nextTurn, $o['id']]);
@@ -41,6 +43,8 @@ if ($resource === 'queue') {
         } else {
             $db->exec("UPDATE queue_config SET enabled=0, updated_at=NOW() WHERE id=1");
         }
+
+        emitEvent($db, 'queue_changed', ['enabled' => $newState]);
         $cfg = $db->query("SELECT * FROM queue_config WHERE id=1")->fetch();
         jsonResponse(['enabled' => (bool)$cfg['enabled'], 'current_turn' => (int)$cfg['current_turn']]);
     }
@@ -50,13 +54,13 @@ if ($resource === 'queue') {
         $cfg = $db->query("SELECT * FROM queue_config WHERE id=1")->fetch();
         if (!$cfg || !$cfg['enabled']) jsonError('Sistema de turnos desactivado');
         $nextTurn = (int)$cfg['current_turn'] + 1;
-        $stmt = $db->prepare("SELECT id FROM orders WHERE turn_number=? AND DATE(created_at)=CURDATE()");
+        $stmt     = $db->prepare("SELECT id FROM orders WHERE turn_number=? AND DATE(created_at)=CURDATE()");
         $stmt->execute([$nextTurn]);
         $order = $stmt->fetch();
         $db->prepare("UPDATE queue_config SET current_turn=?, current_order_id=?, updated_at=NOW() WHERE id=1")
            ->execute([$nextTurn, $order ? $order['id'] : null]);
-        $cfg = $db->query("SELECT * FROM queue_config WHERE id=1")->fetch();
-        jsonResponse(['current_turn' => (int)$cfg['current_turn'], 'order_id' => $order ? $order['id'] : null]);
+        emitEvent($db, 'queue_changed', ['current_turn' => $nextTurn]);
+        jsonResponse(['current_turn' => $nextTurn, 'order_id' => $order ? $order['id'] : null]);
     }
 
     if ($method === 'PUT' && $action === 'prev') {
@@ -64,13 +68,13 @@ if ($resource === 'queue') {
         $cfg = $db->query("SELECT * FROM queue_config WHERE id=1")->fetch();
         if (!$cfg || !$cfg['enabled']) jsonError('Sistema de turnos desactivado');
         $prevTurn = max(0, (int)$cfg['current_turn'] - 1);
-        $stmt = $db->prepare("SELECT id FROM orders WHERE turn_number=? AND DATE(created_at)=CURDATE()");
+        $stmt     = $db->prepare("SELECT id FROM orders WHERE turn_number=? AND DATE(created_at)=CURDATE()");
         $stmt->execute([$prevTurn]);
         $order = $stmt->fetch();
         $db->prepare("UPDATE queue_config SET current_turn=?, current_order_id=?, updated_at=NOW() WHERE id=1")
            ->execute([$prevTurn, $order ? $order['id'] : null]);
-        $cfg = $db->query("SELECT * FROM queue_config WHERE id=1")->fetch();
-        jsonResponse(['current_turn' => (int)$cfg['current_turn'], 'order_id' => $order ? $order['id'] : null]);
+        emitEvent($db, 'queue_changed', ['current_turn' => $prevTurn]);
+        jsonResponse(['current_turn' => $prevTurn, 'order_id' => $order ? $order['id'] : null]);
     }
 
     if ($method === 'PUT' && $action === 'set' && $id !== null) {
@@ -82,12 +86,14 @@ if ($resource === 'queue') {
         $order = $stmt->fetch();
         $db->prepare("UPDATE queue_config SET current_turn=?, current_order_id=?, updated_at=NOW() WHERE id=1")
            ->execute([$id, $order ? $order['id'] : null]);
+        emitEvent($db, 'queue_changed', ['current_turn' => $id]);
         jsonResponse(['current_turn' => $id, 'order_id' => $order ? $order['id'] : null]);
     }
 
     if ($method === 'POST' && $action === 'reset') {
         requireAdmin();
         $db->exec("UPDATE queue_config SET current_turn=0, current_order_id=NULL, updated_at=NOW() WHERE id=1");
+        emitEvent($db, 'queue_changed', ['current_turn' => 0, 'reset' => true]);
         jsonResponse(['message' => 'Turnos reiniciados']);
     }
 

@@ -11,7 +11,6 @@ $db = getDB();
 if ($resource === 'orders') {
 
     if ($method === 'GET' && $action === 'stats') {
-        logInfo('Obteniendo estadísticas de órdenes');
         try {
             requireAdmin();
             $stats = $db->query("
@@ -26,7 +25,6 @@ if ($resource === 'orders') {
             ")->fetch();
             $stats['total_products'] = $db->query("SELECT COUNT(*) FROM products WHERE active=1")->fetchColumn();
             $stats['total_users']    = $db->query("SELECT COUNT(*) FROM users WHERE role='user'")->fetchColumn();
-            logInfo('Estadísticas obtenidas exitosamente', $stats);
             jsonResponse($stats);
         } catch (PDOException $e) {
             logDatabaseError('orders/stats', $e);
@@ -35,7 +33,6 @@ if ($resource === 'orders') {
     }
 
     if ($method === 'GET' && $action === 'scan') {
-        logInfo('Escanear QR de orden');
         try {
             requireAdmin();
             $token = $segments[2] ?? null;
@@ -47,7 +44,6 @@ if ($resource === 'orders') {
             $items = $db->prepare("SELECT * FROM order_items WHERE order_id=?");
             $items->execute([$order['id']]);
             $order['items'] = $items->fetchAll();
-            logInfo('Orden encontrada por QR', ['order_id' => $order['id']]);
             jsonResponse($order);
         } catch (PDOException $e) {
             logDatabaseError('orders/scan', $e);
@@ -56,7 +52,6 @@ if ($resource === 'orders') {
     }
 
     if ($method === 'GET' && $action === 'my') {
-        logInfo('Obteniendo mis órdenes');
         try {
             $auth = requireAuth();
             $stmt = $db->prepare("SELECT * FROM orders WHERE user_id=? ORDER BY created_at DESC");
@@ -67,7 +62,6 @@ if ($resource === 'orders') {
                 $items->execute([$order['id']]);
                 $order['items'] = $items->fetchAll();
             }
-            logInfo('Órdenes del usuario obtenidas', ['user_id' => $auth['id'], 'count' => count($orders)]);
             jsonResponse($orders);
         } catch (PDOException $e) {
             logDatabaseError('orders/my', $e);
@@ -76,15 +70,13 @@ if ($resource === 'orders') {
     }
 
     if ($method === 'POST' && $action === 'checkout') {
-        logInfo('Iniciando checkout');
         try {
             $auth   = requireAuth();
             $userId = $auth['id'];
 
             $stmt = $db->prepare("
                 SELECT ci.quantity, p.id as product_id, p.name, p.price, p.stock
-                FROM cart_items ci
-                JOIN products p ON p.id = ci.product_id
+                FROM cart_items ci JOIN products p ON p.id=ci.product_id
                 WHERE ci.user_id=? AND p.active=1
             ");
             $stmt->execute([$userId]);
@@ -106,41 +98,31 @@ if ($resource === 'orders') {
             $turnNumber  = null;
 
             if ($turnEnabled) {
-                $lastTurn = $db->query("SELECT MAX(turn_number) as max_turn FROM orders WHERE DATE(created_at)=CURDATE()")->fetch();
+                $lastTurn   = $db->query("SELECT MAX(turn_number) as max_turn FROM orders WHERE DATE(created_at)=CURDATE()")->fetch();
                 $turnNumber = ((int)($lastTurn['max_turn'] ?? 0)) + 1;
             }
 
-            $qrPayload = [
-                'type'    => 'order',
-                'token'   => $token,
-                'user_id' => $userId,
-                'user'    => $auth['name'],
-                'total'   => $total,
-                'turn'    => $turnNumber,
-                'items'   => array_map(fn($i) => ['name' => $i['name'], 'qty' => $i['quantity'], 'price' => $i['price']], $cartItems)
-            ];
-            $qrData = generateQRData($qrPayload);
+            $qrPayload = ['type' => 'order', 'token' => $token, 'user_id' => $userId, 'total' => $total, 'turn' => $turnNumber];
+            $qrData    = generateQRData($qrPayload);
 
             $db->beginTransaction();
-            $stmt = $db->prepare("INSERT INTO orders (user_id, total, qr_code, qr_token, turn_number) VALUES (?,?,?,?,?)");
-            $stmt->execute([$userId, $total, $qrData, $token, $turnNumber]);
+            $db->prepare("INSERT INTO orders (user_id, total, qr_code, qr_token, turn_number) VALUES (?,?,?,?,?)")
+               ->execute([$userId, $total, $qrData, $token, $turnNumber]);
             $orderId = (int)$db->lastInsertId();
-
-            emitEvent($db, 'order_created', [
-                'order_id' => $orderId
-            ]);
-            logInfo('Orden creada', ['order_id' => $orderId, 'user_id' => $userId, 'total' => $total, 'turn' => $turnNumber]);
 
             foreach ($cartItems as $item) {
                 $db->prepare("INSERT INTO order_items (order_id,product_id,product_name,product_price,quantity,subtotal) VALUES (?,?,?,?,?,?)")
                    ->execute([$orderId, $item['product_id'], $item['name'], $item['price'], $item['quantity'], $item['price'] * $item['quantity']]);
-                $db->prepare("UPDATE products SET stock = stock - ? WHERE id = ?")->execute([$item['quantity'], $item['product_id']]);
+                $db->prepare("UPDATE products SET stock=stock-? WHERE id=?")->execute([$item['quantity'], $item['product_id']]);
             }
 
             $db->prepare("DELETE FROM cart_items WHERE user_id=?")->execute([$userId]);
+
+            emitEvent($db, 'order_created', ['order_id' => $orderId, 'user_id' => $userId]);
+
             $db->commit();
 
-            $order         = $db->query("SELECT * FROM orders WHERE id=$orderId")->fetch();
+            $order          = $db->query("SELECT * FROM orders WHERE id=$orderId")->fetch();
             $order['items'] = $cartItems;
             jsonResponse($order, 201);
 
@@ -150,13 +132,11 @@ if ($resource === 'orders') {
             jsonError('Error al crear la orden: ' . $e->getMessage(), 500);
         } catch (Exception $e) {
             if ($db->inTransaction()) $db->rollBack();
-            logError('Checkout error general', ['message' => $e->getMessage()]);
             jsonError('Error al crear la orden', 500);
         }
     }
 
     if ($method === 'GET' && $id !== null) {
-        logInfo('Obteniendo orden específica', ['order_id' => $id]);
         try {
             $auth = requireAuth();
             $stmt = $db->prepare("SELECT o.*, u.full_name, u.grade, u.doc_type, u.doc_number FROM orders o JOIN users u ON u.id=o.user_id WHERE o.id=?");
@@ -175,17 +155,23 @@ if ($resource === 'orders') {
     }
 
     if ($method === 'PUT' && $id !== null && $action === 'status') {
-        logInfo('Actualizando estado de orden', ['order_id' => $id]);
         try {
             requireAdmin();
             $status = $body['status'] ?? null;
             if (!in_array($status, ['pending', 'paid', 'cancelled'])) jsonError('Estado inválido');
             $paidAt = $status === 'paid' ? date('c') : null;
-            $db->prepare("UPDATE orders SET status=?, paid_at=? WHERE id=?")->execute([$status, $paidAt, $id]);
-            $stmt = $db->prepare("SELECT * FROM orders WHERE id=?");
+
+            $stmt = $db->prepare("SELECT user_id FROM orders WHERE id=?");
             $stmt->execute([$id]);
             $order = $stmt->fetch();
-            jsonResponse($order);
+            if (!$order) jsonError('Orden no encontrada', 404);
+
+            $db->prepare("UPDATE orders SET status=?, paid_at=? WHERE id=?")->execute([$status, $paidAt, $id]);
+            emitEvent($db, 'order_updated', ['order_id' => $id, 'user_id' => (int)$order['user_id'], 'status' => $status]);
+
+            $stmt = $db->prepare("SELECT * FROM orders WHERE id=?");
+            $stmt->execute([$id]);
+            jsonResponse($stmt->fetch());
         } catch (PDOException $e) {
             logDatabaseError('orders/status', $e);
             jsonError('Error al actualizar estado: ' . $e->getMessage(), 500);
@@ -193,7 +179,6 @@ if ($resource === 'orders') {
     }
 
     if ($method === 'GET') {
-        logInfo('Obteniendo todas las órdenes (admin)');
         try {
             requireAdmin();
             $stmt   = $db->query("SELECT o.*, u.full_name, u.grade, u.doc_number FROM orders o JOIN users u ON u.id=o.user_id ORDER BY o.created_at DESC");

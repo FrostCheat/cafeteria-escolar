@@ -11,476 +11,178 @@
   <link rel="stylesheet" href="/assets/css/main.css"/>
   <style>
     :root {
-      --c1: #0d0d0d;
-      --c2: #141414;
-      --c3: #1e1e1e;
-      --accent: #ff3c00;
-      --accent2: #ff6b35;
-      --gold: #ffd166;
-      --paper: #faf9f7;
-      --muted: #888;
-      --border: rgba(255,255,255,0.07);
+      --c1: #0d0d0d; --c2: #141414;
+      --accent: #ff3c00; --gold: #ffd166;
+      --paper: #faf9f7; --muted: #888;
       --success: #06d6a0;
       --font-display: 'Unbounded', sans-serif;
       --font-body: 'Outfit', sans-serif;
-      --radius: 20px;
-      --radius-lg: 28px;
+      --radius: 20px; --radius-lg: 28px;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+    body { font-family: var(--font-body); background: var(--c1); color: var(--paper); min-height: 100dvh; overflow-x: hidden; }
 
-    body {
-      font-family: var(--font-body);
-      background: var(--c1);
-      color: var(--paper);
-      min-height: 100dvh;
-      overflow-x: hidden;
-    }
-
-    .page-wrap {
-      min-height: 100dvh;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      position: relative;
-    }
+    .page-wrap { min-height: 100dvh; display: grid; grid-template-columns: 1fr 1fr; }
 
     .left-panel {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 60px 56px;
-      overflow: hidden;
-      background: var(--c2);
+      position: relative; display: flex; flex-direction: column;
+      justify-content: center; padding: 60px 56px; overflow: hidden; background: var(--c2);
     }
-
     .left-panel::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 80% 60% at 20% 80%, rgba(255,60,0,0.18) 0%, transparent 70%),
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse 80% 60% at 20% 80%, rgba(255,60,0,0.18) 0%, transparent 70%),
         radial-gradient(ellipse 60% 40% at 80% 20%, rgba(255,107,53,0.1) 0%, transparent 60%);
-      pointer-events: none;
     }
-
     .noise-overlay {
-      position: absolute;
-      inset: 0;
-      opacity: 0.04;
+      position: absolute; inset: 0; opacity: 0.04; pointer-events: none;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
       background-size: 200px;
-      pointer-events: none;
     }
-
-    .brand-mark {
-      position: relative;
-      z-index: 1;
-      margin-bottom: 48px;
-    }
-
-    .brand-icon {
-      width: 72px;
-      height: 72px;
-      background: var(--accent);
-      border-radius: 22px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2rem;
-      margin-bottom: 20px;
-      box-shadow: 0 16px 48px rgba(255,60,0,0.4);
-      animation: pulse-glow 3s ease-in-out infinite;
-    }
-
-    @keyframes pulse-glow {
-      0%, 100% { box-shadow: 0 16px 48px rgba(255,60,0,0.4); }
-      50% { box-shadow: 0 20px 64px rgba(255,60,0,0.6); }
-    }
-
-    .brand-name {
-      font-family: var(--font-display);
-      font-size: 1.4rem;
-      font-weight: 900;
-      letter-spacing: -0.03em;
-      line-height: 1;
-    }
-
-    .brand-name span { color: var(--accent); }
-
-    .hero-headline {
-      font-family: var(--font-display);
-      font-size: clamp(2rem, 3.5vw, 3rem);
-      font-weight: 900;
-      line-height: 1.05;
-      letter-spacing: -0.04em;
-      margin-bottom: 20px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .hero-headline .line2 { color: var(--accent); display: block; }
-
-    .hero-sub {
-      font-size: 0.95rem;
-      color: rgba(250,249,247,0.55);
-      line-height: 1.8;
-      max-width: 360px;
-      margin-bottom: 48px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .feature-pills {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .feature-pill {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 14px 18px;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.07);
-      backdrop-filter: blur(8px);
-      font-size: 0.875rem;
-      color: rgba(250,249,247,0.7);
-      transition: all 0.3s ease;
-    }
-
-    .feature-pill:hover {
-      background: rgba(255,255,255,0.07);
-      border-color: rgba(255,60,0,0.3);
-      color: var(--paper);
-      transform: translateX(4px);
-    }
-
-    .pill-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      background: rgba(255,60,0,0.15);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1rem;
-      flex-shrink: 0;
-    }
-
     .deco-grid {
-      position: absolute;
-      bottom: -40px;
-      right: -40px;
-      width: 280px;
-      height: 280px;
-      opacity: 0.04;
-      background-image: repeating-linear-gradient(0deg, rgba(255,255,255,1) 0, rgba(255,255,255,1) 1px, transparent 0, transparent 50%),
-        repeating-linear-gradient(90deg, rgba(255,255,255,1) 0, rgba(255,255,255,1) 1px, transparent 0, transparent 50%);
+      position: absolute; bottom: -40px; right: -40px; width: 280px; height: 280px; opacity: 0.04;
+      background-image: repeating-linear-gradient(0deg, #fff 0, #fff 1px, transparent 0, transparent 50%), repeating-linear-gradient(90deg, #fff 0, #fff 1px, transparent 0, transparent 50%);
       background-size: 28px 28px;
     }
+    .brand-mark { position: relative; z-index: 1; margin-bottom: 48px; }
+    .brand-icon {
+      width: 72px; height: 72px; background: var(--accent); border-radius: 22px;
+      display: flex; align-items: center; justify-content: center; font-size: 2rem;
+      margin-bottom: 20px; box-shadow: 0 16px 48px rgba(255,60,0,0.4);
+      animation: pulse-glow 3s ease-in-out infinite;
+    }
+    @keyframes pulse-glow { 0%,100%{box-shadow:0 16px 48px rgba(255,60,0,0.4)} 50%{box-shadow:0 20px 64px rgba(255,60,0,0.6)} }
+    .brand-name { font-family: var(--font-display); font-size: 1.4rem; font-weight: 900; letter-spacing: -0.03em; line-height: 1; }
+    .brand-name span { color: var(--accent); }
+    .hero-headline { font-family: var(--font-display); font-size: clamp(2rem, 3.5vw, 3rem); font-weight: 900; line-height: 1.05; letter-spacing: -0.04em; margin-bottom: 20px; position: relative; z-index: 1; }
+    .hero-headline .line2 { color: var(--accent); display: block; }
+    .hero-sub { font-size: 0.95rem; color: rgba(250,249,247,0.55); line-height: 1.8; max-width: 360px; margin-bottom: 48px; position: relative; z-index: 1; }
+    .feature-pills { display: flex; flex-direction: column; gap: 12px; position: relative; z-index: 1; }
+    .feature-pill {
+      display: flex; align-items: center; gap: 14px; padding: 14px 18px;
+      border-radius: 16px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+      backdrop-filter: blur(8px); font-size: 0.875rem; color: rgba(250,249,247,0.7); transition: all 0.3s ease;
+    }
+    .feature-pill:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,60,0,0.3); color: var(--paper); transform: translateX(4px); }
+    .pill-icon { width: 36px; height: 36px; border-radius: 10px; background: rgba(255,60,0,0.15); display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
 
     .right-panel {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 48px 56px;
-      background: var(--paper);
-      position: relative;
-      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      padding: 48px 56px; background: var(--paper); position: relative; overflow: hidden;
     }
-
     .right-panel::before {
-      content: '';
-      position: absolute;
-      top: -120px;
-      right: -120px;
-      width: 400px;
-      height: 400px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(255,60,0,0.06) 0%, transparent 70%);
+      content: ''; position: absolute; top: -120px; right: -120px; width: 400px; height: 400px;
+      border-radius: 50%; background: radial-gradient(circle, rgba(255,60,0,0.06) 0%, transparent 70%);
     }
 
-    .auth-card {
-      width: 100%;
-      max-width: 420px;
-      position: relative;
-      z-index: 1;
-    }
+    .auth-card { width: 100%; max-width: 420px; position: relative; z-index: 1; }
 
-    .tab-switcher {
-      display: flex;
-      background: rgba(0,0,0,0.06);
-      border-radius: 16px;
-      padding: 4px;
-      margin-bottom: 32px;
-    }
+    .mobile-brand { display: none; align-items: center; gap: 12px; margin-bottom: 36px; }
+    .mobile-brand-icon { width: 44px; height: 44px; background: var(--accent); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 8px 24px rgba(255,60,0,0.4); }
+    .mobile-brand-name { font-family: var(--font-display); font-weight: 900; font-size: 1.1rem; letter-spacing: -0.03em; color: var(--c1); }
+    .mobile-brand-name span { color: var(--accent); }
 
-    .tab-sw-btn {
-      flex: 1;
-      padding: 11px;
-      border: none;
-      border-radius: 12px;
-      background: transparent;
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 0.78rem;
-      color: #888;
-      cursor: pointer;
-      transition: all 0.25s ease;
-      letter-spacing: 0.01em;
-    }
+    .tab-switcher { display: flex; background: rgba(0,0,0,0.06); border-radius: 16px; padding: 4px; margin-bottom: 32px; }
+    .tab-sw-btn { flex: 1; padding: 11px; border: none; border-radius: 12px; background: transparent; font-family: var(--font-display); font-weight: 700; font-size: 0.78rem; color: #888; cursor: pointer; transition: all 0.25s ease; letter-spacing: 0.01em; }
+    .tab-sw-btn.active { background: var(--c1); color: var(--paper); box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
 
-    .tab-sw-btn.active {
-      background: var(--c1);
-      color: var(--paper);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-    }
+    .form-heading { font-family: var(--font-display); font-size: 1.6rem; font-weight: 900; letter-spacing: -0.04em; color: var(--c1); margin-bottom: 6px; }
+    .form-sub { font-size: 0.875rem; color: #888; margin-bottom: 28px; }
 
-    .form-heading {
-      font-family: var(--font-display);
-      font-size: 1.6rem;
-      font-weight: 900;
-      letter-spacing: -0.04em;
-      color: var(--c1);
-      margin-bottom: 6px;
-    }
-
-    .form-sub {
-      font-size: 0.875rem;
-      color: #888;
-      margin-bottom: 28px;
-    }
-
-    .input-group {
-      margin-bottom: 16px;
-    }
-
-    .input-label {
-      display: block;
-      font-family: var(--font-display);
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: #666;
-      margin-bottom: 7px;
-    }
-
-    .input-wrap {
-      position: relative;
-    }
-
+    .input-group { margin-bottom: 16px; }
+    .input-label { display: block; font-family: var(--font-display); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #666; margin-bottom: 7px; }
     .input-field {
-      width: 100%;
-      padding: 14px 18px;
-      border: 2px solid rgba(0,0,0,0.1);
-      border-radius: 14px;
-      font-family: var(--font-body);
-      font-size: 0.95rem;
-      color: var(--c1);
-      background: rgba(255,255,255,0.8);
-      transition: all 0.2s ease;
-      outline: none;
-      -webkit-appearance: none;
+      width: 100%; padding: 14px 18px; border: 2px solid rgba(0,0,0,0.1); border-radius: 14px;
+      font-family: var(--font-body); font-size: 0.95rem; color: var(--c1);
+      background: rgba(255,255,255,0.8); transition: all 0.2s ease; outline: none; -webkit-appearance: none;
     }
-
-    .input-field:focus {
-      border-color: var(--accent);
-      background: #fff;
-      box-shadow: 0 0 0 4px rgba(255,60,0,0.1);
-    }
-
+    .input-field:focus { border-color: var(--accent); background: #fff; box-shadow: 0 0 0 4px rgba(255,60,0,0.1); }
     .input-field.input-error { border-color: #ff3b5c; background: #fff8f9; }
     .input-field.input-ok { border-color: var(--success); }
+    .input-hint { font-size: 0.7rem; color: #aaa; margin-top: 5px; padding-left: 2px; }
 
-    .input-hint {
-      font-size: 0.7rem;
-      color: #aaa;
-      margin-top: 5px;
-      padding-left: 2px;
-    }
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .doc-row { display: grid; grid-template-columns: 110px 1fr; gap: 10px; }
 
-    .row-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .doc-row {
-      display: grid;
-      grid-template-columns: 110px 1fr;
-      gap: 10px;
-    }
-
+    .select-wrap { position: relative; }
+    .select-wrap::after { content: '▾'; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #888; font-size: 0.85rem; }
     .select-field {
-      width: 100%;
-      padding: 14px 18px;
-      border: 2px solid rgba(0,0,0,0.1);
-      border-radius: 14px;
-      font-family: var(--font-body);
-      font-size: 0.95rem;
-      color: var(--c1);
-      background: rgba(255,255,255,0.8);
-      outline: none;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      -webkit-appearance: none;
-      appearance: none;
+      width: 100%; padding: 14px 18px; border: 2px solid rgba(0,0,0,0.1); border-radius: 14px;
+      font-family: var(--font-body); font-size: 0.95rem; color: var(--c1);
+      background: rgba(255,255,255,0.8); outline: none; cursor: pointer; transition: all 0.2s ease;
+      -webkit-appearance: none; appearance: none;
     }
-
-    .select-field:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 4px rgba(255,60,0,0.1);
-    }
-
-    .select-wrap {
-      position: relative;
-    }
-
-    .select-wrap::after {
-      content: '▾';
-      position: absolute;
-      right: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      pointer-events: none;
-      color: #888;
-      font-size: 0.85rem;
-    }
+    .select-field:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(255,60,0,0.1); }
 
     .submit-btn {
-      width: 100%;
-      padding: 16px;
-      border: none;
-      border-radius: 14px;
-      background: var(--accent);
-      color: #fff;
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 0.9rem;
-      letter-spacing: 0.02em;
-      cursor: pointer;
-      transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
-      margin-top: 8px;
-      position: relative;
-      overflow: hidden;
+      width: 100%; padding: 16px; border: none; border-radius: 14px; background: var(--accent);
+      color: #fff; font-family: var(--font-display); font-weight: 700; font-size: 0.9rem;
+      letter-spacing: 0.02em; cursor: pointer; transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+      margin-top: 8px; position: relative; overflow: hidden;
     }
-
-    .submit-btn::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: rgba(255,255,255,0);
-      transition: background 0.2s;
-    }
-
-    .submit-btn:hover {
-      transform: translateY(-2px) scale(1.01);
-      box-shadow: 0 12px 40px rgba(255,60,0,0.45);
-    }
-
+    .submit-btn::after { content: ''; position: absolute; inset: 0; background: rgba(255,255,255,0); transition: background 0.2s; }
+    .submit-btn:hover { transform: translateY(-2px) scale(1.01); box-shadow: 0 12px 40px rgba(255,60,0,0.45); }
     .submit-btn:hover::after { background: rgba(255,255,255,0.1); }
     .submit-btn:active { transform: scale(0.98); }
     .submit-btn:disabled { opacity: 0.6; transform: none; cursor: not-allowed; }
 
-    .switch-link {
-      text-align: center;
-      margin-top: 20px;
-      font-size: 0.85rem;
-      color: #888;
-    }
-
-    .switch-link a {
-      color: var(--accent);
-      font-weight: 700;
-      cursor: pointer;
-      text-decoration: none;
-    }
+    .switch-link { text-align: center; margin-top: 20px; font-size: 0.85rem; color: #888; }
+    .switch-link a { color: var(--accent); font-weight: 700; cursor: pointer; text-decoration: none; }
 
     .tab-panel { display: none; animation: fadeSlide 0.3s ease; }
     .tab-panel.active { display: block; }
-
-    @keyframes fadeSlide {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    @keyframes fadeSlide { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
 
     @media (max-width: 900px) {
       .page-wrap { grid-template-columns: 1fr; }
       .left-panel { display: none; }
+      .mobile-brand { display: flex; }
+      .mobile-brand-name { color: var(--paper); }
+
       .right-panel {
-        padding: 32px 24px 48px;
+        padding: 40px 24px 60px;
         min-height: 100dvh;
         align-items: flex-start;
-        background: linear-gradient(180deg, var(--c1) 0%, var(--paper) 220px);
+        background: var(--c1);
       }
-      .auth-card { max-width: 100%; padding-top: 60px; }
+      .right-panel::before { display: none; }
+
+      .auth-card { max-width: 100%; padding-top: 20px; }
+
       .form-heading { color: var(--paper); }
-      .form-sub { color: rgba(250,249,247,0.55); }
-      .tab-switcher { background: rgba(255,255,255,0.1); }
-      .tab-sw-btn { color: rgba(250,249,247,0.5); }
+      .form-sub { color: rgba(250,249,247,0.5); }
+      .input-label { color: rgba(250,249,247,0.45); }
+      .input-hint { color: rgba(250,249,247,0.3); }
+      .switch-link { color: rgba(250,249,247,0.45); }
+
+      .tab-switcher { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.08); }
+      .tab-sw-btn { color: rgba(250,249,247,0.4); }
       .tab-sw-btn.active { background: var(--paper); color: var(--c1); }
-      .input-label { color: rgba(250,249,247,0.5); }
-      .input-field, .select-field {
-        background: rgba(255,255,255,0.12);
-        border-color: rgba(255,255,255,0.15);
+
+      .input-field {
+        background: rgba(255,255,255,0.08);
+        border-color: rgba(255,255,255,0.12);
         color: var(--paper);
       }
-      .input-field:focus, .select-field:focus {
-        background: rgba(255,255,255,0.18);
-        border-color: var(--accent);
+      .input-field::placeholder { color: rgba(255,255,255,0.25); }
+      .input-field:focus { background: rgba(255,255,255,0.12); border-color: var(--accent); box-shadow: 0 0 0 4px rgba(255,60,0,0.15); }
+      .input-field.input-error { background: rgba(255,59,92,0.1); border-color: #ff3b5c; }
+      .input-field.input-ok { border-color: var(--success); }
+
+      .select-field {
+        background: rgba(255,255,255,0.08);
+        border-color: rgba(255,255,255,0.12);
+        color: var(--paper);
       }
-      .input-field::placeholder { color: rgba(255,255,255,0.3); }
-      .switch-link { color: rgba(250,249,247,0.5); }
-      .domain-hint { color: rgba(250,249,247,0.35); }
-    }
-
-    .mobile-brand {
-      display: none;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 36px;
-    }
-
-    .mobile-brand-icon {
-      width: 44px;
-      height: 44px;
-      background: var(--accent);
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-      box-shadow: 0 8px 24px rgba(255,60,0,0.4);
-    }
-
-    .mobile-brand-name {
-      font-family: var(--font-display);
-      font-weight: 900;
-      font-size: 1.1rem;
-      letter-spacing: -0.03em;
-      color: var(--paper);
-    }
-
-    .mobile-brand-name span { color: var(--accent); }
-
-    @media (max-width: 900px) {
-      .mobile-brand { display: flex; }
-    }
-
-    .right-panel::after {
-      content: none;
+      .select-field:focus { background: rgba(255,255,255,0.12); border-color: var(--accent); }
+      .select-field option { background: #1a1a1a; color: var(--paper); }
+      .select-wrap::after { color: rgba(255,255,255,0.4); }
     }
 
     @media (max-width: 480px) {
       .row-2 { grid-template-columns: 1fr; }
-      .right-panel { padding: 24px 20px 40px; }
+      .right-panel { padding: 32px 20px 48px; }
     }
   </style>
 </head>
@@ -490,34 +192,16 @@
   <div class="left-panel">
     <div class="noise-overlay"></div>
     <div class="deco-grid"></div>
-
     <div class="brand-mark">
       <div class="brand-icon">🍽️</div>
       <div class="brand-name">Cafetería<span>Santa Juana</span></div>
     </div>
-
-    <div class="hero-headline">
-      Tu menú,<br/>
-      <span class="line2">sin filas.</span>
-    </div>
-
-    <p class="hero-sub">
-      Ordena desde tu celular, genera tu QR y recoge en segundos. La cafetería escolar más inteligente.
-    </p>
-
+    <div class="hero-headline">Tu menú,<br/><span class="line2">sin filas.</span></div>
+    <p class="hero-sub">Ordena desde tu celular, genera tu QR y recoge en segundos. La cafetería escolar más inteligente.</p>
     <div class="feature-pills">
-      <div class="feature-pill">
-        <div class="pill-icon">⚡</div>
-        Pedidos en línea, entrega instantánea
-      </div>
-      <div class="feature-pill">
-        <div class="pill-icon">📱</div>
-        QR único por pedido, pago en efectivo
-      </div>
-      <div class="feature-pill">
-        <div class="pill-icon">✉️</div>
-        Solo correos @santajuanalestonnac.edu.co
-      </div>
+      <div class="feature-pill"><div class="pill-icon">⚡</div>Pedidos en línea, entrega instantánea</div>
+      <div class="feature-pill"><div class="pill-icon">📱</div>QR único por pedido, pago en efectivo</div>
+      <div class="feature-pill"><div class="pill-icon">✉️</div>Solo correos @santajuanalestonnac.edu.co</div>
     </div>
   </div>
 
@@ -536,36 +220,26 @@
       <div class="tab-panel active" id="panel-login">
         <div class="form-heading">Bienvenido de vuelta</div>
         <p class="form-sub">Ingresa con tu correo institucional</p>
-
         <div class="input-group">
           <label class="input-label">Correo institucional</label>
-          <div class="input-wrap">
-            <input class="input-field" type="email" id="login-email" placeholder="nombre@santajuanalestonnac.edu.co" autocomplete="email"/>
-          </div>
+          <input class="input-field" type="email" id="login-email" placeholder="nombre@santajuanalestonnac.edu.co" autocomplete="email"/>
           <span class="input-hint">Solo @santajuanalestonnac.edu.co</span>
         </div>
-
         <div class="input-group">
           <label class="input-label">Contraseña</label>
-          <div class="input-wrap">
-            <input class="input-field" type="password" id="login-pass" placeholder="Tu contraseña" autocomplete="current-password"/>
-          </div>
+          <input class="input-field" type="password" id="login-pass" placeholder="Tu contraseña" autocomplete="current-password"/>
         </div>
-
         <button class="submit-btn" id="btn-login">Iniciar sesión →</button>
-
         <p class="switch-link">¿No tienes cuenta? <a onclick="switchTab('register')">Regístrate aquí</a></p>
       </div>
 
       <div class="tab-panel" id="panel-register">
         <div class="form-heading">Crear cuenta</div>
         <p class="form-sub">Completa tus datos para registrarte</p>
-
         <div class="input-group">
           <label class="input-label">Nombre completo <span style="font-weight:400;text-transform:none;letter-spacing:0">(mín. 3 palabras)</span></label>
           <input class="input-field" type="text" id="reg-name" placeholder="Juan Carlos Pérez García" autocomplete="name"/>
         </div>
-
         <div class="row-2">
           <div class="input-group">
             <label class="input-label">Fecha de nacimiento</label>
@@ -576,7 +250,6 @@
             <input class="input-field" type="text" id="reg-grade" placeholder="11B" maxlength="4"/>
           </div>
         </div>
-
         <div class="input-group">
           <label class="input-label">Documento</label>
           <div class="doc-row">
@@ -591,20 +264,16 @@
             <input class="input-field" type="text" id="reg-doc-num" placeholder="Número de documento"/>
           </div>
         </div>
-
         <div class="input-group">
           <label class="input-label">Correo institucional</label>
           <input class="input-field" type="email" id="reg-email" placeholder="nombre@santajuanalestonnac.edu.co"/>
-          <span class="input-hint domain-hint">Solo @santajuanalestonnac.edu.co</span>
+          <span class="input-hint">Solo @santajuanalestonnac.edu.co</span>
         </div>
-
         <div class="input-group">
           <label class="input-label">Contraseña <span style="font-weight:400;text-transform:none;letter-spacing:0">(mín. 6 caracteres)</span></label>
           <input class="input-field" type="password" id="reg-pass" placeholder="Mínimo 6 caracteres" autocomplete="new-password"/>
         </div>
-
         <button class="submit-btn" id="btn-register">Crear cuenta →</button>
-
         <p class="switch-link">¿Ya tienes cuenta? <a onclick="switchTab('login')">Inicia sesión</a></p>
       </div>
     </div>
@@ -614,13 +283,8 @@
 <script src="/assets/js/app.js"></script>
 <script>
   buildNav('auth');
-
-  if (auth.isLoggedIn()) {
-    window.location.href = auth.isAdmin() ? '/admin/' : '/store/';
-  }
-
-  const params = new URLSearchParams(location.search);
-  if (params.get('tab') === 'register') switchTab('register');
+  if (auth.isLoggedIn()) window.location.href = auth.isAdmin() ? '/admin/' : '/store/';
+  if (new URLSearchParams(location.search).get('tab') === 'register') switchTab('register');
 
   function switchTab(tab) {
     document.querySelectorAll('.tab-sw-btn').forEach(t => t.classList.remove('active'));
@@ -648,17 +312,16 @@
     return ok;
   }
 
-  document.getElementById('reg-grade').addEventListener('blur', function () {
-    const raw = this.value.trim();
-    if (!raw) return;
-    const formatted = formatGrade(raw);
+  document.getElementById('reg-grade').addEventListener('blur', function() {
+    const formatted = formatGrade(this.value.trim());
+    if (!formatted) return;
     this.value = formatted;
     const ok = /^\d{1,2}[A-Z]$/.test(formatted);
     this.classList.toggle('input-error', !ok);
     this.classList.toggle('input-ok', ok);
   });
 
-  ['login-email', 'reg-email'].forEach(id => {
+  ['login-email','reg-email'].forEach(id => {
     const el = document.getElementById(id);
     el.addEventListener('blur', () => validateEmail(el));
     el.addEventListener('input', () => { if (el.classList.contains('input-error')) validateEmail(el); });
@@ -666,123 +329,63 @@
 
   const nameEl = document.getElementById('reg-name');
   nameEl.addEventListener('blur', () => validateName(nameEl));
-
-  document.getElementById('login-pass').addEventListener('keydown', e => {
-    if (e.key === 'Enter') document.getElementById('btn-login').click();
-  });
+  document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('btn-login').click(); });
 
   document.getElementById('btn-login').addEventListener('click', async () => {
-    const btn   = document.getElementById('btn-login');
+    const btn = document.getElementById('btn-login');
     const email = document.getElementById('login-email').value.trim().toLowerCase();
     const pass  = document.getElementById('login-pass').value;
-
     if (!email || !pass) { toast('Completa todos los campos', 'warning'); return; }
-    if (!email.endsWith(DOMAIN)) {
-      toast('Solo se permiten correos @santajuanalestonnac.edu.co', 'error');
-      return;
-    }
-
-    btn.disabled = true;
-    btn.textContent = 'Ingresando...';
+    if (!email.endsWith(DOMAIN)) { toast('Solo se permiten correos @santajuanalestonnac.edu.co', 'error'); return; }
+    btn.disabled = true; btn.textContent = 'Ingresando...';
     try {
       const data = await api.post('/auth/login', { email, password: pass });
       auth.save(data.token, data.user);
       toast('Bienvenido, ' + data.user.full_name.split(' ')[0] + '! 🍽️', 'success');
-      setTimeout(() => {
-        window.location.href = data.user.role === 'admin' ? '/admin/' : '/store/';
-      }, 600);
-    } catch (e) {
-      console.error('Error completo:', e);
-      let errorMsg = e.message;
-      if (e.details) {
-        if (e.details.error) errorMsg = e.details.error;
-        if (e.details.message) errorMsg = e.details.message;
-        if (e.status === 404) errorMsg = 'Servidor no encontrado. Verifica la URL del API.';
-        if (e.status === 500) errorMsg = 'Error interno del servidor. Revisa los logs.';
-      }
-      toast(errorMsg, 'error');
-      btn.disabled = false;
-      btn.textContent = 'Iniciar sesión →';
+      setTimeout(() => { window.location.href = data.user.role === 'admin' ? '/admin/' : '/store/'; }, 600);
+    } catch(e) {
+      let msg = e.message;
+      if (e.details?.error) msg = e.details.error;
+      if (e.status === 404) msg = 'Servidor no encontrado.';
+      if (e.status === 500) msg = 'Error interno del servidor.';
+      toast(msg, 'error');
+      btn.disabled = false; btn.textContent = 'Iniciar sesión →';
     }
   });
 
   document.getElementById('btn-register').addEventListener('click', async () => {
     const btn = document.getElementById('btn-register');
-
     const fullName = document.getElementById('reg-name').value.trim();
-    const words    = fullName.split(/\s+/).filter(Boolean);
-    if (words.length < 3) {
-      toast('El nombre completo debe tener mínimo 3 palabras (nombre + apellidos)', 'warning');
-      return;
-    }
-
+    if (fullName.split(/\s+/).filter(Boolean).length < 3) { toast('El nombre debe tener mínimo 3 palabras', 'warning'); return; }
     const grade = formatGrade(document.getElementById('reg-grade').value.trim());
-    if (!grade || !/^\d{1,2}[A-Z]$/.test(grade)) {
-      toast('El grado no tiene un formato válido (ej: 11B, 6D)', 'warning');
-      return;
-    }
-
+    if (!grade || !/^\d{1,2}[A-Z]$/.test(grade)) { toast('El grado no tiene un formato válido (ej: 11B, 6D)', 'warning'); return; }
     const email = document.getElementById('reg-email').value.trim().toLowerCase();
-    if (!email.endsWith(DOMAIN)) {
-      toast('Solo se permiten correos @santajuanalestonnac.edu.co', 'error');
-      return;
-    }
-
+    if (!email.endsWith(DOMAIN)) { toast('Solo se permiten correos @santajuanalestonnac.edu.co', 'error'); return; }
     const pass = document.getElementById('reg-pass').value;
-    if (pass.length < 6) {
-      toast('La contraseña debe tener mínimo 6 caracteres', 'warning');
-      return;
-    }
-
+    if (pass.length < 6) { toast('La contraseña debe tener mínimo 6 caracteres', 'warning'); return; }
     const birth = document.getElementById('reg-birth').value;
     if (birth) {
-      const birthDate = new Date(birth);
-      const today = new Date();
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const m = today.getMonth() - birthDate.getMonth();
-      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
-      if (age < 5 || age > 20) {
-        toast('La edad debe estar entre 5 y 20 años', 'warning');
-        return;
-      }
+      const d = new Date(birth), today = new Date();
+      let age = today.getFullYear() - d.getFullYear();
+      const m = today.getMonth() - d.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < d.getDate())) age--;
+      if (age < 5 || age > 20) { toast('La edad debe estar entre 5 y 20 años', 'warning'); return; }
     }
-
-    const body = {
-      full_name:  fullName,
-      birth_date: birth,
-      grade,
-      doc_type:   document.getElementById('reg-doc-type').value,
-      doc_number: document.getElementById('reg-doc-num').value.trim(),
-      email,
-      password:   pass,
-    };
-
-    for (const [k, v] of Object.entries(body)) {
-      if (!v && k !== 'birth_date') { toast(`Campo requerido: ${k.replace('_', ' ')}`, 'warning'); return; }
-    }
-
-    btn.disabled = true;
-    btn.textContent = 'Registrando...';
+    const body = { full_name: fullName, birth_date: birth, grade, doc_type: document.getElementById('reg-doc-type').value, doc_number: document.getElementById('reg-doc-num').value.trim(), email, password: pass };
+    for (const [k, v] of Object.entries(body)) { if (!v && k !== 'birth_date') { toast(`Campo requerido: ${k.replace('_',' ')}`, 'warning'); return; } }
+    btn.disabled = true; btn.textContent = 'Registrando...';
     try {
       const data = await api.post('/auth/register', body);
       auth.save(data.token, data.user);
       toast('¡Cuenta creada! Bienvenido a la cafetería 🍽️', 'success');
       setTimeout(() => { window.location.href = '/store/'; }, 700);
-    } catch (e) {
-      console.error('Error completo:', e);
-      let errorMsg = e.message;
-      if (e.details) {
-        if (e.details.error) errorMsg = e.details.error;
-        if (e.details.message) errorMsg = e.details.message;
-        if (e.details.errors) {
-          errorMsg = Object.values(e.details.errors).flat().join(', ');
-        }
-        if (e.status === 409) errorMsg = 'El correo o documento ya está registrado';
-        if (e.status === 400) errorMsg = 'Datos inválidos: ' + (e.details.error || e.details.message);
-      }
-      toast(errorMsg, 'error');
-      btn.disabled = false;
-      btn.textContent = 'Crear cuenta →';
+    } catch(e) {
+      let msg = e.message;
+      if (e.details?.error) msg = e.details.error;
+      if (e.details?.errors) msg = Object.values(e.details.errors).flat().join(', ');
+      if (e.status === 409) msg = 'El correo o documento ya está registrado';
+      toast(msg, 'error');
+      btn.disabled = false; btn.textContent = 'Crear cuenta →';
     }
   });
 </script>

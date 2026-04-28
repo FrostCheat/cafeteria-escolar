@@ -5,9 +5,9 @@ ini_set('display_startup_errors', 1);
 ini_set('log_errors', 1);
 
 define('DB_HOST', 'sql306.infinityfree.com');
-define('DB_NAME', 'if0_41745979_cafeteria');
+define('DB_NAME', 'if0_41745979_cafeteria_escolar');
 define('DB_USER', 'if0_41745979');
-define('DB_PASS', 'cNLNhBke4hmJ');
+define('DB_PASS', 'f7DorrtCWyEbTC');
 define('JWT_SECRET', 'cafeteria_secret_key_2024_xK9#mP');
 define('UPLOAD_PATH', __DIR__ . '/../../imgs/uploads/');
 define('BASE_URL', 'http://localhost:8080');
@@ -17,12 +17,10 @@ function getDB(): PDO {
     static $pdo = null;
     if ($pdo === null) {
         try {
-            logInfo('Conectando a la base de datos', ['host' => DB_HOST, 'db' => DB_NAME]);
             $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4';
             $pdo = new PDO($dsn, DB_USER, DB_PASS);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-            logInfo('Conexión a base de datos exitosa');
             initDB($pdo);
         } catch(PDOException $e) {
             logDatabaseError('getDB', $e);
@@ -34,8 +32,6 @@ function getDB(): PDO {
 
 function initDB(PDO $pdo): void {
     try {
-        logInfo('Inicializando tablas');
-
         $pdo->exec("
             CREATE TABLE IF NOT EXISTS users (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -102,11 +98,8 @@ function initDB(PDO $pdo): void {
             $cols = $pdo->query("SHOW COLUMNS FROM orders LIKE 'turn_number'")->fetchAll();
             if (empty($cols)) {
                 $pdo->exec("ALTER TABLE orders ADD COLUMN turn_number INT DEFAULT NULL AFTER notes");
-                logInfo('Columna turn_number agregada a orders');
             }
-        } catch (PDOException $e) {
-            logWarning('No se pudo verificar columna turn_number', ['error' => $e->getMessage()]);
-        }
+        } catch (PDOException $e) {}
 
         $pdo->exec("
             CREATE TABLE IF NOT EXISTS order_items (
@@ -131,28 +124,35 @@ function initDB(PDO $pdo): void {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ");
 
-        $existing = $pdo->query("SELECT id FROM queue_config WHERE id=1")->fetch();
-        if (!$existing) {
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS events (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                type VARCHAR(50) NOT NULL,
+                payload JSON,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_id (id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        ");
+
+        $pdo->exec("
+            CREATE EVENT IF NOT EXISTS cleanup_events
+            ON SCHEDULE EVERY 1 HOUR
+            DO DELETE FROM events WHERE created_at < NOW() - INTERVAL 2 HOUR
+        ");
+
+        if (!$pdo->query("SELECT id FROM queue_config WHERE id=1")->fetch()) {
             $pdo->exec("INSERT INTO queue_config (id, enabled, current_turn) VALUES (1, 0, 0)");
-            logInfo('queue_config inicializado');
         }
 
         $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
         $stmt->execute(['admin@santajuanalestonnac.edu.co']);
-        $admin = $stmt->fetch();
-
-        if (!$admin) {
-            logInfo('Creando usuario administrador por defecto');
+        if (!$stmt->fetch()) {
             $hash = password_hash('admin123', PASSWORD_BCRYPT);
-            $stmt = $pdo->prepare("
+            $pdo->prepare("
                 INSERT INTO users (full_name, birth_date, grade, doc_type, doc_number, email, password, role)
                 VALUES ('Administrador', '1990-01-01', '11A', 'CC', '000000001', 'admin@santajuanalestonnac.edu.co', ?, 'admin')
-            ");
-            $stmt->execute([$hash]);
-            logInfo('Usuario administrador creado');
+            ")->execute([$hash]);
         }
-
-        logInfo('Inicialización de tablas completada');
 
     } catch (PDOException $e) {
         logDatabaseError('initDB', $e);
