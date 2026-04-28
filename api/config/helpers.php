@@ -4,6 +4,11 @@ ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 ini_set('error_log', __DIR__ . '../logs/error.log');
 
+function emitEvent(PDO $db, string $type, array $payload = []) {
+    $stmt = $db->prepare("INSERT INTO events (type, payload) VALUES (?, ?)");
+    $stmt->execute([$type, json_encode($payload)]);
+}
+
 function jsonResponse(mixed $data, int $code = 200): void {
     http_response_code($code);
     echo json_encode($data, JSON_UNESCAPED_UNICODE);

@@ -126,6 +126,9 @@ if ($resource === 'orders') {
             $stmt->execute([$userId, $total, $qrData, $token, $turnNumber]);
             $orderId = (int)$db->lastInsertId();
 
+            emitEvent($db, 'order_created', [
+                'order_id' => $orderId
+            ]);
             logInfo('Orden creada', ['order_id' => $orderId, 'user_id' => $userId, 'total' => $total, 'turn' => $turnNumber]);
 
             foreach ($cartItems as $item) {

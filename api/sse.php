@@ -4,8 +4,17 @@ require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/config/helpers.php';
 require_once __DIR__ . '/middleware/auth.php';
 
-header('Content-Type: text/event-stream');
-header('Cache-Control: no-cache');
+ini_set('output_buffering', 'off');
+ini_set('zlib.output_compression', false);
+
+while (ob_get_level() > 0) {
+    ob_end_clean();
+}
+
+header('Content-Type: text/event-stream; charset=utf-8');
+header('Cache-Control: no-cache, no-store, must-revalidate');
+header('Pragma: no-cache');
+header('Expires: 0');
 header('Connection: keep-alive');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Headers: Authorization, Content-Type');
@@ -13,16 +22,28 @@ header('X-Accel-Buffering: no');
 
 date_default_timezone_set('America/Bogota');
 
-$user = getAuthUser();
+$token = $_GET['token'] ?? null;
+$user = null;
+
+if ($token) {
+    $user = jwtDecode($token);
+}
+
 if (!$user) {
-    echo "event: error\ndata: {\"error\":\"unauthorized\"}\n\n";
+    $authUser = getAuthUser();
+    if ($authUser) $user = $authUser;
+}
+
+if (!$user) {
+    echo "event: error\n";
+    echo "data: {\"error\":\"unauthorized\"}\n\n";
     flush();
     exit;
 }
 
 $db = getDB();
 
-function sendEvent(string $event, array $data): void {
+function sseFlush(string $event, array $data): void {
     echo "event: {$event}\n";
     echo "data: " . json_encode($data, JSON_UNESCAPED_UNICODE) . "\n\n";
     if (ob_get_level() > 0) ob_flush();
@@ -61,68 +82,123 @@ function getStats(PDO $db): array {
     return $stats;
 }
 
-$lastOrderHash   = '';
 $lastQueueHash   = '';
+$lastOrderHash   = '';
 $lastStatsHash   = '';
 $lastProductHash = '';
 
-sendEvent('connected', ['status' => 'ok', 'role' => $user['role']]);
-
-$maxTime = 55;
+set_time_limit(90);
 $start   = time();
+$maxTime = 55;
+
+sseFlush('connected', ['status' => 'ok', 'role' => $user['role'], 'user_id' => $user['id']]);
 
 while ((time() - $start) < $maxTime) {
-    if (connection_aborted()) break;
+    if (connection_aborted()) {
+        break;
+    }
 
     try {
         $queueState = getQueueState($db);
         $queueHash  = md5(json_encode($queueState));
         if ($queueHash !== $lastQueueHash) {
             $lastQueueHash = $queueHash;
-            sendEvent('queue', $queueState);
+            sseFlush('queue', $queueState);
         }
 
         if ($user['role'] === 'admin') {
-            $orders = $db->query("SELECT o.id, o.status, o.total, o.created_at, o.turn_number, u.full_name, u.grade FROM orders o JOIN users u ON u.id=o.user_id ORDER BY o.created_at DESC LIMIT 50")->fetchAll();
+            $orders = $db->query("
+                SELECT o.id, o.status, o.total, o.created_at, o.turn_number,
+                       u.full_name, u.grade, u.doc_number
+                FROM orders o
+                JOIN users u ON u.id = o.user_id
+                ORDER BY o.created_at DESC
+                LIMIT 100
+            ")->fetchAll();
+
             $orderHash = md5(json_encode($orders));
             if ($orderHash !== $lastOrderHash) {
                 $lastOrderHash = $orderHash;
-                sendEvent('orders_updated', ['orders' => $orders]);
+                sseFlush('orders_updated', ['orders' => $orders]);
             }
 
-            $stats     = getStats($db);
+            $stats = getStatsCached($db);
             $statsHash = md5(json_encode($stats));
             if ($statsHash !== $lastStatsHash) {
                 $lastStatsHash = $statsHash;
-                sendEvent('stats_updated', $stats);
+                sseFlush('stats_updated', $stats);
             }
 
-            $products    = $db->query("SELECT id, name, stock, active, price FROM products ORDER BY id")->fetchAll();
+            $products    = $db->query("SELECT id, name, stock, active, price, category FROM products ORDER BY id")->fetchAll();
             $productHash = md5(json_encode($products));
             if ($productHash !== $lastProductHash) {
                 $lastProductHash = $productHash;
-                sendEvent('products_updated', ['products' => $products]);
+                sseFlush('products_updated', ['products' => $products]);
             }
         } else {
-            $stmt = $db->prepare("SELECT o.id, o.status, o.total, o.created_at, o.turn_number FROM orders o WHERE o.user_id=? ORDER BY o.created_at DESC LIMIT 20");
+            $stmt = $db->prepare("
+                SELECT o.id, o.status, o.total, o.created_at, o.turn_number,
+                       o.qr_token, o.qr_code
+                FROM orders o
+                WHERE o.user_id = ?
+                ORDER BY o.created_at DESC
+                LIMIT 50
+            ");
             $stmt->execute([$user['id']]);
-            $orders    = $stmt->fetchAll();
+            $orders = $stmt->fetchAll();
+
+            $orderIds = array_column($orders, 'id');
+            if ($orderIds) {
+                $in = implode(',', array_fill(0, count($orderIds), '?'));
+
+                $stmt = $db->prepare("
+                    SELECT order_id, product_name, quantity, subtotal 
+                    FROM order_items 
+                    WHERE order_id IN ($in)
+                ");
+                $stmt->execute($orderIds);
+
+                $itemsGrouped = [];
+                foreach ($stmt->fetchAll() as $item) {
+                    $itemsGrouped[$item['order_id']][] = $item;
+                }
+
+                foreach ($orders as &$order) {
+                    $order['items'] = $itemsGrouped[$order['id']] ?? [];
+                }
+            }
+            unset($order);
+
             $orderHash = md5(json_encode($orders));
             if ($orderHash !== $lastOrderHash) {
                 $lastOrderHash = $orderHash;
-                sendEvent('my_orders_updated', ['orders' => $orders]);
+                sseFlush('my_orders_updated', ['orders' => $orders]);
             }
         }
 
-        echo ": heartbeat\n\n";
+        echo ": heartbeat " . time() . "\n\n";
         if (ob_get_level() > 0) ob_flush();
         flush();
 
     } catch (Exception $e) {
-        logError('SSE error', ['message' => $e->getMessage()]);
+        logError('SSE loop error', ['message' => $e->getMessage(), 'user_id' => $user['id']]);
     }
 
-    sleep(2);
+    sleep(5);
 }
 
-sendEvent('reconnect', ['message' => 'reconnecting']);
+function getStatsCached(PDO $db): array {
+    static $cache = null;
+    static $lastTime = 0;
+
+    if ($cache && (time() - $lastTime < 30)) {
+        return $cache;
+    }
+
+    $cache = getStats($db);
+    $lastTime = time();
+
+    return $cache;
+}
+
+sseFlush('reconnect', ['message' => 'session_end']);
