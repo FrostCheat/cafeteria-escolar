@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Error</title>
+  <link rel="stylesheet" href="/assets/css/main.css"/>
+
+  <style>
+    .error-wrap {
+      min-height: calc(100dvh - 64px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    .error-box {
+      max-width: 520px;
+      animation: fadeUp .5s ease both;
+    }
+
+    .error-code {
+      font-size: clamp(4rem, 10vw, 7rem);
+      font-weight: 900;
+      font-family: var(--font-display);
+      letter-spacing: -0.05em;
+    }
+
+    .error-title {
+      font-size: 1.6rem;
+      margin: 10px 0;
+    }
+
+    .error-desc {
+      color: var(--muted);
+      margin-bottom: 28px;
+      line-height: 1.6;
+    }
+
+    .error-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .error-icon {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav" id="main-nav"></nav>
+
+<div class="error-wrap">
+  <div class="error-box">
+
+    <div class="error-icon">🔍</div>
+    <div class="error-code">404</div>
+    <h1 class="error-title">Página no encontrada</h1>
+    <p class="error-desc">
+        La página que buscas no existe o fue movida.
+        Revisa la URL o vuelve al inicio.
+    </p>
+
+    <div class="error-actions">
+      <a href="/" class="btn btn-accent">🏠 Inicio</a>
+      <button onclick="history.back()" class="btn btn-outline">⬅ Volver</button>
+    </div>
+
+  </div>
+</div>
+
+<script src="/assets/js/app.js"></script>
+<script>buildNav();</script>
+
+</body>
+</html>
