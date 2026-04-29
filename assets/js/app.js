@@ -198,7 +198,7 @@ function buildNav(activePage) {
 
   const mobileLinks = user ? `
     ${isAdmin ? `<button class="mobile-nav-link ${activePage==='admin'?'active':''}" onclick="closeMobileMenu();window.location='/admin/'">📊 Panel Admin</button>` : ''}
-    ${!isAdmin ? `<button class="mobile-nav-link ${activePage==='store'?'active':''}" onclick="closeMobileMenu();window.location='/store/'">🍽️ Tienda</button>` : ''}
+    <button class="mobile-nav-link ${activePage==='store'?'active':''}" onclick="closeMobileMenu();window.location='/store/'">🍽️ Tienda</button>
     ${!isAdmin ? `<button class="mobile-nav-link" onclick="closeMobileMenu();window.location='/store/#orders'">📋 Mis Pedidos</button>` : ''}
     ${!isAdmin ? `<button class="mobile-nav-link" onclick="closeMobileMenu();window.location='/store/#cart'">🛒 Carrito</button>` : ''}
     <div style="height:1px;background:rgba(247,243,236,.08);margin:8px 0"></div>
@@ -217,11 +217,11 @@ function buildNav(activePage) {
     <div class="nav-links">
       ${user ? `
         ${isAdmin ? `<a href="/admin/" class="nav-link ${activePage==='admin'?'active':''}">Panel Admin</a>` : ''}
-        ${!isAdmin ? `<a href="/store/" class="nav-link ${activePage==='store'?'active':''}">Tienda</a>` : ''}
+        <button href="/store/" class="nav-link ${activePage==='store'?'active':''}">Tienda</button>
         ${!isAdmin ? `<a href="/store/#orders" class="nav-link ${activePage==='orders'?'active':''}">Mis Pedidos</a>` : ''}
-        <span id="nav-user-name" class="nav-link" style="color:rgba(247,243,236,.45);cursor:default">👤 ${user.full_name?.split(' ')[0]}</span>
+        <span id="nav-user-name" class="nav-link" style="color:rgba(36, 24, 3, 0.45);cursor:default">👤 ${user.full_name?.split(' ')[0]}</span>
         ${!isAdmin ? `<button class="nav-cart" id="nav-cart-btn" onclick="window.location='/store/#cart'">🛒 Carrito<span class="cart-badge" style="display:none">0</span></button>` : ''}
-        <button class="nav-link" onclick="auth.logout()" style="color:rgba(247,243,236,.4)">Salir</button>
+        <button class="nav-link active" onclick="auth.logout()" style="color:rgba(247,243,236,.4)">Salir</button>
       ` : `
         <a href="/store/" class="nav-link ${activePage==='store'?'active':''}">Tienda</a>
         <a href="/auth/" class="btn btn-accent btn-sm">Ingresar</a>

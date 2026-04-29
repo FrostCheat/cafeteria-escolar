@@ -63,25 +63,31 @@
     .section-label::after{content:'';flex:1;height:1px;background:var(--border)}
     .stats-grid{display:grid;gap:14px;margin-bottom:20px}
     .stats-4{grid-template-columns:repeat(4,1fr)}
+    .stats-3{grid-template-columns:repeat(3,1fr)}
     .stats-6{grid-template-columns:repeat(6,1fr)}
+    .stats-2{grid-template-columns:repeat(2,1fr)}
     .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;position:relative;overflow:hidden;transition:var(--transition)}
     .stat-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
     .stat-card::after{content:'';position:absolute;right:-16px;top:-16px;width:80px;height:80px;border-radius:50%;opacity:0.08}
-    .sc-accent::after{background:var(--accent)}.sc-success::after{background:var(--success)}.sc-info::after{background:var(--info)}.sc-warning::after{background:var(--warning)}
+    .sc-accent::after{background:var(--accent)}.sc-success::after{background:var(--success)}.sc-info::after{background:var(--info)}.sc-warning::after{background:var(--warning)}.sc-error::after{background:var(--error)}
     .stat-label{font-family:var(--font-display);font-size:0.58rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px}
     .stat-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
     .stat-val{font-family:var(--font-display);font-size:1.65rem;font-weight:900;letter-spacing:-0.05em;line-height:1}
     .stat-sub{font-size:0.72rem;color:var(--muted);margin-top:6px}
     .sv-accent{color:var(--accent)}.sv-success{color:var(--success)}.sv-info{color:var(--info)}.sv-warning{color:var(--warning)}.sv-error{color:var(--error)}
     .charts-row{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:24px}
+    .charts-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:24px}
     .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px}
     .chart-title{font-family:var(--font-display);font-size:0.75rem;font-weight:700;letter-spacing:-0.01em;margin-bottom:18px}
     .bar-chart{display:flex;align-items:flex-end;gap:7px;height:110px}
     .bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
     .bar{width:100%;border-radius:6px 6px 0 0;background:linear-gradient(180deg,var(--accent) 0%,var(--accent2) 100%);min-height:4px;cursor:pointer;transition:opacity 0.2s ease,height 0.6s cubic-bezier(0.34,1.56,0.64,1)}
+    .bar.bar-info{background:linear-gradient(180deg,var(--info) 0%,#2fb8e8 100%)}
+    .bar.bar-success{background:linear-gradient(180deg,var(--success) 0%,#04b882 100%)}
+    .bar.bar-gold{background:linear-gradient(180deg,var(--gold) 0%,#e6b800 100%)}
     .bar:hover{opacity:0.8}
     .bar-label{font-size:0.58rem;color:var(--muted);text-align:center;white-space:nowrap;font-family:var(--font-display);font-weight:600}
-    .top-product-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+    .top-product-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
     .tp-rank{font-family:var(--font-display);font-size:0.65rem;font-weight:900;color:var(--muted);width:16px;flex-shrink:0}
     .tp-info{flex:1;min-width:0}
     .tp-name{font-size:0.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px}
@@ -206,8 +212,34 @@
     .mbn-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 16px;border:none;background:transparent;color:rgba(255,255,255,0.35);font-family:var(--font-display);font-size:0.55rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s}
     .mbn-btn.active{color:var(--accent)}
     .mbn-icon{font-size:1.3rem}
-    @media(max-width:1100px){.stats-4{grid-template-columns:repeat(2,1fr)}.stats-6{grid-template-columns:repeat(3,1fr)}.charts-row{grid-template-columns:1fr}.queue-panel{grid-template-columns:1fr}}
-    @media(max-width:900px){.admin-shell{grid-template-columns:1fr}.sidebar{display:none}.mobile-bottom-nav{display:block}.main-content{padding-bottom:72px}.panel{padding:16px}.scanner-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.stats-4{grid-template-columns:repeat(2,1fr);gap:10px}.stats-6{grid-template-columns:repeat(2,1fr);gap:10px}.toolbar{flex-direction:column;align-items:stretch}.s-input{min-width:unset}.result-meta{grid-template-columns:1fr}}
+    .dash-section{margin-bottom:32px}
+    .donut-wrap{display:flex;flex-direction:column;gap:8px}
+    .donut-row{display:flex;align-items:center;gap:10px}
+    .donut-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+    .donut-label{font-size:0.8rem;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .donut-val{font-family:var(--font-display);font-size:0.75rem;font-weight:700;color:var(--muted)}
+    .donut-bar-bg{flex:1;height:6px;background:var(--cream);border-radius:3px;overflow:hidden}
+    .donut-bar-fill{height:100%;border-radius:3px;transition:width 1s cubic-bezier(0.34,1.56,0.64,1)}
+    .hourly-chart{display:flex;align-items:flex-end;gap:3px;height:60px}
+    .hour-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px}
+    .hour-bar{width:100%;border-radius:3px 3px 0 0;background:var(--info);min-height:2px;transition:height 0.6s cubic-bezier(0.34,1.56,0.64,1);opacity:0.7}
+    .hour-bar.peak{background:var(--accent);opacity:1}
+    .hour-label{font-size:0.42rem;color:var(--muted);font-family:var(--font-display);font-weight:600}
+    .insight-card{background:var(--c1);border-radius:var(--radius-lg);padding:20px 22px;color:var(--paper);display:flex;gap:16px;align-items:flex-start}
+    .insight-icon{font-size:1.5rem;flex-shrink:0}
+    .insight-label{font-family:var(--font-display);font-size:0.55rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:4px}
+    .insight-val{font-family:var(--font-display);font-size:1.1rem;font-weight:900;color:var(--warning);letter-spacing:-0.03em;line-height:1.1}
+    .insight-sub{font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:4px}
+    .export-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+    .export-btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);color:var(--c1);font-family:var(--font-display);font-size:0.65rem;font-weight:700;cursor:pointer;transition:all 0.2s}
+    .export-btn:hover{background:var(--c1);color:var(--paper);border-color:var(--c1);transform:translateY(-2px)}
+    .jornada-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .jornada-card{border-radius:var(--radius);padding:18px;border:1px solid var(--border);background:var(--surface)}
+    .jornada-label{font-family:var(--font-display);font-size:0.58rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+    .jornada-val{font-family:var(--font-display);font-size:1.4rem;font-weight:900;letter-spacing:-0.04em}
+
+    @media(max-width:1100px){.stats-4{grid-template-columns:repeat(2,1fr)}.stats-6{grid-template-columns:repeat(3,1fr)}.charts-row{grid-template-columns:1fr}.charts-row-3{grid-template-columns:1fr}.queue-panel{grid-template-columns:1fr}}
+    @media(max-width:900px){.admin-shell{grid-template-columns:1fr}.sidebar{display:none}.mobile-bottom-nav{display:block}.main-content{padding-bottom:72px}.panel{padding:16px}.scanner-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.stats-4{grid-template-columns:repeat(2,1fr);gap:10px}.stats-6{grid-template-columns:repeat(2,1fr);gap:10px}.toolbar{flex-direction:column;align-items:stretch}.s-input{min-width:unset}.result-meta{grid-template-columns:1fr}.stats-2{grid-template-columns:1fr}.jornada-grid{grid-template-columns:1fr}}
     @media(max-width:480px){.stats-6{grid-template-columns:repeat(2,1fr)}.stat-val{font-size:1.3rem}}
     @keyframes spin{to{transform:rotate(360deg)}}
   </style>
@@ -266,8 +298,9 @@ let html5QrCode = null, isScanning = false, currentScanType = 'order';
 let lastScanned = '', lastScannedTime = 0;
 let currentQueueState = { enabled: false, current_turn: 0, current_order: null };
 const panels = ['dashboard','queue','scanner','products','users','orders'];
+const CAT_COLORS = ['#ff3c00','#4cc9f0','#06d6a0','#ffd166','#f72585','#7209b7','#3a86ff','#fb5607'];
 
-SSE.on('stats_updated', stats => { if (document.getElementById('live-paid')) refreshDashboardStats(stats); });
+SSE.on('stats_updated', () => {});
 SSE.on('orders_updated', data => { if (document.getElementById('orders-tbody')) refreshOrdersTable(data.orders); });
 SSE.on('admin_products_updated', data => { updateLowStockBadge(data.products); });
 SSE.on('queue', state => { currentQueueState = state; updateQueueUI(state); });
@@ -283,12 +316,9 @@ function updateLowStockBadge(products) {
 }
 
 function updateQueueUI(state) {
-  const numEl = document.getElementById('queue-turn-num');
-  const toggleBtn = document.getElementById('queue-toggle-btn');
-  const prevBtn = document.getElementById('queue-prev-btn');
-  const nextBtn = document.getElementById('queue-next-btn');
-  const orderEl = document.getElementById('queue-current-order');
-  const statusLabel = document.getElementById('queue-status-label');
+  const numEl = document.getElementById('queue-turn-num'), toggleBtn = document.getElementById('queue-toggle-btn');
+  const prevBtn = document.getElementById('queue-prev-btn'), nextBtn = document.getElementById('queue-next-btn');
+  const orderEl = document.getElementById('queue-current-order'), statusLabel = document.getElementById('queue-status-label');
   const statusDot = document.getElementById('queue-status-dot');
   if (numEl) { numEl.className = state.enabled ? 'queue-turn-num' : 'queue-turn-num inactive'; numEl.textContent = state.enabled ? (state.current_turn > 0 ? String(state.current_turn).padStart(3,'0') : '---') : 'OFF'; }
   if (toggleBtn) { toggleBtn.className = state.enabled ? 'toggle-btn on' : 'toggle-btn off'; toggleBtn.textContent = state.enabled ? '⏹ Desactivar turnos' : '▶ Activar turnos'; }
@@ -304,12 +334,6 @@ function updateQueueUI(state) {
       orderEl.innerHTML = `<div style="font-size:0.8rem;color:rgba(255,255,255,0.3);text-align:center;padding:16px">${state.enabled ? 'Ningún turno activo aún.<br/>Presiona ➜ para avanzar.' : 'Activa el sistema de turnos para comenzar.'}</div>`;
     }
   }
-}
-
-function refreshDashboardStats(stats) {
-  const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-  setEl('live-paid', stats.paid_orders); setEl('live-pending', stats.pending_orders);
-  setEl('live-cancelled', stats.cancelled_orders); setEl('live-users', stats.total_users); setEl('live-products', stats.total_products);
 }
 
 function refreshOrdersTable(orders) {
@@ -350,34 +374,166 @@ function showPanel(name, btn, mobilePanel) {
 
 const setPanel = (el, html) => { el.innerHTML = `<div class="panel">${html}</div>`; };
 
-async function renderDashboard(el) {
-  let stats, allOrders = [], products = [];
-  try { [stats, allOrders, products] = await Promise.all([api.get('/orders/stats'), api.get('/orders'), api.get('/products?all=1')]); }
-  catch(e) { setPanel(el, `<div class="panel-title">Dashboard</div><div style="color:var(--error);margin-top:20px">Error: ${escapeStr(e.message)}</div>`); return; }
+function exportCSV(data, filename) {
+  const cols = Object.keys(data[0] || {});
+  const csv = [cols.join(','), ...data.map(row => cols.map(c => `"${String(row[c] ?? '').replace(/"/g,'""')}"`).join(','))].join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent('\uFEFF' + csv);
+  a.download = filename;
+  a.click();
+}
 
-  const now = new Date(), colombiaDate = new Date(now.toLocaleString('en-US',{timeZone:'America/Bogota'}));
-  const todayStr = colombiaDate.toISOString().slice(0,10), monthStr = colombiaDate.toISOString().slice(0,7), yearStr = colombiaDate.getFullYear().toString();
-  const paidOrders = allOrders.filter(o => o.status==='paid');
-  const revByPeriod = (orders, period) => orders.filter(o => o.created_at?.startsWith(period)).reduce((s,o) => s+parseFloat(o.total||0), 0);
-  const countByPeriod = (orders, period) => orders.filter(o => o.created_at?.startsWith(period)).length;
-  const revToday = revByPeriod(paidOrders,todayStr), revMonth = revByPeriod(paidOrders,monthStr), revYear = revByPeriod(paidOrders,yearStr);
-  const revTotal = paidOrders.reduce((s,o) => s+parseFloat(o.total||0), 0);
-  const monthlyData = [];
-  for (let i=5; i>=0; i--) { const d=new Date(colombiaDate.getFullYear(),colombiaDate.getMonth()-i,1); monthlyData.push({label:d.toLocaleDateString('es-CO',{month:'short'}),rev:revByPeriod(paidOrders,d.toISOString().slice(0,7))}); }
-  const activeProds = products.filter(p => p.active).length, lowStock = products.filter(p => p.active && parseInt(p.stock)<=3);
-  const totalStock = products.reduce((s,p) => s+parseInt(p.stock||0), 0);
-  const productSales = {};
-  allOrders.forEach(o => (o.items||[]).forEach(i => { if(i?.product_name) productSales[i.product_name]=(productSales[i.product_name]||0)+parseInt(i.quantity||1); }));
-  const topProducts = Object.entries(productSales).sort((a,b)=>b[1]-a[1]).slice(0,5);
-  const maxRev = Math.max(...monthlyData.map(m=>m.rev),1);
-  const paidCount=parseInt(stats.paid_orders||0), pendingCount=parseInt(stats.pending_orders||0), cancelledCount=parseInt(stats.cancelled_orders||0);
-  const totalUsers=parseInt(stats.total_users||0), pendingRev=parseFloat(stats.pending_revenue||0), paidRev=parseFloat(stats.total_revenue||0);
+function buildOrdersCSV(orders) {
+  return orders.map(o => ({
+    'ID': o.id, 'Estudiante': o.full_name, 'Grado': o.grade,
+    'Total': o.total, 'Estado': o.status, 'Turno': o.turn_number || '',
+    'Fecha': o.created_at, 'Pagado': o.paid_at || ''
+  }));
+}
+
+async function exportToday() {
+  try {
+    const orders = await api.get('/orders');
+    const today = new Date().toISOString().slice(0,10);
+    const todayOrders = orders.filter(o => o.created_at?.startsWith(today));
+    if (!todayOrders.length) { toast('No hay pedidos hoy','warning'); return; }
+    exportCSV(buildOrdersCSV(todayOrders), `pedidos_hoy_${today}.csv`);
+    toast('✅ CSV de hoy exportado','success');
+  } catch(e) { toast(e.message,'error'); }
+}
+
+async function exportMonth() {
+  try {
+    const orders = await api.get('/orders');
+    const month = new Date().toISOString().slice(0,7);
+    const monthOrders = orders.filter(o => o.created_at?.startsWith(month));
+    if (!monthOrders.length) { toast('No hay pedidos este mes','warning'); return; }
+    exportCSV(buildOrdersCSV(monthOrders), `pedidos_mes_${month}.csv`);
+    toast('✅ CSV del mes exportado','success');
+  } catch(e) { toast(e.message,'error'); }
+}
+
+async function generatePDF(stats, orders) {
+  const now = new Date().toLocaleDateString('es-CO', {timeZone:'America/Bogota',year:'numeric',month:'long',day:'numeric'});
+  const month = new Date().toLocaleDateString('es-CO', {timeZone:'America/Bogota',year:'numeric',month:'long'});
+  const paid = orders.filter(o => o.status==='paid');
+  const monthStr = new Date().toISOString().slice(0,7);
+  const monthPaid = paid.filter(o => o.created_at?.startsWith(monthStr));
+  const monthRevenue = monthPaid.reduce((s,o) => s+parseFloat(o.total||0), 0);
+  const todayStr = new Date().toISOString().slice(0,10);
+  const todayPaid = paid.filter(o => o.created_at?.startsWith(todayStr));
+  const todayRevenue = todayPaid.reduce((s,o) => s+parseFloat(o.total||0), 0);
+
+  const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Reporte Contabilidad</title>
+  <style>body{font-family:Arial,sans-serif;margin:40px;color:#111;font-size:13px}
+  h1{font-size:22px;color:#ff3c00;margin-bottom:4px}h2{font-size:14px;color:#555;margin-bottom:24px;font-weight:normal}
+  .header{border-bottom:3px solid #ff3c00;padding-bottom:16px;margin-bottom:28px}
+  .meta{font-size:11px;color:#888;margin-top:6px}
+  .grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:28px}
+  .card{border:1px solid #e0e0e0;border-radius:8px;padding:16px}
+  .card-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:6px}
+  .card-val{font-size:20px;font-weight:900;color:#ff3c00}
+  table{width:100%;border-collapse:collapse;margin-top:12px;font-size:11px}
+  th{background:#f5f5f5;padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:#666}
+  td{padding:7px 10px;border-bottom:1px solid #f0f0f0}
+  .footer{margin-top:40px;font-size:10px;color:#aaa;text-align:center;border-top:1px solid #eee;padding-top:16px}
+  </style></head><body>
+  <div class="header">
+    <h1>🍽️ Cafetería Santa Juana de Lestonnac</h1>
+    <h2>Reporte de Contabilidad — ${month}</h2>
+    <div class="meta">Generado: ${now} | Administrador: ${user?.full_name || 'Admin'}</div>
+  </div>
+  <div class="grid">
+    <div class="card"><div class="card-label">Ingresos Hoy</div><div class="card-val">${fmtCurrency(todayRevenue)}</div></div>
+    <div class="card"><div class="card-label">Ingresos del Mes</div><div class="card-val">${fmtCurrency(monthRevenue)}</div></div>
+    <div class="card"><div class="card-label">Ingresos Totales</div><div class="card-val">${fmtCurrency(paid.reduce((s,o)=>s+parseFloat(o.total||0),0))}</div></div>
+    <div class="card"><div class="card-label">Pedidos Pagados</div><div class="card-val">${paid.length}</div></div>
+    <div class="card"><div class="card-label">Pedidos Pendientes</div><div class="card-val">${orders.filter(o=>o.status==='pending').length}</div></div>
+    <div class="card"><div class="card-label">Ticket Promedio</div><div class="card-val">${fmtCurrency(stats.avg_ticket||0)}</div></div>
+  </div>
+  <h3 style="margin-bottom:12px;font-size:13px">Pedidos del Mes (${monthPaid.length} pagados)</h3>
+  <table><thead><tr><th>#</th><th>Estudiante</th><th>Grado</th><th>Total</th><th>Fecha</th></tr></thead><tbody>
+  ${monthPaid.slice(0,100).map(o=>`<tr><td>#${o.id}</td><td>${o.full_name||''}</td><td>${o.grade||''}</td><td>${fmtCurrency(o.total)}</td><td>${fmtDate(o.created_at)}</td></tr>`).join('')}
+  </tbody></table>
+  <div class="footer">Cafetería Escolar Santa Juana de Lestonnac · Sistema Digital de Pedidos · ${now}</div>
+  </body></html>`;
+
+  const win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
+  setTimeout(() => win.print(), 500);
+}
+
+async function renderDashboard(el) {
+  let stats = null, orders = [], products = [];
+  try {
+    [stats, orders, products] = await Promise.all([
+      api.get('/stats/full'),
+      api.get('/orders'),
+      api.get('/products?all=1')
+    ]);
+  } catch(e) {
+    setPanel(el, `<div class="panel-title">Dashboard</div><div style="color:var(--error);margin-top:20px">Error: ${escapeStr(e.message)}</div>`);
+    return;
+  }
+
+  const s = stats.summary;
+  const now = new Date();
+  const colombiaDate = new Date(now.toLocaleString('en-US',{timeZone:'America/Bogota'}));
+  const lowStock = products.filter(p => p.active && parseInt(p.stock)<=3);
+  const maxRev = Math.max(...(stats.six_months||[]).map(m=>m.revenue),1);
+  const maxHour = Math.max(...(stats.hourly_usage||[]),1);
+  const catColors = CAT_COLORS;
+  const catEntries = Object.entries(stats.category_sales||{});
+  const totalCatRev = catEntries.reduce((s,[,v])=>s+v,0);
+  const avgWaitMin = s.avg_wait_seconds > 0 ? (s.avg_wait_seconds/60).toFixed(1) : '—';
+
+  const barHTML = (stats.six_months||[]).map(m =>
+    `<div class="bar-wrap"><div class="bar" style="height:${Math.max(8,(m.revenue/maxRev)*100)}px" title="${fmtCurrency(m.revenue)}"></div><div class="bar-label">${m.label}</div></div>`
+  ).join('');
+
+  const hourlyHTML = (stats.hourly_usage||[]).map((v,h) => {
+    const isPeak = v === maxHour && v > 0;
+    const pct = maxHour > 0 ? Math.max(4, (v/maxHour)*56) : 4;
+    const lbl = h === 0 ? '12a' : h < 12 ? h+'a' : h === 12 ? '12p' : (h-12)+'p';
+    return `<div class="hour-bar-wrap"><div class="hour-bar${isPeak?' peak':''}" style="height:${pct}px" title="${h}:00 — ${v} pedidos"></div><div class="hour-label">${[6,9,12,15,18].includes(h)?lbl:''}</div></div>`;
+  }).join('');
+
+  const topProductsHTML = Object.entries(stats.top_products||{}).slice(0,5).map(([name,data],i) => {
+    const maxQty = Object.values(stats.top_products||{})[0]?.qty || 1;
+    return `<div class="top-product-row"><span class="tp-rank">${i+1}</span><div class="tp-info"><div class="tp-name">${escapeStr(name)}</div><div class="tp-bar-wrap"><div class="tp-bar" style="width:${(data.qty/maxQty*100)}%"></div></div></div><span class="tp-count">${data.qty} uds</span></div>`;
+  }).join('');
+
+  const bottomProductsHTML = Object.entries(stats.bottom_products||{}).slice(0,5).map(([name,data],i) =>
+    `<div class="top-product-row"><span class="tp-rank" style="color:var(--error)">${i+1}</span><div class="tp-info"><div class="tp-name">${escapeStr(name)}</div></div><span class="tp-count">${data.qty} uds</span></div>`
+  ).join('');
+
+  const catHTML = catEntries.map(([cat,rev],i) =>
+    `<div class="donut-row"><div class="donut-dot" style="background:${catColors[i%catColors.length]}"></div><span class="donut-label">${cat}</span><div class="donut-bar-bg"><div class="donut-bar-fill" style="width:${totalCatRev>0?(rev/totalCatRev*100):0}%;background:${catColors[i%catColors.length]}"></div></div><span class="donut-val">${fmtCurrency(rev)}</span></div>`
+  ).join('') || '<div style="font-size:0.8rem;color:var(--muted)">Sin datos de ventas aún</div>';
+
+  const gradeHTML = (stats.grade_distribution||[]).slice(0,8).map((g,i) =>
+    `<div class="donut-row"><div class="donut-dot" style="background:${catColors[i%catColors.length]}"></div><span class="donut-label">${g.grade}</span><div class="donut-bar-bg"><div class="donut-bar-fill" style="width:${g.pct}%;background:${catColors[i%catColors.length]}"></div></div><span class="donut-val">${g.pct}% (${g.count})</span></div>`
+  ).join('') || '<div style="font-size:0.8rem;color:var(--muted)">Sin usuarios registrados</div>';
+
+  const gradeConsumpHTML = (stats.grade_consumption||[]).slice(0,8).map((g,i) =>
+    `<div class="top-product-row"><span class="tp-rank">${i+1}</span><div class="tp-info"><div class="tp-name">${g.grade}</div><div class="tp-bar-wrap"><div class="tp-bar" style="width:${stats.grade_consumption[0]?.total>0?(g.total/stats.grade_consumption[0].total*100):0}%;background:${catColors[i%catColors.length]}"></div></div></div><span class="tp-count">${fmtCurrency(g.avg_ticket)}</span></div>`
+  ).join('') || '<div style="font-size:0.8rem;color:var(--muted)">Sin datos</div>';
+
+  const topStudentsHTML = (stats.top_students||[]).slice(0,8).map((st,i) =>
+    `<div class="top-product-row"><span class="tp-rank">${i+1}</span><div class="tp-info"><div class="tp-name">${escapeStr(st.name)}</div><div class="tp-bar-wrap"><div class="tp-bar" style="width:${stats.top_students[0]?.total>0?(st.total/stats.top_students[0].total*100):0}%"></div></div></div><span class="tp-count">${fmtCurrency(st.total)}</span></div>`
+  ).join('') || '<div style="font-size:0.8rem;color:var(--muted)">Sin datos</div>';
+
+  const topRotHTML = Object.entries(stats.top_rotation||{}).slice(0,5).map(([name,data],i) =>
+    `<div class="top-product-row"><span class="tp-rank">${i+1}</span><div class="tp-info"><div class="tp-name">${escapeStr(name)}</div><div style="font-size:0.7rem;color:var(--muted)">${data.qty} vendidos / ${data.stock} en stock</div></div><span class="tp-count" style="color:var(--success)">${data.ratio.toFixed(1)}x</span></div>`
+  ).join('') || '<div style="font-size:0.8rem;color:var(--muted)">Sin datos</div>';
 
   setPanel(el, `
     <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:4px">
       <div><div class="panel-title">Dashboard</div><div class="panel-sub">${colombiaDate.toLocaleDateString('es-CO',{timeZone:'America/Bogota',weekday:'long',year:'numeric',month:'long',day:'numeric'})}</div></div>
       <div class="sse-status connected" id="sse-status-widget"><span class="sse-dot" id="sse-dot"></span><span id="sse-label">En vivo</span></div>
     </div>
+
     <div class="quick-row">
       <button class="quick-btn qb-accent" onclick="showPanel('scanner')">📷 Escanear QR</button>
       <button class="quick-btn qb-dark" onclick="showPanel('queue')">🎫 Turnos</button>
@@ -385,38 +541,125 @@ async function renderDashboard(el) {
       <button class="quick-btn qb-outline" onclick="showPanel('products')">📦 Productos</button>
       <span id="low-stock-count" style="font-size:0.72rem;color:var(--warning);align-self:center;font-weight:700"></span>
     </div>
+
+    <div class="export-row">
+      <button class="export-btn" onclick="exportToday()">📥 CSV Hoy</button>
+      <button class="export-btn" onclick="exportMonth()">📥 CSV Mes</button>
+      <button class="export-btn" onclick="generatePDF(${JSON.stringify(s).replace(/</g,'\\u003c')}, ${JSON.stringify(orders.slice(0,200)).replace(/</g,'\\u003c')})">🖨 Reporte PDF</button>
+    </div>
+
     <div class="section-label">💰 Ganancias cobradas</div>
     <div class="stats-grid stats-4" style="margin-bottom:20px">
-      <div class="stat-card sc-success"><div class="stat-label"><span class="stat-dot" style="background:var(--success)"></span>Hoy</div><div class="stat-val sv-success">${fmtCurrency(revToday)}</div><div class="stat-sub">${countByPeriod(paidOrders,todayStr)} pagados</div></div>
-      <div class="stat-card sc-success"><div class="stat-label"><span class="stat-dot" style="background:var(--success)"></span>Este mes</div><div class="stat-val sv-success">${fmtCurrency(revMonth)}</div><div class="stat-sub">${countByPeriod(paidOrders,monthStr)} pagados</div></div>
-      <div class="stat-card sc-success"><div class="stat-label"><span class="stat-dot" style="background:var(--success)"></span>Este año</div><div class="stat-val sv-success">${fmtCurrency(revYear)}</div><div class="stat-sub">${countByPeriod(paidOrders,yearStr)} pagados</div></div>
-      <div class="stat-card sc-success"><div class="stat-label"><span class="stat-dot" style="background:var(--success)"></span>Total histórico</div><div class="stat-val sv-success">${fmtCurrency(revTotal)}</div><div class="stat-sub">${paidOrders.length} pagados</div></div>
+      <div class="stat-card sc-success"><div class="stat-label"><span class="stat-dot" style="background:var(--success)"></span>Hoy</div><div class="stat-val sv-success">${fmtCurrency(s.today_revenue)}</div><div class="stat-sub">${s.today_paid} pagados de ${s.today_orders}</div></div>
+      <div class="stat-card sc-success"><div class="stat-label"><span class="stat-dot" style="background:var(--success)"></span>Este mes</div><div class="stat-val sv-success">${fmtCurrency(s.month_revenue)}</div><div class="stat-sub">${s.month_orders} pedidos</div></div>
+      <div class="stat-card sc-success"><div class="stat-label"><span class="stat-dot" style="background:var(--success)"></span>Total histórico</div><div class="stat-val sv-success">${fmtCurrency(s.total_revenue)}</div><div class="stat-sub">${s.paid_orders} pagados</div></div>
+      <div class="stat-card sc-accent"><div class="stat-label"><span class="stat-dot" style="background:var(--accent)"></span>Ticket promedio</div><div class="stat-val sv-accent">${fmtCurrency(s.avg_ticket)}</div><div class="stat-sub">Por pedido pagado</div></div>
     </div>
-    <div class="section-label">🛒 Pedidos</div>
+
+    <div class="section-label">🛒 Estado de pedidos</div>
     <div class="stats-grid stats-6" style="margin-bottom:20px">
-      <div class="stat-card sc-success"><div class="stat-label"><span class="stat-dot" style="background:var(--success)"></span>Pagados</div><div class="stat-val sv-success" id="live-paid">${paidCount}</div></div>
-      <div class="stat-card sc-warning"><div class="stat-label"><span class="stat-dot" style="background:var(--warning)"></span>Pendientes</div><div class="stat-val sv-warning" id="live-pending">${pendingCount}</div></div>
-      <div class="stat-card"><div class="stat-label"><span class="stat-dot" style="background:var(--error)"></span>Cancelados</div><div class="stat-val sv-error" id="live-cancelled">${cancelledCount}</div></div>
-      <div class="stat-card sc-info"><div class="stat-label"><span class="stat-dot" style="background:var(--info)"></span>Productos activos</div><div class="stat-val sv-info" id="live-products">${activeProds}</div></div>
-      <div class="stat-card sc-info"><div class="stat-label"><span class="stat-dot" style="background:var(--info)"></span>Stock total</div><div class="stat-val sv-info">${totalStock}</div><div class="stat-sub">unidades</div></div>
-      <div class="stat-card sc-info"><div class="stat-label"><span class="stat-dot" style="background:var(--info)"></span>Usuarios</div><div class="stat-val sv-info" id="live-users">${totalUsers}</div></div>
+      <div class="stat-card sc-success"><div class="stat-label"><span class="stat-dot" style="background:var(--success)"></span>Pagados</div><div class="stat-val sv-success" id="live-paid">${s.paid_orders}</div></div>
+      <div class="stat-card sc-warning"><div class="stat-label"><span class="stat-dot" style="background:var(--warning)"></span>Pendientes</div><div class="stat-val sv-warning" id="live-pending">${s.pending_orders}</div></div>
+      <div class="stat-card"><div class="stat-label"><span class="stat-dot" style="background:var(--error)"></span>Cancelados</div><div class="stat-val sv-error" id="live-cancelled">${s.cancelled_orders}</div></div>
+      <div class="stat-card sc-info"><div class="stat-label"><span class="stat-dot" style="background:var(--info)"></span>Productos activos</div><div class="stat-val sv-info" id="live-products">${s.total_products}</div></div>
+      <div class="stat-card sc-info"><div class="stat-label"><span class="stat-dot" style="background:var(--info)"></span>Usuarios</div><div class="stat-val sv-info" id="live-users">${s.total_users}</div></div>
+      <div class="stat-card sc-warning"><div class="stat-label"><span class="stat-dot" style="background:var(--warning)"></span>Nuevos este mes</div><div class="stat-val sv-warning">${s.new_users_month}</div></div>
     </div>
+
+    <div class="section-label">💡 Insights clave</div>
+    <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:24px">
+      <div class="insight-card"><span class="insight-icon">⏱</span><div><div class="insight-label">Espera promedio</div><div class="insight-val">${avgWaitMin} min</div><div class="insight-sub">Por pedido pagado</div></div></div>
+      <div class="insight-card"><span class="insight-icon">📅</span><div><div class="insight-label">Mejor día del mes</div><div class="insight-val" style="font-size:0.85rem">${stats.best_day ? stats.best_day.date : '—'}</div><div class="insight-sub">${stats.best_day ? fmtCurrency(stats.best_day.revenue) : 'Sin datos'}</div></div></div>
+      <div class="insight-card"><span class="insight-icon">💀</span><div><div class="insight-label">Peor día del mes</div><div class="insight-val" style="font-size:0.85rem;color:var(--error)">${stats.worst_day ? stats.worst_day.date : '—'}</div><div class="insight-sub">${stats.worst_day ? fmtCurrency(stats.worst_day.revenue) : 'Sin datos'}</div></div></div>
+      <div class="insight-card"><span class="insight-icon">🏆</span><div><div class="insight-label">Pedido más caro</div><div class="insight-val">${stats.most_expensive_order ? fmtCurrency(stats.most_expensive_order.total) : '—'}</div><div class="insight-sub">${stats.most_expensive_order ? escapeStr(stats.most_expensive_order.full_name||'') : ''}</div></div></div>
+    </div>
+
+    <div class="jornada-grid" style="margin-bottom:24px">
+      <div class="jornada-card"><div class="jornada-label">☀️ Jornada mañana (antes 12pm)</div><div class="jornada-val sv-accent">${fmtCurrency(s.morning_revenue)}</div></div>
+      <div class="jornada-card"><div class="jornada-label">🌙 Jornada tarde (12pm en adelante)</div><div class="jornada-val sv-info">${fmtCurrency(s.afternoon_revenue)}</div></div>
+    </div>
+
     <div class="charts-row">
       <div class="chart-card">
         <div class="chart-title">📈 Ganancias últimos 6 meses</div>
-        <div class="bar-chart">${monthlyData.map(m=>`<div class="bar-wrap"><div class="bar" style="height:${Math.max(8,(m.rev/maxRev)*100)}px" title="${fmtCurrency(m.rev)}"></div><div class="bar-label">${m.label}</div></div>`).join('')}</div>
+        <div class="bar-chart">${barHTML}</div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">🏆 Productos más vendidos</div>
-        ${topProducts.length?topProducts.map(([name,qty],i)=>`<div class="top-product-row"><span class="tp-rank">${i+1}</span><div class="tp-info"><div class="tp-name">${escapeStr(name)}</div><div class="tp-bar-wrap"><div class="tp-bar" style="width:${(qty/(topProducts[0][1]||1)*100)}%"></div></div></div><span class="tp-count">${qty} uds</span></div>`).join(''):'<div style="font-size:0.85rem;color:var(--muted)">Sin datos de ventas aún</div>'}
+        <div class="chart-title">📊 Horas pico de uso</div>
+        <div class="hourly-chart">${hourlyHTML}</div>
+        <div style="font-size:0.72rem;color:var(--muted);margin-top:8px">Pedidos por hora del día</div>
       </div>
     </div>
-    ${lowStock.length?`<div class="low-stock-alert"><div class="low-stock-title">⚠️ Stock bajo (≤3 unidades)</div><div class="stock-chips">${lowStock.map(p=>`<span class="stock-chip">${escapeStr(p.name)} (${p.stock})</span>`).join('')}</div></div>`:''}
+
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">🏆 Top 5 productos más vendidos</div>
+        ${topProductsHTML || '<div style="font-size:0.85rem;color:var(--muted)">Sin datos de ventas</div>'}
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">💀 Productos menos vendidos</div>
+        ${bottomProductsHTML || '<div style="font-size:0.85rem;color:var(--muted)">Sin datos</div>'}
+      </div>
+    </div>
+
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">🏷 Ventas por categoría</div>
+        <div class="donut-wrap">${catHTML}</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">📦 Mayor rotación (vendidos/stock)</div>
+        ${topRotHTML}
+      </div>
+    </div>
+
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">👥 Top estudiantes por consumo</div>
+        ${topStudentsHTML}
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">🎓 Distribución por grado (usuarios)</div>
+        <div class="donut-wrap">${gradeHTML}</div>
+      </div>
+    </div>
+
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">📊 Ticket promedio por grado</div>
+        ${gradeConsumpHTML}
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">👤 Estado de usuarios</div>
+        <div style="display:flex;flex-direction:column;gap:14px;margin-top:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--cream);border-radius:12px">
+            <span style="font-size:0.85rem;font-weight:600">Total estudiantes</span>
+            <span style="font-family:var(--font-display);font-weight:900;font-size:1.1rem">${s.total_users}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:rgba(6,214,160,0.08);border:1px solid rgba(6,214,160,0.2);border-radius:12px">
+            <span style="font-size:0.85rem;font-weight:600">Activos</span>
+            <span style="font-family:var(--font-display);font-weight:900;font-size:1.1rem;color:var(--success)">${s.total_users - s.blocked_users}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:rgba(255,59,92,0.08);border:1px solid rgba(255,59,92,0.2);border-radius:12px">
+            <span style="font-size:0.85rem;font-weight:600">🔒 Bloqueados</span>
+            <span style="font-family:var(--font-display);font-weight:900;font-size:1.1rem;color:var(--error)">${s.blocked_users}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:rgba(76,201,240,0.08);border:1px solid rgba(76,201,240,0.2);border-radius:12px">
+            <span style="font-size:0.85rem;font-weight:600">✨ Nuevos este mes</span>
+            <span style="font-family:var(--font-display);font-weight:900;font-size:1.1rem;color:var(--info)">${s.new_users_month}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    ${lowStock.length ? `<div class="low-stock-alert"><div class="low-stock-title">⚠️ Stock bajo (≤3 unidades)</div><div class="stock-chips">${lowStock.map(p=>`<span class="stock-chip">${escapeStr(p.name)} (${p.stock})</span>`).join('')}</div></div>` : ''}
+
     <div class="pending-rev-card">
-      <div><div class="pr-label">Ingresos pendientes</div><div class="pr-amount">${fmtCurrency(Math.max(0,pendingRev-paidRev))}</div></div>
+      <div><div class="pr-label">Ingresos pendientes</div><div class="pr-amount">${fmtCurrency(Math.max(0,(s.pending_orders||0)*(s.avg_ticket||0)))}</div></div>
       <p class="pr-sub">Pedidos pendientes de cobro. Escanea los QR para registrar pagos.</p>
       <button class="quick-btn qb-accent" onclick="showPanel('scanner')">📷 Ir al escáner</button>
     </div>`);
+
   updateLowStockBadge(products);
 }
 
@@ -771,14 +1014,7 @@ function openProductModal(productJsonStr) {
     const nameVal = m.querySelector('#pf-name').value.trim();
     const priceVal = parseFloat(m.querySelector('#pf-price').value);
     if (!nameVal || isNaN(priceVal)) { toast('Nombre y precio son requeridos','warning'); return; }
-    const body = {
-      name: nameVal,
-      description: m.querySelector('#pf-desc').value.trim(),
-      price: priceVal,
-      stock: parseInt(m.querySelector('#pf-stock').value) || 0,
-      category: m.querySelector('#pf-cat').value,
-      image: m.querySelector('#pf-img').value.trim() || null
-    };
+    const body = { name: nameVal, description: m.querySelector('#pf-desc').value.trim(), price: priceVal, stock: parseInt(m.querySelector('#pf-stock').value) || 0, category: m.querySelector('#pf-cat').value, image: m.querySelector('#pf-img').value.trim() || null };
     try {
       isEdit ? await api.put('/products/'+p.id, body) : await api.post('/products', body);
       toast(isEdit?'Producto actualizado':'Producto creado','success');
@@ -788,18 +1024,14 @@ function openProductModal(productJsonStr) {
 }
 
 async function toggleProductActive(id, isActive) {
-  const label = isActive ? '¿Desactivar este producto? Ya no aparecerá en la tienda.' : '¿Activar este producto?';
-  confirm(label, async () => {
-    try {
-      const res = await api.put('/products/'+id+'/toggle', {});
-      toast(res.active ? '▶ Producto activado' : '⏸ Producto desactivado','success');
-      showPanel('products');
-    } catch(e) { toast(e.message,'error'); }
+  confirm(isActive ? '¿Desactivar este producto?' : '¿Activar este producto?', async () => {
+    try { const res = await api.put('/products/'+id+'/toggle', {}); toast(res.active ? '▶ Producto activado' : '⏸ Producto desactivado','success'); showPanel('products'); }
+    catch(e) { toast(e.message,'error'); }
   });
 }
 
 async function hardDeleteProduct(id, name) {
-  confirm(`¿Eliminar "${name}" permanentemente? Esta acción no se puede deshacer.`, async () => {
+  confirm(`¿Eliminar "${name}" permanentemente?`, async () => {
     try { await api.del('/products/'+id+'/hard'); toast('Producto eliminado permanentemente','success'); showPanel('products'); }
     catch(e) { toast(e.message,'error'); }
   });
@@ -891,7 +1123,7 @@ async function renderOrders(el) {
             <td><div style="font-weight:600">${o.full_name}</div><div style="font-size:0.75rem;color:var(--muted)">${o.doc_number}</div></td>
             <td><span style="font-size:0.72rem;font-weight:700;background:var(--cream);padding:4px 10px;border-radius:100px">${o.grade}</span></td>
             <td style="font-family:var(--font-display);font-weight:800;color:var(--accent)">${fmtCurrency(o.total)}</td>
-            <td>${o.turn_number?`<span style="font-family:var(--font-display);font-weight:900;font-size:1rem;color:var(--warning)">#${String(o.turn_number).padStart(3,'0')}</span>`:'<span style="color:var(--muted);font-size:0.75rem">—</span>'}</td>
+            <td>${o.turn_number?`<span style="font-family:var(--font-display);font-weight:900;font-size:1rem;color:var(--warning)">#${String(o.turn_number).padStart(3,'00')}</span>`:'<span style="color:var(--muted);font-size:0.75rem">—</span>'}</td>
             <td>${statusPill(o.status)}</td>
             <td style="font-size:0.75rem;color:var(--muted)">${fmtDate(o.created_at)}</td>
             <td><div style="display:flex;gap:6px;flex-wrap:wrap">

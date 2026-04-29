@@ -109,6 +109,7 @@ try {
         'orders'   => __DIR__ . '/controllers/orders.php',
         'users'    => __DIR__ . '/controllers/users.php',
         'queue'    => __DIR__ . '/controllers/queue.php',
+        'stats'    => __DIR__ . '/controllers/stats.php',
     ];
 
     if (isset($controllerMap[$resource]) && file_exists($controllerMap[$resource])) {

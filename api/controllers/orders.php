@@ -9,29 +9,6 @@ require_once __DIR__ . '/../config/logger.php';
 $db = getDB();
 
 if ($resource === 'orders') {
-
-    if ($method === 'GET' && $action === 'stats') {
-        try {
-            requireAdmin();
-            $stats = $db->query("
-                SELECT
-                    COUNT(*) as total_orders,
-                    SUM(CASE WHEN status='paid' THEN 1 ELSE 0 END) as paid_orders,
-                    SUM(CASE WHEN status='pending' THEN 1 ELSE 0 END) as pending_orders,
-                    SUM(CASE WHEN status='cancelled' THEN 1 ELSE 0 END) as cancelled_orders,
-                    COALESCE(SUM(CASE WHEN status='paid' THEN total ELSE 0 END),0) as total_revenue,
-                    COALESCE(SUM(total),0) as pending_revenue
-                FROM orders
-            ")->fetch();
-            $stats['total_products'] = $db->query("SELECT COUNT(*) FROM products WHERE active=1")->fetchColumn();
-            $stats['total_users']    = $db->query("SELECT COUNT(*) FROM users WHERE role='user'")->fetchColumn();
-            jsonResponse($stats);
-        } catch (PDOException $e) {
-            logDatabaseError('orders/stats', $e);
-            jsonError('Error al obtener estadísticas: ' . $e->getMessage(), 500);
-        }
-    }
-
     if ($method === 'GET' && $action === 'scan') {
         try {
             requireAdmin();
