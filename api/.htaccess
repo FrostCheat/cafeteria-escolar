@@ -27,4 +27,8 @@ SetEnvIf Authorization "(.*)" REDIRECT_HTTP_AUTHORIZATION=$1
     Require all denied
 </FilesMatch>
 
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE application/json
+</IfModule>
+
 Options -Indexes

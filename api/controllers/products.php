@@ -1,15 +1,7 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-ini_set('log_errors', 1);
-ini_set('error_log', __DIR__ . '/../logs/error.log');
-
-require_once __DIR__ . '/../config/logger.php';
-
 $db = getDB();
 
 if ($resource === 'products') {
-
     if ($method === 'GET' && $id === null) {
         try {
             $showAll = !empty($_GET['all']) && $_GET['all'] == '1';
@@ -20,7 +12,7 @@ if ($resource === 'products') {
             $stmt = $db->prepare("SELECT * FROM products $where ORDER BY category, created_at ASC");
             $stmt->execute($params);
             jsonResponse($stmt->fetchAll());
-        } catch (PDOException $e) { logDatabaseError('products/get_all', $e); jsonError('Error al obtener productos: ' . $e->getMessage(), 500); }
+        } catch (PDOException $e) { jsonError('Error al obtener productos', 500); }
     }
 
     if ($method === 'GET' && $id !== null) {
@@ -30,13 +22,13 @@ if ($resource === 'products') {
             $p = $stmt->fetch();
             if (!$p) jsonError('Producto no encontrado', 404);
             jsonResponse($p);
-        } catch (PDOException $e) { logDatabaseError('products/get_by_id', $e); jsonError('Error al obtener producto: ' . $e->getMessage(), 500); }
+        } catch (PDOException $e) { jsonError('Error al obtener producto', 500); }
     }
 
     if ($method === 'POST') {
+        requireAdmin();
+        if (empty($body['name']) || !isset($body['price'])) jsonError('Nombre y precio requeridos');
         try {
-            requireAdmin();
-            if (empty($body['name']) || !isset($body['price'])) jsonError('Nombre y precio requeridos');
             $validCats = ['almuerzos','desayunos','rapidos','bebidas','snacks','postres','general'];
             $category  = in_array($body['category'] ?? '', $validCats) ? $body['category'] : 'general';
             $db->prepare("INSERT INTO products (name, description, price, stock, category, image) VALUES (?,?,?,?,?,?)")
@@ -48,12 +40,12 @@ if ($resource === 'products') {
             $stmt = $db->prepare("SELECT * FROM products WHERE id=?");
             $stmt->execute([$newId]);
             jsonResponse($stmt->fetch(), 201);
-        } catch (PDOException $e) { logDatabaseError('products/create', $e); jsonError('Error al crear producto: ' . $e->getMessage(), 500); }
+        } catch (PDOException $e) { jsonError('Error al crear producto', 500); }
     }
 
     if ($method === 'PUT' && $id !== null && $action === 'toggle') {
+        requireAdmin();
         try {
-            requireAdmin();
             $stmt = $db->prepare("SELECT active FROM products WHERE id=?");
             $stmt->execute([$id]);
             $p = $stmt->fetch();
@@ -62,12 +54,12 @@ if ($resource === 'products') {
             $db->prepare("UPDATE products SET active=? WHERE id=?")->execute([$newState, $id]);
             emitEvent($db, 'product_changed', ['product_id' => $id, 'action' => 'toggled']);
             jsonResponse(['active' => (bool)$newState]);
-        } catch (PDOException $e) { logDatabaseError('products/toggle', $e); jsonError('Error al cambiar estado: ' . $e->getMessage(), 500); }
+        } catch (PDOException $e) { jsonError('Error al cambiar estado', 500); }
     }
 
-    if ($method === 'PUT' && $id !== null && $action !== 'toggle') {
+    if ($method === 'PUT' && $id !== null) {
+        requireAdmin();
         try {
-            requireAdmin();
             $stmt = $db->prepare("SELECT id FROM products WHERE id=?");
             $stmt->execute([$id]);
             if (!$stmt->fetch()) jsonError('Producto no encontrado', 404);
@@ -80,38 +72,34 @@ if ($resource === 'products') {
             $db->prepare("UPDATE products SET " . implode(',', $fields) . " WHERE id=?")->execute($params);
             if (isset($body['name']) || isset($body['price'])) {
                 $p = $db->query("SELECT name, price FROM products WHERE id=$id")->fetch();
-                $qrData = generateQRData(['type' => 'product', 'id' => $id, 'name' => $p['name'], 'price' => $p['price']]);
-                $db->prepare("UPDATE products SET qr_code=? WHERE id=?")->execute([$qrData, $id]);
+                $db->prepare("UPDATE products SET qr_code=? WHERE id=?")->execute([generateQRData(['type' => 'product', 'id' => $id, 'name' => $p['name'], 'price' => $p['price']]), $id]);
             }
             emitEvent($db, 'product_changed', ['product_id' => $id, 'action' => 'updated']);
             $stmt = $db->prepare("SELECT * FROM products WHERE id=?");
             $stmt->execute([$id]);
             jsonResponse($stmt->fetch());
-        } catch (PDOException $e) { logDatabaseError('products/update', $e); jsonError('Error al actualizar producto: ' . $e->getMessage(), 500); }
+        } catch (PDOException $e) { jsonError('Error al actualizar producto', 500); }
     }
 
     if ($method === 'DELETE' && $id !== null && $action === 'hard') {
+        requireAdmin();
         try {
-            requireAdmin();
             $stmt = $db->prepare("SELECT name FROM products WHERE id=?");
             $stmt->execute([$id]);
             if (!$stmt->fetch()) jsonError('Producto no encontrado', 404);
             $db->prepare("DELETE FROM products WHERE id=?")->execute([$id]);
             emitEvent($db, 'product_changed', ['product_id' => $id, 'action' => 'hard_deleted']);
             jsonResponse(['message' => 'Producto eliminado permanentemente']);
-        } catch (PDOException $e) { logDatabaseError('products/hard_delete', $e); jsonError('Error al eliminar producto: ' . $e->getMessage(), 500); }
+        } catch (PDOException $e) { jsonError('Error al eliminar producto', 500); }
     }
 
     if ($method === 'DELETE' && $id !== null) {
+        requireAdmin();
         try {
-            requireAdmin();
-            $stmt = $db->prepare("SELECT name FROM products WHERE id=?");
-            $stmt->execute([$id]);
-            if (!$stmt->fetch()) jsonError('Producto no encontrado', 404);
             $db->prepare("UPDATE products SET active=0 WHERE id=?")->execute([$id]);
             emitEvent($db, 'product_changed', ['product_id' => $id, 'action' => 'deactivated']);
             jsonResponse(['message' => 'Producto desactivado']);
-        } catch (PDOException $e) { logDatabaseError('products/delete', $e); jsonError('Error al desactivar producto: ' . $e->getMessage(), 500); }
+        } catch (PDOException $e) { jsonError('Error al desactivar producto', 500); }
     }
 
     jsonError('Ruta products no encontrada', 404);
