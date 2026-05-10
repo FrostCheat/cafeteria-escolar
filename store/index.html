@@ -568,15 +568,17 @@
 
   let selectedMethod        = 'cash';
   let paypalButtonsRendered = false;
+  let paypalIsProcessing    = false;
 
   function openPaymentSelector() {
     if (checkoutInProgress) return;
     const total = cartData.reduce((s, i) => s + parseFloat(i.subtotal), 0);
     selectedMethod        = 'cash';
     paypalButtonsRendered = false;
+    paypalIsProcessing    = false;
 
     const overlay = document.createElement('div');
-    overlay.id    = 'pms-overlay';
+    overlay.id        = 'pms-overlay';
     overlay.className = 'pms-overlay';
 
     const hasPaypal = paypalConfig && paypalConfig.client_id;
@@ -621,7 +623,7 @@
 
         ${hasPaypal ? `
         <div class="pms-paypal-wrap" id="pms-paypal-wrap">
-          <div class="pms-paypal-loading" id="pms-paypal-loading">
+          <div class="pms-paypal-loading" id="pms-paypal-loading" style="display:none">
             <div class="pms-paypal-spinner"></div>
             <span>Cargando opciones de pago...</span>
           </div>
@@ -631,20 +633,22 @@
 
         <div class="pms-footer" id="pms-footer">
           <button class="pms-confirm" id="pms-confirm-btn" onclick="confirmCash()">Confirmar pedido →</button>
-          <button class="pms-cancel" onclick="closePaymentSelector()">Cancelar</button>
+          <button class="pms-cancel" id="pms-cancel-btn" onclick="closePaymentSelector()">Cancelar</button>
         </div>
       </div>`;
 
     document.body.appendChild(overlay);
-    overlay.addEventListener('click', e => { if (e.target === overlay) closePaymentSelector(); });
+    overlay.addEventListener('click', e => { if (e.target === overlay && !paypalIsProcessing) closePaymentSelector(); });
   }
 
   function closePaymentSelector() {
+    if (paypalIsProcessing) return;
     document.getElementById('pms-overlay')?.remove();
     paypalButtonsRendered = false;
   }
 
   function selectMethod(method) {
+    if (paypalIsProcessing) return;
     selectedMethod = method;
     document.querySelectorAll('.pms-method').forEach(b => b.classList.remove('selected'));
     document.getElementById('pms-' + method)?.classList.add('selected');
@@ -665,22 +669,81 @@
   function loadPaypalSDK(clientId, env) {
     return new Promise((resolve, reject) => {
       if (window.paypal) { resolve(); return; }
-      if (paypalSDKLoading) {
-        const interval = setInterval(() => {
-          if (window.paypal) { clearInterval(interval); resolve(); }
-        }, 150);
+      if (window._paypalSDKLoading) {
+        const t = setInterval(() => { if (window.paypal) { clearInterval(t); resolve(); } }, 150);
+        setTimeout(() => { clearInterval(t); reject(new Error('Timeout cargando PayPal SDK')); }, 15000);
         return;
       }
-      paypalSDKLoading = true;
+      window._paypalSDKLoading = true;
       const script  = document.createElement('script');
       const baseUrl = env === 'production'
         ? 'https://www.paypal.com/sdk/js'
         : 'https://www.sandbox.paypal.com/sdk/js';
-      script.src = `${baseUrl}?client-id=${encodeURIComponent(clientId)}&currency=USD&intent=capture&enable-funding=venmo,paylater,card`;
-      script.onload  = () => { paypalSDKLoaded = true; paypalSDKLoading = false; resolve(); };
-      script.onerror = () => { paypalSDKLoading = false; reject(new Error('No se pudo cargar el SDK de PayPal')); };
+      script.src = `${baseUrl}?client-id=${encodeURIComponent(clientId)}&currency=USD&intent=capture&enable-funding=venmo,paylater,card&commit=true`;
+      script.onload  = () => { window._paypalSDKLoading = false; resolve(); };
+      script.onerror = () => { window._paypalSDKLoading = false; reject(new Error('No se pudo cargar el SDK de PayPal')); };
       document.head.appendChild(script);
     });
+  }
+
+  function withTimeout(promise, ms, label) {
+    return Promise.race([
+      promise,
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error(`Timeout en "${label}" (${ms / 1000}s). Verifica tu conexión e intenta de nuevo.`)), ms)
+      ),
+    ]);
+  }
+
+  function setOverlayProcessing(msg) {
+    paypalIsProcessing = true;
+    const box = document.getElementById('pms-box');
+    if (!box) return;
+
+    const existing = document.getElementById('pms-proc-layer');
+    if (existing) { existing.querySelector('span').textContent = msg; return; }
+
+    box.style.position = 'relative';
+    const layer = document.createElement('div');
+    layer.id    = 'pms-proc-layer';
+    layer.style.cssText = [
+      'position:absolute', 'inset:0', 'z-index:20',
+      'display:flex', 'flex-direction:column', 'align-items:center', 'justify-content:center', 'gap:14px',
+      'background:rgba(250,249,247,0.94)', 'border-radius:32px', 'backdrop-filter:blur(4px)',
+      'padding:24px',
+    ].join(';');
+    layer.innerHTML = `
+      <div style="width:34px;height:34px;border:3px solid rgba(0,0,0,0.1);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0"></div>
+      <span style="font-family:var(--font-display);font-size:0.8rem;font-weight:700;color:var(--muted);text-align:center;max-width:260px;line-height:1.5">${msg}</span>
+    `;
+    box.appendChild(layer);
+  }
+
+  function clearOverlayProcessing() {
+    paypalIsProcessing = false;
+    document.getElementById('pms-proc-layer')?.remove();
+    const box = document.getElementById('pms-box');
+    if (box) box.style.position = '';
+    const cancelBtn = document.getElementById('pms-cancel-btn');
+    if (cancelBtn) cancelBtn.disabled = false;
+  }
+
+  function showPaypalErrorInOverlay(msg) {
+    clearOverlayProcessing();
+    const errorEl = document.getElementById('pms-paypal-error');
+    if (errorEl) {
+      errorEl.innerHTML = `<div class="pms-paypal-error">${msg}</div>`;
+    } else {
+      const box = document.getElementById('pms-box');
+      if (box) {
+        const div     = document.createElement('div');
+        div.innerHTML = `<div class="pms-paypal-error" style="margin:8px 20px;">${msg}</div>`;
+        const footer  = document.getElementById('pms-footer');
+        footer ? box.insertBefore(div, footer) : box.appendChild(div);
+      }
+    }
+    const footer = document.getElementById('pms-footer');
+    if (footer) footer.style.display = 'block';
   }
 
   async function renderPaypalButtons() {
@@ -697,124 +760,107 @@
     const env      = paypalConfig?.env || 'sandbox';
 
     if (!clientId) {
-      showPaypalError('PayPal no está disponible. Usa efectivo.');
+      if (loadingEl) loadingEl.style.display = 'none';
+      showPaypalErrorInOverlay('PayPal no está disponible ahora mismo. Por favor usa efectivo.');
       return;
     }
 
     try {
-      await loadPaypalSDK(clientId, env);
-
+      await withTimeout(loadPaypalSDK(clientId, env), 12000, 'carga del SDK de PayPal');
+    } catch (sdkErr) {
       if (loadingEl) loadingEl.style.display = 'none';
+      showPaypalErrorInOverlay(sdkErr.message + '. Por favor usa efectivo.');
+      return;
+    }
 
-      window.paypal.Buttons({
+    if (loadingEl) loadingEl.style.display = 'none';
+
+    try {
+      await window.paypal.Buttons({
         style: {
-          layout:  'vertical',
-          color:   'gold',
-          shape:   'rect',
-          label:   'pay',
-          height:  48,
-          tagline: false,
+          layout: 'vertical', color: 'gold', shape: 'rect',
+          label: 'pay', height: 48, tagline: false,
         },
 
-        createOrder: async (data, actions) => {
-          const totalCOP = cartData.reduce((s, i) => s + parseFloat(i.subtotal), 0);
-          const totalUSD = convertCOPtoUSD(totalCOP);
-          return actions.order.create({
-            intent: 'CAPTURE',
-            purchase_units: [{
-              description: 'Cafetería Santa Juana — ' + cartData.length + ' producto(s)',
-              amount: {
-                currency_code: 'USD',
-                value: totalUSD.toFixed(2),
-                breakdown: {
-                  item_total: {
-                    currency_code: 'USD',
-                    value: totalUSD.toFixed(2),
-                  },
-                },
-              },
-              items: cartData.map(item => ({
-                name:        item.name.substring(0, 127),
-                unit_amount: {
-                  currency_code: 'USD',
-                  value:         convertCOPtoUSD(parseFloat(item.price)).toFixed(2),
-                },
-                quantity: String(item.quantity),
-              })),
-            }],
-            application_context: {
-              brand_name:          'Cafetería Santa Juana',
-              user_action:         'PAY_NOW',
-              shipping_preference: 'NO_SHIPPING',
-            },
-          });
-        },
-
-        onApprove: async (data, actions) => {
-          const confirmBtn = document.getElementById('pms-confirm-btn');
-          const footer     = document.getElementById('pms-footer');
-          const ppWrap     = document.getElementById('pms-paypal-wrap');
-
-          if (ppWrap) {
-            ppWrap.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;gap:10px;padding:20px;color:var(--muted);font-size:0.85rem">
-              <div class="pms-paypal-spinner"></div> Verificando pago con PayPal...
-            </div>`;
-          }
+        createOrder: async () => {
+          if (paypalIsProcessing) return;
+          setOverlayProcessing('Preparando tu pedido...');
+          const cancelBtn = document.getElementById('pms-cancel-btn');
+          if (cancelBtn) cancelBtn.disabled = true;
 
           try {
-            const captureResult = await actions.order.capture();
-
-            const captureUnit = captureResult.purchase_units?.[0]?.payments?.captures?.[0];
-            if (!captureUnit || captureUnit.status !== 'COMPLETED') {
-              throw new Error('La captura de PayPal no fue completada');
-            }
-
-            const fundingSource = data.paymentSource || captureResult.payment_source
-              ? Object.keys(captureResult.payment_source || {})[0] || 'paypal'
-              : 'paypal';
-
-            const order = await api.post('/paypal/capture-order', {
-              paypal_order_id: captureResult.id,
-              capture_id:      captureUnit.id,
-              amount:          parseFloat(captureUnit.amount?.value || 0),
-              funding_source:  fundingSource,
-            });
-
-            closePaymentSelector();
-            await loadCartFull();
-            await loadOrders();
-            showPaypalSuccess(order, fundingSource);
-          } catch (e) {
-            showPaypalError(e.message || 'Error al registrar el pago. Contacta al administrador.');
+            const result = await withTimeout(
+              api.post('/paypal/create-order', {}),
+              20000,
+              'creación de orden en servidor'
+            );
+            clearOverlayProcessing();
+            if (!result.id) throw new Error('El servidor no devolvió un ID de orden válido.');
+            return result.id;
+          } catch (err) {
+            clearOverlayProcessing();
+            showPaypalErrorInOverlay('No se pudo iniciar el pago: ' + err.message);
+            throw err;
           }
         },
 
-        onError: err => {
-          const msg = err?.message || '';
-          if (!msg.toLowerCase().includes('popup') && !msg.toLowerCase().includes('window')) {
-            showPaypalError('Error de PayPal: ' + (msg || 'intenta de nuevo'));
+        onApprove: async (data) => {
+          if (paypalIsProcessing) return;
+          setOverlayProcessing('Verificando y registrando tu pago...');
+          const cancelBtn = document.getElementById('pms-cancel-btn');
+          if (cancelBtn) cancelBtn.disabled = true;
+
+          let order = null;
+          try {
+            order = await withTimeout(
+              api.post('/paypal/capture-order', { paypal_order_id: data.orderID }),
+              30000,
+              'captura y registro del pago'
+            );
+          } catch (backendErr) {
+            clearOverlayProcessing();
+            if (backendErr.status === 409) {
+              closePaymentSelector();
+              await loadCartFull();
+              await loadOrders();
+              toast('Tu pago fue procesado. Revisa "Mis Pedidos".', 'info');
+              return;
+            }
+            showPaypalErrorInOverlay(
+              backendErr.message +
+              (backendErr.status >= 500
+                ? '<br/><small>Guarda tu ID de orden de PayPal: <strong>' + data.orderID + '</strong> y muéstraselo al administrador.</small>'
+                : '')
+            );
+            return;
+          }
+
+          clearOverlayProcessing();
+          closePaymentSelector();
+          await loadCartFull();
+          await loadOrders();
+          showPaypalSuccess(order, order.paypal_funding_source || 'paypal');
+        },
+
+        onError: (err) => {
+          if (paypalIsProcessing) return;
+          const msg = (err?.message || '').toLowerCase();
+          const isNoise = msg.includes('popup') || msg.includes('window') ||
+            msg.includes('close') || msg.includes('cancel') || msg.includes('blocked');
+          if (!isNoise) {
+            showPaypalErrorInOverlay('Error de PayPal: ' + (err?.message || 'intenta de nuevo'));
           }
         },
 
         onCancel: () => {},
+
       }).render('#paypal-btns');
 
       paypalButtonsRendered = true;
-    } catch (e) {
-      showPaypalError(e.message || 'No se pudo cargar PayPal. Usa efectivo por favor.');
+
+    } catch (renderErr) {
+      showPaypalErrorInOverlay('No se pudieron mostrar los botones de pago: ' + renderErr.message);
     }
-  }
-
-  function showPaypalError(msg) {
-    const loadingEl = document.getElementById('pms-paypal-loading');
-    const errorEl   = document.getElementById('pms-paypal-error');
-    if (loadingEl) loadingEl.style.display = 'none';
-    if (errorEl)   errorEl.innerHTML = `<div class="pms-paypal-error">${msg}</div>`;
-  }
-
-  function convertCOPtoUSD(cop) {
-    const rate = 0.00024;
-    return Math.max(0.01, Math.round(cop * rate * 100) / 100);
   }
 
   async function confirmCash() {
@@ -835,6 +881,11 @@
       toast(e.message, 'error');
       if (btn) { btn.disabled = false; btn.textContent = 'Confirmar pedido →'; }
     }
+  }
+
+  function convertCOPtoUSD(cop) {
+    const rate = 0.00024;
+    return Math.max(0.01, Math.round(cop * rate * 100) / 100);
   }
 
   function showOrderQR(order) {
