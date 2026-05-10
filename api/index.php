@@ -65,6 +65,7 @@ $controllers = [
     'users'    => __DIR__ . '/controllers/users.php',
     'queue'    => __DIR__ . '/controllers/queue.php',
     'stats'    => __DIR__ . '/controllers/stats.php',
+    'paypal'   => __DIR__ . '/controllers/paypal.php',
 ];
 
 if (isset($controllers[$resource]) && file_exists($controllers[$resource])) {

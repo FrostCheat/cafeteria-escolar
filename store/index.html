@@ -17,6 +17,7 @@
       --paper:#faf9f7;--cream:#f2ede4;--surface:#ffffff;
       --muted:#888;--border:rgba(0,0,0,0.08);
       --success:#06d6a0;--warning:#ffd166;--error:#ff3b5c;
+      --paypal-blue:#003087;--paypal-gold:#ffc439;
       --font-display:'Unbounded',sans-serif;--font-body:'Outfit',sans-serif;
       --radius:18px;--radius-lg:24px;
       --shadow:0 4px 24px rgba(0,0,0,0.08);--shadow-lg:0 12px 48px rgba(0,0,0,0.12);
@@ -31,6 +32,7 @@
     @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
     @keyframes slideDown{from{opacity:0;transform:translateY(-100%)}to{opacity:1;transform:translateY(0)}}
     @keyframes turnPop{from{opacity:0;transform:scale(0.85)}to{opacity:1;transform:scale(1)}}
+    @keyframes fadeSlideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 
     .store-shell{display:grid;grid-template-columns:260px 1fr;min-height:calc(100dvh - 64px)}
     .sidebar{background:var(--c1);position:sticky;top:64px;height:calc(100dvh - 64px);overflow-y:auto;padding:28px 0;display:flex;flex-direction:column}
@@ -160,6 +162,68 @@
     .mobile-cat-pill{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:9px 16px;border-radius:100px;border:1.5px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);font-family:var(--font-display);font-size:0.65rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s ease;white-space:nowrap}
     .mobile-cat-pill.active{background:var(--accent);border-color:var(--accent);color:#fff}
 
+    .payment-method-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:0.62rem;font-weight:700;margin-left:6px}
+    .pm-cash{background:rgba(6,214,160,0.12);color:#04a87d}
+    .pm-paypal{background:rgba(0,48,135,0.1);color:var(--paypal-blue)}
+
+    .payment-selector-modal{position:fixed;inset:0;background:rgba(10,10,15,0.7);z-index:3000;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn 0.2s ease;backdrop-filter:blur(8px);padding:0}
+    @media(min-width:600px){.payment-selector-modal{align-items:center;padding:20px}}
+    .payment-selector-box{background:var(--surface);border-radius:32px 32px 0 0;max-width:500px;width:100%;padding:0;overflow:hidden;animation:slideUpModal 0.35s cubic-bezier(0.34,1.2,0.64,1)}
+    @media(min-width:600px){.payment-selector-box{border-radius:28px;animation:scaleInModal 0.3s cubic-bezier(0.34,1.36,0.64,1)}}
+    @keyframes slideUpModal{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+    @keyframes scaleInModal{from{transform:scale(0.9);opacity:0}to{transform:scale(1);opacity:1}}
+    .pms-header{padding:28px 28px 0;text-align:center}
+    .pms-drag-handle{width:40px;height:4px;border-radius:2px;background:rgba(0,0,0,0.1);margin:0 auto 20px}
+    @media(min-width:600px){.pms-drag-handle{display:none}}
+    .pms-title{font-family:var(--font-display);font-size:1.15rem;font-weight:900;letter-spacing:-0.03em;margin-bottom:6px}
+    .pms-sub{font-size:0.82rem;color:var(--muted);margin-bottom:24px}
+    .pms-total-chip{display:inline-flex;align-items:center;gap:8px;background:var(--cream);border-radius:100px;padding:8px 18px;margin-bottom:24px}
+    .pms-total-label{font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em}
+    .pms-total-amount{font-family:var(--font-display);font-size:1rem;font-weight:900;color:var(--accent);letter-spacing:-0.03em}
+    .pms-methods{padding:0 20px}
+    .pms-method-btn{display:flex;align-items:center;gap:16px;width:100%;padding:18px 20px;border-radius:var(--radius);border:2px solid var(--border);background:var(--surface);cursor:pointer;transition:var(--spring);margin-bottom:10px;position:relative;overflow:hidden}
+    .pms-method-btn::after{content:'';position:absolute;inset:0;background:rgba(255,60,0,0);transition:background 0.2s}
+    .pms-method-btn:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 24px rgba(255,60,0,0.12)}
+    .pms-method-btn:hover::after{background:rgba(255,60,0,0.02)}
+    .pms-method-btn:active{transform:scale(0.99)}
+    .pms-method-btn.selected{border-color:var(--accent);background:rgba(255,60,0,0.03)}
+    .pms-method-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.5rem}
+    .pms-method-icon.cash-icon{background:rgba(6,214,160,0.12)}
+    .pms-method-icon.paypal-icon{background:rgba(0,48,135,0.07);padding:8px}
+    .pms-method-icon.paypal-icon svg{width:100%;height:auto}
+    .pms-method-info{flex:1;text-align:left}
+    .pms-method-name{font-family:var(--font-display);font-size:0.9rem;font-weight:700;margin-bottom:3px;color:var(--c1)}
+    .pms-method-desc{font-size:0.78rem;color:var(--muted);line-height:1.5}
+    .pms-method-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;font-size:0.7rem;color:transparent}
+    .pms-method-btn.selected .pms-method-check{background:var(--accent);border-color:var(--accent);color:#fff}
+    .pms-divider{height:1px;background:var(--border);margin:4px 0 14px}
+    .pms-footer{padding:20px 20px 28px}
+    .pms-confirm-btn{width:100%;padding:17px;border:none;border-radius:var(--radius);background:var(--accent);color:#fff;font-family:var(--font-display);font-size:0.85rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:var(--spring);position:relative;overflow:hidden}
+    .pms-confirm-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent,rgba(255,255,255,0.1))}
+    .pms-confirm-btn:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(255,60,0,0.45)}
+    .pms-confirm-btn:disabled{opacity:0.5;transform:none;cursor:not-allowed}
+    .pms-cancel-btn{width:100%;padding:12px;border:none;border-radius:var(--radius);background:transparent;color:var(--muted);font-family:var(--font-display);font-size:0.78rem;font-weight:700;cursor:pointer;margin-top:8px;transition:all 0.2s}
+    .pms-cancel-btn:hover{color:var(--c1)}
+
+    .paypal-checkout-wrap{padding:0 20px 4px}
+    .paypal-checkout-wrap.hidden{display:none}
+    .paypal-buttons-container{min-height:55px;border-radius:var(--radius);overflow:hidden}
+    .paypal-loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:16px;color:var(--muted);font-size:0.82rem}
+    .paypal-spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--paypal-blue);border-radius:50%;animation:spin 0.7s linear infinite}
+    .paypal-error-msg{padding:12px 16px;background:rgba(255,59,92,0.08);border:1px solid rgba(255,59,92,0.2);border-radius:12px;font-size:0.8rem;color:var(--error);text-align:center;margin-bottom:10px}
+
+    .payment-success-overlay{position:fixed;inset:0;background:rgba(10,10,15,0.8);z-index:4000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(12px)}
+    .payment-success-box{background:var(--surface);border-radius:28px;max-width:420px;width:100%;padding:40px 32px;text-align:center;animation:scaleInModal 0.4s cubic-bezier(0.34,1.56,0.64,1)}
+    .success-icon-wrap{width:80px;height:80px;background:rgba(6,214,160,0.12);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.2rem;margin:0 auto 20px;animation:turnPop 0.5s 0.2s cubic-bezier(0.34,1.56,0.64,1) both}
+    .success-title{font-family:var(--font-display);font-size:1.3rem;font-weight:900;letter-spacing:-0.03em;margin-bottom:8px}
+    .success-sub{font-size:0.875rem;color:var(--muted);margin-bottom:24px;line-height:1.6}
+    .success-details{background:var(--cream);border-radius:var(--radius);padding:16px 20px;margin-bottom:24px;text-align:left;display:flex;flex-direction:column;gap:8px}
+    .success-detail-row{display:flex;justify-content:space-between;align-items:center;font-size:0.82rem}
+    .success-detail-label{color:var(--muted);font-weight:500}
+    .success-detail-val{font-family:var(--font-display);font-weight:700;font-size:0.8rem}
+    .success-close-btn{width:100%;padding:15px;border:none;border-radius:var(--radius);background:var(--c1);color:var(--paper);font-family:var(--font-display);font-size:0.82rem;font-weight:700;cursor:pointer;transition:var(--spring)}
+    .success-close-btn:hover{background:var(--accent)}
+
     @media(max-width:1000px){.cart-layout{grid-template-columns:1fr}.cart-summary-card{position:static}}
     @media(max-width:900px){
       .store-shell{grid-template-columns:1fr}.sidebar{display:none}.mobile-cats{display:flex}
@@ -177,6 +241,8 @@
       .product-img{height:100px;font-size:2.2rem}
       .add-btn{width:32px;height:32px;border-radius:10px}
       .search-row{flex-wrap:wrap}
+      .pms-methods{padding:0 14px}
+      .pms-footer{padding:16px 14px 24px}
     }
   </style>
 </head>
@@ -268,15 +334,30 @@
 <script>
   buildNav('store');
 
+  const PAYPAL_CLIENT_ID = (window.__PAYPAL_CLIENT_ID__ !== undefined)
+    ? window.__PAYPAL_CLIENT_ID__
+    : '';
+
   let allProducts = [], currentCat = new URLSearchParams(location.search).get('cat') || '';
   let cartData = [], myOrders = [], queueEnabled = false, currentTurn = 0, prevMyTurn = false;
+  let paypalSDKLoaded = false, paypalSDKLoading = false, paypalButtonsRendered = false;
+  let paypalOrderIdInFlight = null, checkoutInProgress = false;
 
   const catIcons  = {almuerzos:'🍛',desayunos:'🍳',rapidos:'🌭',bebidas:'🥤',snacks:'🍿',postres:'🍮',general:'📦'};
   const catLabels = {almuerzos:'Almuerzo',desayunos:'Desayuno',rapidos:'Plato Rápido',bebidas:'Bebida',snacks:'Snack',postres:'Postre',general:'General'};
   const getCatIcon  = c => catIcons[c]  || '🍽️';
   const getCatLabel = c => catLabels[c] || c;
 
-  const statusPill = s => { const m={pending:['status-pending','⏳','Pendiente'],paid:['status-paid','✅','Pagado'],cancelled:['status-cancelled','❌','Cancelado']}; const[cls,ic,l]=m[s]||['','?',s]; return `<span class="status-pill ${cls}">${ic} ${l}</span>`; };
+  const statusPill = s => {
+    const m = {pending:['status-pending','⏳','Pendiente'],paid:['status-paid','✅','Pagado'],cancelled:['status-cancelled','❌','Cancelado']};
+    const [cls,ic,l] = m[s] || ['','?',s];
+    return `<span class="status-pill ${cls}">${ic} ${l}</span>`;
+  };
+
+  const paymentMethodBadge = m => m === 'paypal'
+    ? '<span class="payment-method-badge pm-paypal">PayPal</span>'
+    : '<span class="payment-method-badge pm-cash">Efectivo</span>';
+
   const myPendingTurns = () => myOrders.filter(o => o.status==='pending' && o.turn_number).map(o => parseInt(o.turn_number));
 
   function applyQueueState(state) {
@@ -290,14 +371,25 @@
     banner.classList.add('visible');
     numEl.textContent = currentTurn > 0 ? String(currentTurn).padStart(3,'0') : '—';
     const isMyTurn = myPendingTurns().includes(currentTurn);
-    if (isMyTurn) { alert.classList.add('visible'); lbl.textContent = '#' + String(currentTurn).padStart(3,'0'); if (!prevMyTurn) toast('🎉 ¡Es tu turno! Ve a recoger tu pedido.','success'); }
-    else { alert.classList.remove('visible'); }
+    if (isMyTurn) {
+      alert.classList.add('visible');
+      lbl.textContent = '#' + String(currentTurn).padStart(3,'0');
+      if (!prevMyTurn) toast('🎉 ¡Es tu turno! Ve a recoger tu pedido.','success');
+    } else {
+      alert.classList.remove('visible');
+    }
     prevMyTurn = isMyTurn;
     if (document.getElementById('tab-orders').classList.contains('active')) renderOrders(myOrders);
   }
 
   function applyMyOrders(orders) {
-    orders.forEach(u => { const o = myOrders.find(x => x.id===u.id); if (o && o.status!==u.status) { const msgs={paid:'✅ Tu pedido #'+u.id+' fue marcado como pagado.',cancelled:'❌ Tu pedido #'+u.id+' fue cancelado.'}; if (msgs[u.status]) toast(msgs[u.status], u.status==='paid'?'success':'error'); } });
+    orders.forEach(u => {
+      const o = myOrders.find(x => x.id===u.id);
+      if (o && o.status!==u.status) {
+        const msgs = {paid:'✅ Tu pedido #'+u.id+' fue marcado como pagado.',cancelled:'❌ Tu pedido #'+u.id+' fue cancelado.'};
+        if (msgs[u.status]) toast(msgs[u.status], u.status==='paid'?'success':'error');
+      }
+    });
     myOrders = orders;
     if (document.getElementById('tab-orders').classList.contains('active')) renderOrders(myOrders);
     if (!document.getElementById('tab-cart').classList.contains('active')) loadCartBadge();
@@ -310,11 +402,11 @@
     q ? searchProducts(q) : renderProducts(allProducts);
   }
 
-  SSE.on('connected',          () => {});
-  SSE.on('queue',              state  => applyQueueState(state));
-  SSE.on('my_orders_updated',  data   => applyMyOrders(data.orders));
-  SSE.on('products_updated',   data   => applyProducts(data.products));
-  SSE.on('disconnected',       ()     => {});
+  SSE.on('connected',         () => {});
+  SSE.on('queue',             state => applyQueueState(state));
+  SSE.on('my_orders_updated', data  => applyMyOrders(data.orders));
+  SSE.on('products_updated',  data  => applyProducts(data.products));
+  SSE.on('disconnected',      ()    => {});
 
   async function init() {
     const activeTab = location.hash==='#cart' ? 'cart' : location.hash==='#orders' ? 'orders' : 'products';
@@ -325,7 +417,10 @@
       await loadOrders();
       if (activeTab !== 'products') switchTab(activeTab);
     }
-    if (currentCat) { document.querySelectorAll('[data-cat]').forEach(b => b.classList.toggle('active', b.dataset.cat===currentCat)); renderProducts(allProducts); }
+    if (currentCat) {
+      document.querySelectorAll('[data-cat]').forEach(b => b.classList.toggle('active', b.dataset.cat===currentCat));
+      renderProducts(allProducts);
+    }
     try { const state = await api.get('/queue'); applyQueueState(state); } catch(e) {}
   }
 
@@ -431,8 +526,8 @@
         <div class="summary-title">🧾 Resumen</div>
         ${cartData.map(i => `<div class="summary-line"><span>${i.name} ×${i.quantity}</span><span>${fmtCurrency(i.subtotal)}</span></div>`).join('')}
         <div class="summary-total-row"><span class="summary-total-label">Total</span><span class="summary-total-val">${fmtCurrency(total)}</span></div>
-        <button class="checkout-btn" onclick="checkout()">Confirmar y obtener QR →</button>
-        <p class="checkout-note">Pago en efectivo en la cafetería</p>
+        <button class="checkout-btn" onclick="openPaymentSelector()">Elegir forma de pago →</button>
+        <p class="checkout-note">Efectivo en cafetería · PayPal · Tarjeta · Apple Pay · Google Pay</p>
       </div>
     </div>`;
   }
@@ -451,19 +546,309 @@
     confirm('¿Vaciar todo el pedido?', async () => { await api.del('/cart/clear'); await loadCartFull(); });
   }
 
-  async function checkout() {
-    const btn = document.querySelector('.checkout-btn');
-    if (btn) { btn.disabled=true; btn.textContent='Generando QR...'; }
+  let selectedPaymentMethod = 'cash';
+  let paymentSelectorOpen = false;
+
+  function openPaymentSelector() {
+    if (checkoutInProgress) return;
+    const total = cartData.reduce((s,i) => s+parseFloat(i.subtotal), 0);
+    selectedPaymentMethod = 'cash';
+    paypalButtonsRendered = false;
+
+    const overlay = document.createElement('div');
+    overlay.id = 'payment-selector-overlay';
+    overlay.className = 'payment-selector-modal';
+
+    overlay.innerHTML = `
+      <div class="payment-selector-box" id="payment-selector-box">
+        <div class="pms-header">
+          <div class="pms-drag-handle"></div>
+          <div class="pms-title">¿Cómo quieres pagar?</div>
+          <div class="pms-sub">Elige tu método de pago preferido</div>
+          <div class="pms-total-chip">
+            <span class="pms-total-label">Total</span>
+            <span class="pms-total-amount">${fmtCurrency(total)}</span>
+          </div>
+        </div>
+        <div class="pms-methods">
+          <button class="pms-method-btn selected" id="pms-btn-cash" onclick="selectPaymentMethod('cash')">
+            <div class="pms-method-icon cash-icon">💵</div>
+            <div class="pms-method-info">
+              <div class="pms-method-name">Efectivo en cafetería</div>
+              <div class="pms-method-desc">Paga en caja al recoger tu pedido. Se genera tu QR ahora.</div>
+            </div>
+            <div class="pms-method-check">✓</div>
+          </button>
+          <div class="pms-divider"></div>
+          <button class="pms-method-btn" id="pms-btn-paypal" onclick="selectPaymentMethod('paypal')">
+            <div class="pms-method-icon paypal-icon">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path fill="#003087" d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c-.013.076-.026.175-.041.254-.93 4.778-4.005 7.201-9.138 7.201h-2.19a.563.563 0 0 0-.556.479l-1.187 7.527h-.506l-.24 1.516a.56.56 0 0 0 .554.647h3.882c.46 0 .85-.334.922-.788.06-.26.76-4.852.816-5.09a.932.932 0 0 1 .923-.788h.58c3.76 0 6.705-1.528 7.565-5.946.36-1.847.174-3.388-.777-4.471z"/>
+                <path fill="#009cde" d="M6.635 7.022a.981.981 0 0 1 .97-.833h6.174c.734 0 1.416.048 2.033.148a8.89 8.89 0 0 1 1.255.309c.309.107.59.24.846.39.244-1.564-.002-2.629-.844-3.594C15.999.801 14.2.312 11.87.312H4.41c-.521 0-.968.381-1.05.9L.233 20.771a.64.64 0 0 0 .633.74h4.606l1.163-14.489z"/>
+              </svg>
+            </div>
+            <div class="pms-method-info">
+              <div class="pms-method-name">PayPal · Tarjeta · Apple/Google Pay</div>
+              <div class="pms-method-desc">Paga ahora de forma segura. El pedido se confirma automáticamente.</div>
+            </div>
+            <div class="pms-method-check">✓</div>
+          </button>
+        </div>
+
+        <div class="paypal-checkout-wrap hidden" id="paypal-checkout-wrap">
+          <div class="paypal-loading" id="paypal-loading-indicator">
+            <div class="paypal-spinner"></div>
+            <span>Cargando opciones de pago...</span>
+          </div>
+          <div id="paypal-error-container"></div>
+          <div class="paypal-buttons-container" id="paypal-buttons-container"></div>
+        </div>
+
+        <div class="pms-footer" id="pms-footer">
+          <button class="pms-confirm-btn" id="pms-confirm-btn" onclick="confirmPaymentMethod()">
+            Confirmar pedido →
+          </button>
+          <button class="pms-cancel-btn" onclick="closePaymentSelector()">Cancelar</button>
+        </div>
+      </div>`;
+
+    document.body.appendChild(overlay);
+    paymentSelectorOpen = true;
+
+    overlay.addEventListener('click', e => { if (e.target === overlay) closePaymentSelector(); });
+  }
+
+  function closePaymentSelector() {
+    const el = document.getElementById('payment-selector-overlay');
+    if (el) el.remove();
+    paymentSelectorOpen = false;
+    paypalButtonsRendered = false;
+    paypalOrderIdInFlight = null;
+  }
+
+  function selectPaymentMethod(method) {
+    selectedPaymentMethod = method;
+    document.querySelectorAll('.pms-method-btn').forEach(b => b.classList.remove('selected'));
+    document.getElementById('pms-btn-' + method).classList.add('selected');
+
+    const paypalWrap  = document.getElementById('paypal-checkout-wrap');
+    const footer      = document.getElementById('pms-footer');
+    const confirmBtn  = document.getElementById('pms-confirm-btn');
+
+    if (method === 'paypal') {
+      paypalWrap.classList.remove('hidden');
+      footer.style.display = 'none';
+      if (!paypalButtonsRendered) {
+        renderPayPalButtons();
+      }
+    } else {
+      paypalWrap.classList.add('hidden');
+      footer.style.display = 'block';
+      confirmBtn.textContent = 'Confirmar pedido →';
+    }
+  }
+
+  function loadPayPalSDK(clientId) {
+    return new Promise((resolve, reject) => {
+      if (window.paypal) { resolve(); return; }
+      if (paypalSDKLoading) {
+        const wait = setInterval(() => { if (window.paypal) { clearInterval(wait); resolve(); } }, 100);
+        return;
+      }
+      paypalSDKLoading = true;
+      const script = document.createElement('script');
+      script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(clientId)}&currency=USD&intent=capture&enable-funding=venmo,paylater`;
+      script.dataset.pageType = 'checkout';
+      script.onload = () => { paypalSDKLoaded = true; paypalSDKLoading = false; resolve(); };
+      script.onerror = () => { paypalSDKLoading = false; reject(new Error('No se pudo cargar el SDK de PayPal')); };
+      document.head.appendChild(script);
+    });
+  }
+
+  async function renderPayPalButtons() {
+    const container      = document.getElementById('paypal-buttons-container');
+    const loadingEl      = document.getElementById('paypal-loading-indicator');
+    const errorContainer = document.getElementById('paypal-error-container');
+
+    if (!container) return;
+    container.innerHTML = '';
+    errorContainer.innerHTML = '';
+    if (loadingEl) loadingEl.style.display = 'flex';
+
+    const clientId = PAYPAL_CLIENT_ID;
+    if (!clientId) {
+      showPayPalError('PayPal no está configurado. Usa efectivo por favor.');
+      return;
+    }
+
+    try {
+      await loadPayPalSDK(clientId);
+      if (loadingEl) loadingEl.style.display = 'none';
+
+      window.paypal.Buttons({
+        style: {
+          layout:  'vertical',
+          color:   'gold',
+          shape:   'rect',
+          label:   'pay',
+          height:  48,
+          tagline: false,
+        },
+
+        createOrder: async () => {
+          if (checkoutInProgress) throw new Error('Pago en progreso');
+          checkoutInProgress = true;
+          paypalOrderIdInFlight = null;
+          try {
+            const data = await api.post('/paypal/create-order', {});
+            if (!data.paypal_order_id) throw new Error('No se recibió el ID de orden de PayPal');
+            paypalOrderIdInFlight = data.paypal_order_id;
+            return data.paypal_order_id;
+          } catch(e) {
+            checkoutInProgress = false;
+            showPayPalError(e.message || 'Error al crear la orden');
+            throw e;
+          }
+        },
+
+        onApprove: async (data, actions) => {
+          try {
+            showPayPalProcessing();
+            const fundingSource = data.paymentSource || 'paypal';
+            const order = await api.post('/paypal/capture-order', {
+              paypal_order_id: data.orderID,
+              funding_source:  fundingSource,
+            });
+            checkoutInProgress = false;
+            paypalOrderIdInFlight = null;
+            closePaymentSelector();
+            await loadCartFull();
+            await loadOrders();
+            showPayPalSuccess(order, fundingSource);
+          } catch(e) {
+            checkoutInProgress = false;
+            hidePayPalProcessing();
+            showPayPalError(e.message || 'Error al procesar el pago');
+          }
+        },
+
+        onError: (err) => {
+          checkoutInProgress = false;
+          paypalOrderIdInFlight = null;
+          hidePayPalProcessing();
+          const msg = (err && err.message) ? err.message : 'Ocurrió un error con PayPal';
+          if (!msg.includes('popup') && !msg.includes('window')) {
+            showPayPalError('Error de PayPal: ' + msg);
+          }
+        },
+
+        onCancel: () => {
+          checkoutInProgress = false;
+          paypalOrderIdInFlight = null;
+          hidePayPalProcessing();
+        },
+      }).render('#paypal-buttons-container');
+
+      paypalButtonsRendered = true;
+    } catch(e) {
+      showPayPalError(e.message || 'No se pudo cargar PayPal. Intenta con efectivo.');
+    }
+  }
+
+  function showPayPalError(msg) {
+    const loadingEl = document.getElementById('paypal-loading-indicator');
+    const errEl     = document.getElementById('paypal-error-container');
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (errEl) errEl.innerHTML = `<div class="paypal-error-msg">${msg}</div>`;
+  }
+
+  function showPayPalProcessing() {
+    const footer = document.getElementById('pms-footer');
+    if (footer) footer.style.display = 'none';
+    const box = document.getElementById('payment-selector-box');
+    if (!box) return;
+    let proc = document.getElementById('paypal-processing-indicator');
+    if (!proc) {
+      proc = document.createElement('div');
+      proc.id = 'paypal-processing-indicator';
+      proc.style.cssText = 'padding:20px;text-align:center;display:flex;align-items:center;justify-content:center;gap:10px;font-size:0.85rem;color:var(--muted)';
+      proc.innerHTML = '<div class="paypal-spinner"></div> Verificando pago...';
+      box.appendChild(proc);
+    }
+  }
+
+  function hidePayPalProcessing() {
+    const proc = document.getElementById('paypal-processing-indicator');
+    if (proc) proc.remove();
+    const footer = document.getElementById('pms-footer');
+    if (footer) footer.style.display = 'block';
+  }
+
+  async function confirmPaymentMethod() {
+    if (selectedPaymentMethod === 'cash') {
+      await checkoutCash();
+    }
+  }
+
+  async function checkoutCash() {
+    if (checkoutInProgress) return;
+    checkoutInProgress = true;
+    const btn = document.getElementById('pms-confirm-btn');
+    if (btn) { btn.disabled=true; btn.textContent='Generando pedido...'; }
     try {
       const order = await api.post('/orders/checkout', {});
+      checkoutInProgress = false;
       toast('¡Pedido confirmado! Muestra el QR en la cafetería 🎉','success');
+      closePaymentSelector();
       await loadCartFull();
       await loadOrders();
       showOrderQR(order);
     } catch(e) {
+      checkoutInProgress = false;
       toast(e.message,'error');
-      if (btn) { btn.disabled=false; btn.textContent='Confirmar y obtener QR →'; }
+      if (btn) { btn.disabled=false; btn.textContent='Confirmar pedido →'; }
     }
+  }
+
+  function showPayPalSuccess(order, fundingSource) {
+    const fsLabels = {
+      paypal: 'Saldo PayPal', card: 'Tarjeta', credit: 'Tarjeta de crédito',
+      venmo: 'Venmo', paylater: 'Pagar después', applepay: 'Apple Pay',
+      googlepay: 'Google Pay',
+    };
+    const fsLabel = fsLabels[fundingSource] || 'PayPal';
+
+    const overlay = document.createElement('div');
+    overlay.className = 'payment-success-overlay';
+    const qrId = 'success-qr-' + Date.now();
+
+    overlay.innerHTML = `
+      <div class="payment-success-box">
+        <div class="success-icon-wrap">✅</div>
+        <div class="success-title">¡Pago exitoso!</div>
+        <div class="success-sub">Tu pedido fue confirmado y pagado a través de PayPal.</div>
+        <div class="success-details">
+          <div class="success-detail-row"><span class="success-detail-label">Pedido</span><span class="success-detail-val">#${order.id}</span></div>
+          <div class="success-detail-row"><span class="success-detail-label">Total</span><span class="success-detail-val" style="color:var(--accent)">${fmtCurrency(order.total)}</span></div>
+          <div class="success-detail-row"><span class="success-detail-label">Método</span><span class="success-detail-val">${fsLabel}</span></div>
+          ${order.turn_number ? `<div class="success-detail-row"><span class="success-detail-label">Turno</span><span class="success-detail-val" style="color:var(--gold)">#${String(order.turn_number).padStart(3,'0')}</span></div>` : ''}
+        </div>
+        <div style="background:var(--cream);border-radius:16px;padding:20px;margin-bottom:20px;text-align:center">
+          <div style="font-size:0.72rem;color:var(--muted);margin-bottom:12px;font-family:var(--font-display);font-weight:700;letter-spacing:0.06em;text-transform:uppercase">Tu código QR</div>
+          <div id="${qrId}" style="display:inline-block;background:#fff;padding:10px;border-radius:10px"></div>
+        </div>
+        <button class="success-close-btn" onclick="this.closest('.payment-success-overlay').remove()">Ver mis pedidos ✓</button>
+      </div>`;
+
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+
+    setTimeout(() => {
+      const qrEl = document.getElementById(qrId);
+      if (qrEl && typeof QRCode !== 'undefined') {
+        new QRCode(qrEl, {text: JSON.stringify({token: order.qr_token, orderId: order.id}), width: 160, height: 160, correctLevel: QRCode.CorrectLevel.H});
+      }
+    }, 100);
   }
 
   function showOrderQR(order) {
@@ -475,11 +860,11 @@
       <p style="color:var(--muted);font-size:0.875rem;margin-bottom:16px">Pedido #${order.id} — Total: <strong>${fmtCurrency(order.total)}</strong></p>
       ${turnHTML}
       <div style="background:var(--cream);border-radius:20px;padding:24px;display:inline-block;margin-bottom:16px">
-        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:14px">Muestra este QR en la cafetería para pagar</p>
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:14px">Muestra este QR en la cafetería para recoger tu pedido</p>
         <div id="${qrId}" style="display:inline-block;background:white;padding:12px;border-radius:12px"></div>
         <p style="font-size:0.7rem;color:var(--muted);margin-top:10px">Token: ${order.qr_token}</p>
       </div>
-      <p style="font-size:0.8rem;color:var(--muted);margin-bottom:16px;line-height:1.7">📸 Guarda una captura de pantalla.<br/>El encargado escaneará tu QR.</p>
+      <p style="font-size:0.8rem;color:var(--muted);margin-bottom:16px;line-height:1.7">📸 Guarda una captura de pantalla.<br/>El encargado escaneará tu QR al momento de pagar.</p>
       <button onclick="this.closest('.modal-overlay').remove()" style="width:100%;padding:14px;border:none;border-radius:14px;background:var(--c1);color:#fff;font-family:var(--font-display);font-size:0.8rem;font-weight:700;cursor:pointer;">Entendido ✓</button>
     </div>`, {title:'Tu QR de pedido'});
     setTimeout(() => { const el=document.getElementById(qrId); if(el&&typeof QRCode!=='undefined') new QRCode(el,{text:JSON.stringify({token:order.qr_token,orderId:order.id}),width:200,height:200,correctLevel:QRCode.CorrectLevel.H}); }, 100);
@@ -503,7 +888,7 @@
       const turnPillHTML = turn ? `<span class="turn-pill${isMyTurn?' active-turn':''}">🎫 Turno #${String(turn).padStart(3,'0')}${isMyTurn?' — ¡Ahora!':''}</span>` : '';
       return `<div class="order-card${isMyTurn?' is-my-turn':''}">
         <div class="order-header-row">
-          <div><div class="order-id">Pedido #${o.id}</div><div class="order-date">${fmtDate(o.created_at)}</div></div>
+          <div><div class="order-id">Pedido #${o.id}${paymentMethodBadge(o.payment_method)}</div><div class="order-date">${fmtDate(o.created_at)}</div></div>
           <div class="order-right">${statusPill(o.status)}<div class="order-total">${fmtCurrency(o.total)}</div></div>
         </div>
         <div class="order-items-tags">${(o.items||[]).map(i=>`<span class="item-tag">${i.product_name} ×${i.quantity}</span>`).join('')}</div>

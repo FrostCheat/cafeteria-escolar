@@ -74,8 +74,10 @@ if ($resource === 'orders') {
             $qrData = generateQRData(['type' => 'order', 'token' => $token, 'user_id' => $userId, 'total' => $total]);
 
             $db->beginTransaction();
-            $db->prepare("INSERT INTO orders (user_id, total, qr_code, qr_token, turn_number) VALUES (?,?,?,?,?)")
-               ->execute([$userId, $total, $qrData, $token, $turnNumber]);
+            $db->prepare("
+                INSERT INTO orders (user_id, total, status, payment_method, qr_code, qr_token, turn_number)
+                VALUES (?,?,?,?,?,?,?)
+            ")->execute([$userId, $total, 'pending', 'cash', $qrData, $token, $turnNumber]);
             $orderId = (int)$db->lastInsertId();
 
             foreach ($cartItems as $item) {

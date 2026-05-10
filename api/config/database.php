@@ -1,11 +1,16 @@
 <?php
-define('DB_HOST', 'sql306.infinityfree.com');
-define('DB_NAME', 'if0_41745979_cafeteria_escolar');
-define('DB_USER', 'if0_41745979');
-define('DB_PASS', 'f7DorrtCWyEbTC');
-define('JWT_SECRET', 'cafeteria_secret_key_2024_xK9#mP');
+define('DB_HOST', getenv('DB_HOST') ?: 'sql306.infinityfree.com');
+define('DB_NAME', getenv('DB_NAME') ?: 'if0_41745979_cafeteria_escolar');
+define('DB_USER', getenv('DB_USER') ?: 'if0_41745979');
+define('DB_PASS', getenv('DB_PASS') ?: 'f7DorrtCWyEbTC');
+define('JWT_SECRET', getenv('JWT_SECRET') ?: 'cafeteria_secret_key_2024_xK9#mP');
 define('UPLOAD_PATH', __DIR__ . '/../../imgs/uploads/');
-define('BASE_URL', 'http://localhost:8080');
+define('BASE_URL', getenv('BASE_URL') ?: 'http://localhost:8080');
+
+define('PAYPAL_CLIENT_ID',     getenv('PAYPAL_CLIENT_ID')     ?: 'AQnW8s6sj1shs06clbCmXNC0JMv6y_UJPVTqAoBXVX5Xy66OzvnE9gwKkLaXJV0Rv45zFfH0DiWTpnED');
+define('PAYPAL_CLIENT_SECRET', getenv('PAYPAL_CLIENT_SECRET') ?: 'ENfv1ASxVCeAZZYM-eqP5IiuS3BXjzSedoSFquf2O2MYYbkCldsuIUoO-GPLO5sZS-QNrz3oKSzZsVMa');
+define('PAYPAL_ENV',           getenv('PAYPAL_ENV')           ?: 'sandbox');
+
 date_default_timezone_set('America/Bogota');
 
 function getDB(): PDO {
@@ -81,6 +86,10 @@ function initDB(PDO $pdo): void {
             user_id INT NOT NULL,
             total DECIMAL(10,2) NOT NULL,
             status VARCHAR(20) NOT NULL DEFAULT 'pending',
+            payment_method VARCHAR(20) NOT NULL DEFAULT 'cash',
+            paypal_order_id VARCHAR(100) DEFAULT NULL,
+            paypal_capture_id VARCHAR(100) DEFAULT NULL,
+            paypal_funding_source VARCHAR(50) DEFAULT NULL,
             qr_code VARCHAR(255),
             qr_token VARCHAR(100),
             notes TEXT,
@@ -89,9 +98,11 @@ function initDB(PDO $pdo): void {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id),
             UNIQUE INDEX idx_qr_token (qr_token),
+            UNIQUE INDEX idx_paypal_capture (paypal_capture_id),
             INDEX idx_status (status),
             INDEX idx_user_created (user_id, created_at),
-            INDEX idx_created_date (created_at)
+            INDEX idx_created_date (created_at),
+            INDEX idx_paypal_order (paypal_order_id)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     ");
 
