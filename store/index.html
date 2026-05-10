@@ -17,7 +17,6 @@
       --paper:#faf9f7;--cream:#f2ede4;--surface:#ffffff;
       --muted:#888;--border:rgba(0,0,0,0.08);
       --success:#06d6a0;--warning:#ffd166;--error:#ff3b5c;
-      --paypal-blue:#003087;--paypal-gold:#ffc439;
       --font-display:'Unbounded',sans-serif;--font-body:'Outfit',sans-serif;
       --radius:18px;--radius-lg:24px;
       --shadow:0 4px 24px rgba(0,0,0,0.08);--shadow-lg:0 12px 48px rgba(0,0,0,0.12);
@@ -32,7 +31,6 @@
     @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
     @keyframes slideDown{from{opacity:0;transform:translateY(-100%)}to{opacity:1;transform:translateY(0)}}
     @keyframes turnPop{from{opacity:0;transform:scale(0.85)}to{opacity:1;transform:scale(1)}}
-    @keyframes fadeSlideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 
     .store-shell{display:grid;grid-template-columns:260px 1fr;min-height:calc(100dvh - 64px)}
     .sidebar{background:var(--c1);position:sticky;top:64px;height:calc(100dvh - 64px);overflow-y:auto;padding:28px 0;display:flex;flex-direction:column}
@@ -45,9 +43,7 @@
     .cat-icon{width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0;transition:all 0.2s}
     .cat-item.active .cat-icon{background:rgba(255,60,0,0.25)}
     .cat-divider{height:1px;background:rgba(255,255,255,0.06);margin:10px 20px}
-
     .main-area{display:flex;flex-direction:column;overflow:hidden}
-
     .queue-banner{display:none;align-items:center;gap:16px;flex-wrap:wrap;padding:12px 24px;background:var(--c1);border-bottom:2px solid rgba(255,209,102,0.2);position:sticky;top:64px;z-index:25;animation:slideDown 0.4s ease}
     .queue-banner.visible{display:flex}
     .queue-live-dot{width:9px;height:9px;border-radius:50%;background:var(--success);flex-shrink:0;animation:livePulse 1.5s ease-in-out infinite}
@@ -60,7 +56,6 @@
     .queue-my-alert.visible{display:flex}
     .queue-my-alert-text{font-family:var(--font-display);font-size:0.65rem;font-weight:700;color:var(--gold);letter-spacing:0.04em}
     .queue-my-num{background:var(--gold);color:var(--c1);border-radius:8px;font-family:var(--font-display);font-size:0.72rem;font-weight:900;padding:3px 9px}
-
     .tab-nav{display:flex;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:64px;z-index:20;padding:0 28px}
     .tab-nav-btn{display:flex;align-items:center;gap:8px;padding:18px 14px;border:none;background:transparent;font-family:var(--font-display);font-size:0.72rem;font-weight:700;letter-spacing:0.03em;color:var(--muted);cursor:pointer;position:relative;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color 0.2s;white-space:nowrap}
     .tab-nav-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
@@ -68,14 +63,12 @@
     .tab-count.show{display:inline}
     .tab-content{display:none;padding:28px;animation:tabIn 0.3s ease}
     .tab-content.active{display:block}
-
     .search-row{display:flex;align-items:center;gap:12px;margin-bottom:24px}
     .search-box{flex:1;position:relative;min-width:0}
     .search-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:0.9rem;pointer-events:none;z-index:1}
     .search-input{width:100%;padding:13px 16px 13px 44px;border:2px solid var(--border);border-radius:var(--radius);font-family:var(--font-body);font-size:0.9rem;background:var(--surface);color:var(--c1);outline:none;transition:all 0.2s ease;display:block}
     .search-input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(255,60,0,0.08)}
     .results-count{font-size:0.8rem;color:var(--muted);white-space:nowrap;flex-shrink:0}
-
     .product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px}
     .product-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;display:flex;flex-direction:column;transition:var(--spring);cursor:default;position:relative}
     .product-card:hover{transform:translateY(-6px) scale(1.01);box-shadow:var(--shadow-lg);border-color:rgba(255,60,0,0.2)}
@@ -94,7 +87,6 @@
     .add-btn:active{transform:scale(0.95)}
     .add-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none}
     .sold-out-tag{padding:6px 12px;border-radius:10px;background:rgba(255,59,92,0.1);color:var(--error);font-family:var(--font-display);font-size:0.65rem;font-weight:700;letter-spacing:0.05em}
-
     .cart-layout{display:grid;grid-template-columns:1fr 320px;gap:24px;align-items:start}
     .cart-items-wrap{display:flex;flex-direction:column;gap:10px}
     .cart-item{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);transition:all 0.2s ease;animation:slideIn 0.3s ease}
@@ -111,7 +103,6 @@
     .cart-item-price{font-family:var(--font-display);font-weight:900;font-size:0.9rem;color:var(--accent);min-width:70px;text-align:right}
     .remove-btn{width:28px;height:28px;border-radius:8px;border:none;background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.9rem;transition:all 0.15s;flex-shrink:0}
     .remove-btn:hover{background:rgba(255,59,92,0.1);color:var(--error)}
-
     .cart-summary-card{background:var(--c1);border-radius:var(--radius-lg);padding:24px;position:sticky;top:120px;color:var(--paper)}
     .summary-title{font-family:var(--font-display);font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:18px}
     .summary-line{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:0.85rem;color:rgba(255,255,255,0.55)}
@@ -125,7 +116,6 @@
     .checkout-btn:active{transform:scale(0.98)}
     .checkout-btn:disabled{opacity:0.5;transform:none;cursor:not-allowed}
     .checkout-note{text-align:center;font-size:0.72rem;color:rgba(255,255,255,0.25);margin-top:10px;line-height:1.6}
-
     .order-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 22px;transition:all 0.2s ease;animation:tabIn 0.3s ease}
     .order-card:hover{box-shadow:var(--shadow)}
     .order-card+.order-card{margin-top:12px}
@@ -138,111 +128,95 @@
     .order-items-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
     .item-tag{padding:4px 10px;border-radius:100px;background:var(--cream);font-size:0.72rem;font-weight:600;color:var(--c1)}
     .order-footer-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-
     .status-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:100px;font-family:var(--font-display);font-size:0.65rem;font-weight:700;letter-spacing:0.05em}
     .status-paid{background:rgba(6,214,160,0.12);color:#04a87d}
     .status-pending{background:rgba(255,209,102,0.15);color:#c59900}
     .status-cancelled{background:rgba(255,59,92,0.12);color:var(--error)}
-
     .turn-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:100px;background:rgba(255,209,102,0.15);font-family:var(--font-display);font-size:0.65rem;font-weight:700;color:#c59900;letter-spacing:0.05em}
     .turn-pill.active-turn{background:rgba(255,209,102,0.3);color:#8a5a00;animation:turnPop 0.4s ease}
-
     .qr-show-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:12px;border:1.5px solid var(--border);background:transparent;font-family:var(--font-display);font-size:0.7rem;font-weight:700;color:var(--c1);cursor:pointer;transition:all 0.2s ease}
     .qr-show-btn:hover{background:var(--c1);color:var(--paper);border-color:var(--c1)}
-
     .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:64px 24px}
     .empty-emoji{font-size:4rem;margin-bottom:16px;animation:float 3s ease-in-out infinite}
     .empty-title{font-family:var(--font-display);font-size:1.1rem;font-weight:900;margin-bottom:8px;letter-spacing:-0.02em}
     .empty-sub{font-size:0.875rem;color:var(--muted);margin-bottom:24px}
     .primary-btn{display:inline-flex;align-items:center;gap:8px;padding:13px 24px;border:none;border-radius:var(--radius);background:var(--accent);color:#fff;font-family:var(--font-display);font-size:0.78rem;font-weight:700;cursor:pointer;transition:var(--spring)}
     .primary-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,60,0,0.4)}
-
     .mobile-cats{display:none;overflow-x:auto;gap:8px;padding:14px 16px;background:var(--c1);border-bottom:1px solid rgba(255,255,255,0.05);scrollbar-width:none;position:sticky;top:64px;z-index:19}
     .mobile-cats::-webkit-scrollbar{display:none}
     .mobile-cat-pill{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:9px 16px;border-radius:100px;border:1.5px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);font-family:var(--font-display);font-size:0.65rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s ease;white-space:nowrap}
     .mobile-cat-pill.active{background:var(--accent);border-color:var(--accent);color:#fff}
-
     .payment-method-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:0.62rem;font-weight:700;margin-left:6px}
     .pm-cash{background:rgba(6,214,160,0.12);color:#04a87d}
-    .pm-paypal{background:rgba(0,48,135,0.1);color:var(--paypal-blue)}
+    .pm-paypal{background:rgba(0,48,135,0.1);color:#003087}
 
-    .payment-selector-modal{position:fixed;inset:0;background:rgba(10,10,15,0.7);z-index:3000;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn 0.2s ease;backdrop-filter:blur(8px);padding:0}
-    @media(min-width:600px){.payment-selector-modal{align-items:center;padding:20px}}
-    .payment-selector-box{background:var(--surface);border-radius:32px 32px 0 0;max-width:500px;width:100%;padding:0;overflow:hidden;animation:slideUpModal 0.35s cubic-bezier(0.34,1.2,0.64,1)}
-    @media(min-width:600px){.payment-selector-box{border-radius:28px;animation:scaleInModal 0.3s cubic-bezier(0.34,1.36,0.64,1)}}
+    .pms-overlay{position:fixed;inset:0;background:rgba(10,10,15,0.7);z-index:3000;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn 0.2s ease;backdrop-filter:blur(8px);padding:0}
+    @media(min-width:600px){.pms-overlay{align-items:center;padding:20px}}
+    .pms-box{background:var(--surface);border-radius:32px 32px 0 0;max-width:500px;width:100%;overflow:hidden;animation:slideUpModal 0.35s cubic-bezier(0.34,1.2,0.64,1);max-height:92dvh;overflow-y:auto}
+    @media(min-width:600px){.pms-box{border-radius:28px;animation:scaleInModal 0.3s cubic-bezier(0.34,1.36,0.64,1)}}
     @keyframes slideUpModal{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
     @keyframes scaleInModal{from{transform:scale(0.9);opacity:0}to{transform:scale(1);opacity:1}}
-    .pms-header{padding:28px 28px 0;text-align:center}
-    .pms-drag-handle{width:40px;height:4px;border-radius:2px;background:rgba(0,0,0,0.1);margin:0 auto 20px}
-    @media(min-width:600px){.pms-drag-handle{display:none}}
-    .pms-title{font-family:var(--font-display);font-size:1.15rem;font-weight:900;letter-spacing:-0.03em;margin-bottom:6px}
-    .pms-sub{font-size:0.82rem;color:var(--muted);margin-bottom:24px}
-    .pms-total-chip{display:inline-flex;align-items:center;gap:8px;background:var(--cream);border-radius:100px;padding:8px 18px;margin-bottom:24px}
-    .pms-total-label{font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em}
-    .pms-total-amount{font-family:var(--font-display);font-size:1rem;font-weight:900;color:var(--accent);letter-spacing:-0.03em}
+    .pms-handle{width:40px;height:4px;border-radius:2px;background:rgba(0,0,0,0.1);margin:16px auto 0}
+    @media(min-width:600px){.pms-handle{display:none}}
+    .pms-header{padding:20px 24px 0;text-align:center}
+    .pms-title{font-family:var(--font-display);font-size:1.1rem;font-weight:900;letter-spacing:-0.03em;margin-bottom:4px}
+    .pms-sub{font-size:0.82rem;color:var(--muted);margin-bottom:16px}
+    .pms-total{display:inline-flex;align-items:center;gap:8px;background:var(--cream);border-radius:100px;padding:8px 18px;margin-bottom:20px}
+    .pms-total-lbl{font-size:0.65rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em}
+    .pms-total-amt{font-family:var(--font-display);font-size:1rem;font-weight:900;color:var(--accent);letter-spacing:-0.03em}
     .pms-methods{padding:0 20px}
-    .pms-method-btn{display:flex;align-items:center;gap:16px;width:100%;padding:18px 20px;border-radius:var(--radius);border:2px solid var(--border);background:var(--surface);cursor:pointer;transition:var(--spring);margin-bottom:10px;position:relative;overflow:hidden}
-    .pms-method-btn::after{content:'';position:absolute;inset:0;background:rgba(255,60,0,0);transition:background 0.2s}
-    .pms-method-btn:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 24px rgba(255,60,0,0.12)}
-    .pms-method-btn:hover::after{background:rgba(255,60,0,0.02)}
-    .pms-method-btn:active{transform:scale(0.99)}
-    .pms-method-btn.selected{border-color:var(--accent);background:rgba(255,60,0,0.03)}
-    .pms-method-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.5rem}
-    .pms-method-icon.cash-icon{background:rgba(6,214,160,0.12)}
-    .pms-method-icon.paypal-icon{background:rgba(0,48,135,0.07);padding:8px}
-    .pms-method-icon.paypal-icon svg{width:100%;height:auto}
+    .pms-method{display:flex;align-items:center;gap:14px;width:100%;padding:16px 18px;border-radius:var(--radius);border:2px solid var(--border);background:var(--surface);cursor:pointer;transition:var(--spring);margin-bottom:10px}
+    .pms-method:hover{border-color:var(--accent);transform:translateY(-2px)}
+    .pms-method.selected{border-color:var(--accent);background:rgba(255,60,0,0.02)}
+    .pms-method-ico{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.4rem}
+    .pms-method-ico.cash{background:rgba(6,214,160,0.12)}
+    .pms-method-ico.pp{background:rgba(0,48,135,0.07);padding:10px}
+    .pms-method-ico.pp svg{width:100%;height:auto}
     .pms-method-info{flex:1;text-align:left}
-    .pms-method-name{font-family:var(--font-display);font-size:0.9rem;font-weight:700;margin-bottom:3px;color:var(--c1)}
-    .pms-method-desc{font-size:0.78rem;color:var(--muted);line-height:1.5}
-    .pms-method-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;font-size:0.7rem;color:transparent}
-    .pms-method-btn.selected .pms-method-check{background:var(--accent);border-color:var(--accent);color:#fff}
-    .pms-divider{height:1px;background:var(--border);margin:4px 0 14px}
+    .pms-method-name{font-family:var(--font-display);font-size:0.88rem;font-weight:700;margin-bottom:3px;color:var(--c1)}
+    .pms-method-desc{font-size:0.76rem;color:var(--muted);line-height:1.5}
+    .pms-check{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;font-size:0.65rem;color:transparent}
+    .pms-method.selected .pms-check{background:var(--accent);border-color:var(--accent);color:#fff}
+    .pms-paypal-wrap{padding:0 20px;overflow:hidden;transition:max-height 0.3s ease,opacity 0.3s ease;max-height:0;opacity:0}
+    .pms-paypal-wrap.open{max-height:300px;opacity:1}
+    .pms-paypal-loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:20px;color:var(--muted);font-size:0.82rem}
+    .pms-paypal-spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:#003087;border-radius:50%;animation:spin 0.7s linear infinite}
+    .pms-paypal-error{padding:12px 16px;background:rgba(255,59,92,0.08);border:1px solid rgba(255,59,92,0.2);border-radius:12px;font-size:0.8rem;color:var(--error);text-align:center;margin-bottom:10px}
+    .paypal-btns-container{border-radius:var(--radius);overflow:hidden;min-height:50px}
     .pms-footer{padding:20px 20px 28px}
-    .pms-confirm-btn{width:100%;padding:17px;border:none;border-radius:var(--radius);background:var(--accent);color:#fff;font-family:var(--font-display);font-size:0.85rem;font-weight:700;letter-spacing:0.04em;cursor:pointer;transition:var(--spring);position:relative;overflow:hidden}
-    .pms-confirm-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent,rgba(255,255,255,0.1))}
-    .pms-confirm-btn:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(255,60,0,0.45)}
-    .pms-confirm-btn:disabled{opacity:0.5;transform:none;cursor:not-allowed}
-    .pms-cancel-btn{width:100%;padding:12px;border:none;border-radius:var(--radius);background:transparent;color:var(--muted);font-family:var(--font-display);font-size:0.78rem;font-weight:700;cursor:pointer;margin-top:8px;transition:all 0.2s}
-    .pms-cancel-btn:hover{color:var(--c1)}
+    .pms-confirm{width:100%;padding:16px;border:none;border-radius:var(--radius);background:var(--accent);color:#fff;font-family:var(--font-display);font-size:0.85rem;font-weight:700;cursor:pointer;transition:var(--spring)}
+    .pms-confirm:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(255,60,0,0.45)}
+    .pms-confirm:disabled{opacity:0.5;transform:none;cursor:not-allowed}
+    .pms-cancel{width:100%;padding:11px;border:none;border-radius:var(--radius);background:transparent;color:var(--muted);font-family:var(--font-display);font-size:0.78rem;font-weight:700;cursor:pointer;margin-top:8px;transition:all 0.2s}
+    .pms-cancel:hover{color:var(--c1)}
 
-    .paypal-checkout-wrap{padding:0 20px 4px}
-    .paypal-checkout-wrap.hidden{display:none}
-    .paypal-buttons-container{min-height:55px;border-radius:var(--radius);overflow:hidden}
-    .paypal-loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:16px;color:var(--muted);font-size:0.82rem}
-    .paypal-spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--paypal-blue);border-radius:50%;animation:spin 0.7s linear infinite}
-    .paypal-error-msg{padding:12px 16px;background:rgba(255,59,92,0.08);border:1px solid rgba(255,59,92,0.2);border-radius:12px;font-size:0.8rem;color:var(--error);text-align:center;margin-bottom:10px}
-
-    .payment-success-overlay{position:fixed;inset:0;background:rgba(10,10,15,0.8);z-index:4000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(12px)}
-    .payment-success-box{background:var(--surface);border-radius:28px;max-width:420px;width:100%;padding:40px 32px;text-align:center;animation:scaleInModal 0.4s cubic-bezier(0.34,1.56,0.64,1)}
-    .success-icon-wrap{width:80px;height:80px;background:rgba(6,214,160,0.12);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.2rem;margin:0 auto 20px;animation:turnPop 0.5s 0.2s cubic-bezier(0.34,1.56,0.64,1) both}
+    .success-overlay{position:fixed;inset:0;background:rgba(10,10,15,0.8);z-index:4000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(12px)}
+    .success-box{background:var(--surface);border-radius:28px;max-width:420px;width:100%;padding:40px 32px;text-align:center;animation:scaleInModal 0.4s cubic-bezier(0.34,1.56,0.64,1)}
+    .success-icon{width:80px;height:80px;background:rgba(6,214,160,0.12);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.2rem;margin:0 auto 20px;animation:turnPop 0.5s 0.2s cubic-bezier(0.34,1.56,0.64,1) both}
     .success-title{font-family:var(--font-display);font-size:1.3rem;font-weight:900;letter-spacing:-0.03em;margin-bottom:8px}
     .success-sub{font-size:0.875rem;color:var(--muted);margin-bottom:24px;line-height:1.6}
     .success-details{background:var(--cream);border-radius:var(--radius);padding:16px 20px;margin-bottom:24px;text-align:left;display:flex;flex-direction:column;gap:8px}
-    .success-detail-row{display:flex;justify-content:space-between;align-items:center;font-size:0.82rem}
-    .success-detail-label{color:var(--muted);font-weight:500}
-    .success-detail-val{font-family:var(--font-display);font-weight:700;font-size:0.8rem}
-    .success-close-btn{width:100%;padding:15px;border:none;border-radius:var(--radius);background:var(--c1);color:var(--paper);font-family:var(--font-display);font-size:0.82rem;font-weight:700;cursor:pointer;transition:var(--spring)}
-    .success-close-btn:hover{background:var(--accent)}
+    .success-row{display:flex;justify-content:space-between;align-items:center;font-size:0.82rem}
+    .success-label{color:var(--muted);font-weight:500}
+    .success-val{font-family:var(--font-display);font-weight:700;font-size:0.8rem}
+    .success-close{width:100%;padding:15px;border:none;border-radius:var(--radius);background:var(--c1);color:var(--paper);font-family:var(--font-display);font-size:0.82rem;font-weight:700;cursor:pointer;transition:var(--spring)}
+    .success-close:hover{background:var(--accent)}
+
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
     @media(max-width:1000px){.cart-layout{grid-template-columns:1fr}.cart-summary-card{position:static}}
     @media(max-width:900px){
       .store-shell{grid-template-columns:1fr}.sidebar{display:none}.mobile-cats{display:flex}
-      .queue-banner{top:64px}.tab-nav{top:64px;padding:0 16px}
       .tab-content{padding:16px}
       .product-grid{grid-template-columns:repeat(2,1fr);gap:10px}
       .product-img{height:120px;font-size:2.8rem}
       .product-body{padding:10px 12px 12px}
       .product-name{font-size:0.75rem}.product-price{font-size:0.95rem}
-      .cart-item{flex-wrap:wrap}.cart-item-price{min-width:auto}
-      .queue-info-num{font-size:1.1rem}
     }
     @media(max-width:480px){
       .product-grid{grid-template-columns:repeat(2,1fr);gap:8px}
       .product-img{height:100px;font-size:2.2rem}
       .add-btn{width:32px;height:32px;border-radius:10px}
-      .search-row{flex-wrap:wrap}
-      .pms-methods{padding:0 14px}
-      .pms-footer{padding:16px 14px 24px}
     }
   </style>
 </head>
@@ -333,15 +307,12 @@
 <script src="/assets/js/sse.js"></script>
 <script>
   buildNav('store');
-
-  const PAYPAL_CLIENT_ID = (window.__PAYPAL_CLIENT_ID__ !== undefined)
-    ? window.__PAYPAL_CLIENT_ID__
-    : '';
+  auth.requireLogin();
 
   let allProducts = [], currentCat = new URLSearchParams(location.search).get('cat') || '';
   let cartData = [], myOrders = [], queueEnabled = false, currentTurn = 0, prevMyTurn = false;
-  let paypalSDKLoaded = false, paypalSDKLoading = false, paypalButtonsRendered = false;
-  let paypalOrderIdInFlight = null, checkoutInProgress = false;
+  let paypalConfig = null, paypalSDKLoaded = false, paypalSDKLoading = false;
+  let checkoutInProgress = false;
 
   const catIcons  = {almuerzos:'🍛',desayunos:'🍳',rapidos:'🌭',bebidas:'🥤',snacks:'🍿',postres:'🍮',general:'📦'};
   const catLabels = {almuerzos:'Almuerzo',desayunos:'Desayuno',rapidos:'Plato Rápido',bebidas:'Bebida',snacks:'Snack',postres:'Postre',general:'General'};
@@ -349,16 +320,21 @@
   const getCatLabel = c => catLabels[c] || c;
 
   const statusPill = s => {
-    const m = {pending:['status-pending','⏳','Pendiente'],paid:['status-paid','✅','Pagado'],cancelled:['status-cancelled','❌','Cancelado']};
-    const [cls,ic,l] = m[s] || ['','?',s];
+    const m = {
+      pending:   ['status-pending',   '⏳', 'Pendiente'],
+      paid:      ['status-paid',      '✅', 'Pagado'],
+      cancelled: ['status-cancelled', '❌', 'Cancelado'],
+    };
+    const [cls, ic, l] = m[s] || ['', '?', s];
     return `<span class="status-pill ${cls}">${ic} ${l}</span>`;
   };
 
-  const paymentMethodBadge = m => m === 'paypal'
+  const paymentBadge = m => m === 'paypal'
     ? '<span class="payment-method-badge pm-paypal">PayPal</span>'
     : '<span class="payment-method-badge pm-cash">Efectivo</span>';
 
-  const myPendingTurns = () => myOrders.filter(o => o.status==='pending' && o.turn_number).map(o => parseInt(o.turn_number));
+  const myPendingTurns = () =>
+    myOrders.filter(o => o.status === 'pending' && o.turn_number).map(o => parseInt(o.turn_number));
 
   function applyQueueState(state) {
     queueEnabled = !!state.enabled;
@@ -369,12 +345,12 @@
     const lbl    = document.getElementById('queue-my-num-label');
     if (!queueEnabled) { banner.classList.remove('visible'); return; }
     banner.classList.add('visible');
-    numEl.textContent = currentTurn > 0 ? String(currentTurn).padStart(3,'0') : '—';
+    numEl.textContent = currentTurn > 0 ? String(currentTurn).padStart(3, '0') : '—';
     const isMyTurn = myPendingTurns().includes(currentTurn);
     if (isMyTurn) {
       alert.classList.add('visible');
-      lbl.textContent = '#' + String(currentTurn).padStart(3,'0');
-      if (!prevMyTurn) toast('🎉 ¡Es tu turno! Ve a recoger tu pedido.','success');
+      lbl.textContent = '#' + String(currentTurn).padStart(3, '0');
+      if (!prevMyTurn) toast('🎉 ¡Es tu turno! Ve a recoger tu pedido.', 'success');
     } else {
       alert.classList.remove('visible');
     }
@@ -383,17 +359,19 @@
   }
 
   function applyMyOrders(orders) {
-    orders.forEach(u => {
-      const o = myOrders.find(x => x.id===u.id);
-      if (o && o.status!==u.status) {
-        const msgs = {paid:'✅ Tu pedido #'+u.id+' fue marcado como pagado.',cancelled:'❌ Tu pedido #'+u.id+' fue cancelado.'};
-        if (msgs[u.status]) toast(msgs[u.status], u.status==='paid'?'success':'error');
+    orders.forEach(updated => {
+      const prev = myOrders.find(x => x.id === updated.id);
+      if (prev && prev.status !== updated.status) {
+        const msgs = {
+          paid:      '✅ Tu pedido #' + updated.id + ' fue marcado como pagado.',
+          cancelled: '❌ Tu pedido #' + updated.id + ' fue cancelado.',
+        };
+        if (msgs[updated.status]) toast(msgs[updated.status], updated.status === 'paid' ? 'success' : 'error');
       }
     });
     myOrders = orders;
     if (document.getElementById('tab-orders').classList.contains('active')) renderOrders(myOrders);
-    if (!document.getElementById('tab-cart').classList.contains('active')) loadCartBadge();
-    applyQueueState({enabled:queueEnabled, current_turn:currentTurn});
+    applyQueueState({ enabled: queueEnabled, current_turn: currentTurn });
   }
 
   function applyProducts(products) {
@@ -406,27 +384,43 @@
   SSE.on('queue',             state => applyQueueState(state));
   SSE.on('my_orders_updated', data  => applyMyOrders(data.orders));
   SSE.on('products_updated',  data  => applyProducts(data.products));
-  SSE.on('disconnected',      ()    => {});
 
   async function init() {
-    const activeTab = location.hash==='#cart' ? 'cart' : location.hash==='#orders' ? 'orders' : 'products';
-    await loadProducts();
-    if (auth.isLoggedIn()) {
-      SSE.connect();
-      await loadCartFull();
-      await loadOrders();
-      if (activeTab !== 'products') switchTab(activeTab);
-    }
+    const hash = location.hash.replace('#', '');
+    const activeTab = ['cart', 'orders'].includes(hash) ? hash : 'products';
+
+    await Promise.all([loadProducts(), loadPaypalConfig()]);
+    SSE.connect();
+    await loadCartFull();
+    await loadOrders();
+
+    if (activeTab !== 'products') switchTab(activeTab);
     if (currentCat) {
-      document.querySelectorAll('[data-cat]').forEach(b => b.classList.toggle('active', b.dataset.cat===currentCat));
+      document.querySelectorAll('[data-cat]').forEach(b => b.classList.toggle('active', b.dataset.cat === currentCat));
       renderProducts(allProducts);
     }
-    try { const state = await api.get('/queue'); applyQueueState(state); } catch(e) {}
+
+    try {
+      const state = await api.get('/queue');
+      applyQueueState(state);
+    } catch (e) {}
+  }
+
+  async function loadPaypalConfig() {
+    try {
+      paypalConfig = await api.get('/paypal/config');
+    } catch (e) {
+      paypalConfig = null;
+    }
   }
 
   async function loadProducts() {
-    try { allProducts = await api.get('/products'); renderProducts(allProducts); }
-    catch(e) { toast('Error al cargar el menú','error'); }
+    try {
+      allProducts = await api.get('/products');
+      renderProducts(allProducts);
+    } catch (e) {
+      toast('Error al cargar el menú', 'error');
+    }
   }
 
   function productCardHTML(p) {
@@ -435,73 +429,75 @@
       <div class="product-img">
         ${p.image ? `<img src="${p.image}" alt="${p.name}" onerror="this.parentElement.innerHTML='${icon}'">` : icon}
         <span class="cat-tag">${getCatLabel(p.category)}</span>
-        ${p.stock<=3&&p.stock>0 ? `<span class="stock-badge">⚡ ${p.stock} restantes</span>` : ''}
+        ${p.stock <= 3 && p.stock > 0 ? `<span class="stock-badge">⚡ ${p.stock} restantes</span>` : ''}
       </div>
       <div class="product-body">
         <div class="product-name">${p.name}</div>
-        <div class="product-desc">${p.description||''}</div>
+        <div class="product-desc">${p.description || ''}</div>
         <div class="product-footer">
           <div class="product-price">${fmtCurrency(p.price)}</div>
-          ${p.stock>0 ? `<button class="add-btn" onclick="addToCart(${p.id},this)" title="Agregar">+</button>` : `<span class="sold-out-tag">Agotado</span>`}
+          ${p.stock > 0
+            ? `<button class="add-btn" onclick="addToCart(${p.id}, this)" title="Agregar">+</button>`
+            : `<span class="sold-out-tag">Agotado</span>`}
         </div>
       </div>
     </div>`;
   }
 
   function renderProducts(products) {
-    const grid = document.getElementById('products-grid');
-    const filtered = currentCat ? products.filter(p => p.category===currentCat) : products;
+    const grid     = document.getElementById('products-grid');
+    const filtered = currentCat ? products.filter(p => p.category === currentCat) : products;
     document.getElementById('product-count').textContent = filtered.length + ' artículos';
     grid.innerHTML = filtered.length
       ? filtered.map(productCardHTML).join('')
-      : `<div class="empty-state" style="grid-column:1/-1"><div class="empty-emoji">🍽️</div><div class="empty-title">Sin productos aquí</div><p class="empty-sub">No hay artículos en esta categoría</p></div>`;
+      : `<div class="empty-state" style="grid-column:1/-1">
+           <div class="empty-emoji">🍽️</div>
+           <div class="empty-title">Sin productos aquí</div>
+           <p class="empty-sub">No hay artículos en esta categoría</p>
+         </div>`;
   }
 
   async function addToCart(productId, btn) {
-    if (!auth.isLoggedIn()) { window.location.href = '/auth/'; return; }
-    btn.disabled = true; btn.innerHTML = '✓';
+    btn.disabled = true;
+    btn.innerHTML = '✓';
     try {
-      await api.post('/cart/add', {product_id: productId, quantity: 1});
-      toast('¡Agregado al pedido!','success');
+      await api.post('/cart/add', { product_id: productId, quantity: 1 });
+      toast('¡Agregado al pedido!', 'success');
       await loadCartFull();
-    } catch(e) { toast(e.message,'error'); }
-    setTimeout(() => { if(btn){btn.disabled=false;btn.innerHTML='+';} }, 800);
-  }
-
-  async function loadCartBadge() {
-    if (!auth.isLoggedIn()) return [];
-    try {
-      const items = await api.get('/cart');
-      const count = items.reduce((s,i) => s+parseInt(i.quantity), 0);
-      const el = document.getElementById('tab-cart-count');
-      if (el) { el.textContent=count; el.classList.toggle('show', count>0); }
-      document.querySelectorAll('.cart-badge').forEach(b => { b.textContent=count; b.style.display=count>0?'flex':'none'; });
-      return items;
-    } catch(e) { return []; }
+    } catch (e) {
+      toast(e.message, 'error');
+    }
+    setTimeout(() => { if (btn) { btn.disabled = false; btn.innerHTML = '+'; } }, 800);
   }
 
   async function loadCartFull() {
-    if (!auth.isLoggedIn()) {
-      document.getElementById('cart-content').innerHTML = `<div class="empty-state"><div class="empty-emoji">🔐</div><div class="empty-title">Inicia sesión</div><p class="empty-sub">Para hacer pedidos debes iniciar sesión</p><a href="/auth/" class="primary-btn">Ingresar</a></div>`;
-      return;
-    }
     try {
-      cartData = await api.get('/cart');
-      renderCart();
-      const count = cartData.reduce((s,i) => s+parseInt(i.quantity), 0);
-      const el = document.getElementById('tab-cart-count');
-      if (el) { el.textContent=count; el.classList.toggle('show', count>0); }
-      document.querySelectorAll('.cart-badge').forEach(b => { b.textContent=count; b.style.display=count>0?'flex':'none'; });
-    } catch(e) { toast('Error al cargar pedido','error'); }
+      cartData     = await api.get('/cart');
+      const count  = cartData.reduce((s, i) => s + parseInt(i.quantity), 0);
+      const countEl = document.getElementById('tab-cart-count');
+      if (countEl) { countEl.textContent = count; countEl.classList.toggle('show', count > 0); }
+      document.querySelectorAll('.cart-badge').forEach(b => {
+        b.textContent = count;
+        b.style.display = count > 0 ? 'flex' : 'none';
+      });
+      if (document.getElementById('tab-cart').classList.contains('active')) renderCart();
+    } catch (e) {
+      toast('Error al cargar el carrito', 'error');
+    }
   }
 
   function renderCart() {
     const container = document.getElementById('cart-content');
     if (!cartData.length) {
-      container.innerHTML = `<div class="empty-state"><div class="empty-emoji">🛒</div><div class="empty-title">Tu pedido está vacío</div><p class="empty-sub">Agrega alimentos desde la carta</p><button class="primary-btn" onclick="switchTab('products')">Ver carta</button></div>`;
+      container.innerHTML = `<div class="empty-state">
+        <div class="empty-emoji">🛒</div>
+        <div class="empty-title">Tu pedido está vacío</div>
+        <p class="empty-sub">Agrega alimentos desde la carta</p>
+        <button class="primary-btn" onclick="switchTab('products')">Ver carta</button>
+      </div>`;
       return;
     }
-    const total = cartData.reduce((s,i) => s+parseFloat(i.subtotal), 0);
+    const total = cartData.reduce((s, i) => s + parseFloat(i.subtotal), 0);
     container.innerHTML = `<div class="cart-layout">
       <div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
@@ -510,12 +506,19 @@
         </div>
         <div class="cart-items-wrap">
           ${cartData.map(item => `<div class="cart-item">
-            <div class="cart-item-thumb">${item.image ? `<img src="${item.image}" onerror="this.parentElement.innerHTML='${getCatIcon(item.category)}'">` : getCatIcon(item.category)}</div>
-            <div class="cart-item-info"><div class="cart-item-name">${item.name}</div><div class="cart-item-unit">${fmtCurrency(item.price)} c/u</div></div>
+            <div class="cart-item-thumb">
+              ${item.image
+                ? `<img src="${item.image}" onerror="this.parentElement.innerHTML='${getCatIcon(item.category)}'">` 
+                : getCatIcon(item.category)}
+            </div>
+            <div class="cart-item-info">
+              <div class="cart-item-name">${item.name}</div>
+              <div class="cart-item-unit">${fmtCurrency(item.price)} c/u</div>
+            </div>
             <div class="qty-ctrl">
-              <button class="qty-btn" onclick="changeQty(${item.product_id},${item.quantity-1})">−</button>
+              <button class="qty-btn" onclick="changeQty(${item.product_id}, ${item.quantity - 1})">−</button>
               <span class="qty-num">${item.quantity}</span>
-              <button class="qty-btn" onclick="changeQty(${item.product_id},${item.quantity+1})">+</button>
+              <button class="qty-btn" onclick="changeQty(${item.product_id}, ${item.quantity + 1})">+</button>
             </div>
             <div class="cart-item-price">${fmtCurrency(item.subtotal)}</div>
             <button class="remove-btn" onclick="removeItem(${item.product_id})">✕</button>
@@ -524,8 +527,14 @@
       </div>
       <div class="cart-summary-card">
         <div class="summary-title">🧾 Resumen</div>
-        ${cartData.map(i => `<div class="summary-line"><span>${i.name} ×${i.quantity}</span><span>${fmtCurrency(i.subtotal)}</span></div>`).join('')}
-        <div class="summary-total-row"><span class="summary-total-label">Total</span><span class="summary-total-val">${fmtCurrency(total)}</span></div>
+        ${cartData.map(i => `<div class="summary-line">
+          <span>${i.name} ×${i.quantity}</span>
+          <span>${fmtCurrency(i.subtotal)}</span>
+        </div>`).join('')}
+        <div class="summary-total-row">
+          <span class="summary-total-label">Total</span>
+          <span class="summary-total-val">${fmtCurrency(total)}</span>
+        </div>
         <button class="checkout-btn" onclick="openPaymentSelector()">Elegir forma de pago →</button>
         <p class="checkout-note">Efectivo en cafetería · PayPal · Tarjeta · Apple Pay · Google Pay</p>
       </div>
@@ -533,55 +542,70 @@
   }
 
   async function changeQty(productId, newQty) {
-    try { await api.put('/cart/update', {product_id:productId, quantity:newQty}); await loadCartFull(); }
-    catch(e) { toast(e.message,'error'); }
+    try {
+      await api.put('/cart/update', { product_id: productId, quantity: newQty });
+      await loadCartFull();
+    } catch (e) {
+      toast(e.message, 'error');
+    }
   }
 
   async function removeItem(productId) {
-    try { await api.del('/cart/' + productId); await loadCartFull(); }
-    catch(e) { toast(e.message,'error'); }
+    try {
+      await api.del('/cart/' + productId);
+      await loadCartFull();
+    } catch (e) {
+      toast(e.message, 'error');
+    }
   }
 
   async function clearCart() {
-    confirm('¿Vaciar todo el pedido?', async () => { await api.del('/cart/clear'); await loadCartFull(); });
+    confirm('¿Vaciar todo el pedido?', async () => {
+      await api.del('/cart/clear');
+      await loadCartFull();
+    });
   }
 
-  let selectedPaymentMethod = 'cash';
-  let paymentSelectorOpen = false;
+  let selectedMethod        = 'cash';
+  let paypalButtonsRendered = false;
 
   function openPaymentSelector() {
     if (checkoutInProgress) return;
-    const total = cartData.reduce((s,i) => s+parseFloat(i.subtotal), 0);
-    selectedPaymentMethod = 'cash';
+    const total = cartData.reduce((s, i) => s + parseFloat(i.subtotal), 0);
+    selectedMethod        = 'cash';
     paypalButtonsRendered = false;
 
     const overlay = document.createElement('div');
-    overlay.id = 'payment-selector-overlay';
-    overlay.className = 'payment-selector-modal';
+    overlay.id    = 'pms-overlay';
+    overlay.className = 'pms-overlay';
+
+    const hasPaypal = paypalConfig && paypalConfig.client_id;
 
     overlay.innerHTML = `
-      <div class="payment-selector-box" id="payment-selector-box">
+      <div class="pms-box" id="pms-box">
+        <div class="pms-handle"></div>
         <div class="pms-header">
-          <div class="pms-drag-handle"></div>
           <div class="pms-title">¿Cómo quieres pagar?</div>
           <div class="pms-sub">Elige tu método de pago preferido</div>
-          <div class="pms-total-chip">
-            <span class="pms-total-label">Total</span>
-            <span class="pms-total-amount">${fmtCurrency(total)}</span>
+          <div class="pms-total">
+            <span class="pms-total-lbl">Total</span>
+            <span class="pms-total-amt">${fmtCurrency(total)}</span>
           </div>
         </div>
+
         <div class="pms-methods">
-          <button class="pms-method-btn selected" id="pms-btn-cash" onclick="selectPaymentMethod('cash')">
-            <div class="pms-method-icon cash-icon">💵</div>
+          <button class="pms-method selected" id="pms-cash" onclick="selectMethod('cash')">
+            <div class="pms-method-ico cash">💵</div>
             <div class="pms-method-info">
               <div class="pms-method-name">Efectivo en cafetería</div>
-              <div class="pms-method-desc">Paga en caja al recoger tu pedido. Se genera tu QR ahora.</div>
+              <div class="pms-method-desc">Genera tu QR ahora y paga al recoger tu pedido.</div>
             </div>
-            <div class="pms-method-check">✓</div>
+            <div class="pms-check">✓</div>
           </button>
-          <div class="pms-divider"></div>
-          <button class="pms-method-btn" id="pms-btn-paypal" onclick="selectPaymentMethod('paypal')">
-            <div class="pms-method-icon paypal-icon">
+
+          ${hasPaypal ? `
+          <button class="pms-method" id="pms-paypal" onclick="selectMethod('paypal')">
+            <div class="pms-method-ico pp">
               <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path fill="#003087" d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c-.013.076-.026.175-.041.254-.93 4.778-4.005 7.201-9.138 7.201h-2.19a.563.563 0 0 0-.556.479l-1.187 7.527h-.506l-.24 1.516a.56.56 0 0 0 .554.647h3.882c.46 0 .85-.334.922-.788.06-.26.76-4.852.816-5.09a.932.932 0 0 1 .923-.788h.58c3.76 0 6.705-1.528 7.565-5.946.36-1.847.174-3.388-.777-4.471z"/>
                 <path fill="#009cde" d="M6.635 7.022a.981.981 0 0 1 .97-.833h6.174c.734 0 1.416.048 2.033.148a8.89 8.89 0 0 1 1.255.309c.309.107.59.24.846.39.244-1.564-.002-2.629-.844-3.594C15.999.801 14.2.312 11.87.312H4.41c-.521 0-.968.381-1.05.9L.233 20.771a.64.64 0 0 0 .633.74h4.606l1.163-14.489z"/>
@@ -589,100 +613,97 @@
             </div>
             <div class="pms-method-info">
               <div class="pms-method-name">PayPal · Tarjeta · Apple/Google Pay</div>
-              <div class="pms-method-desc">Paga ahora de forma segura. El pedido se confirma automáticamente.</div>
+              <div class="pms-method-desc">Paga ahora de forma segura. Confirmación automática.</div>
             </div>
-            <div class="pms-method-check">✓</div>
-          </button>
+            <div class="pms-check">✓</div>
+          </button>` : ''}
         </div>
 
-        <div class="paypal-checkout-wrap hidden" id="paypal-checkout-wrap">
-          <div class="paypal-loading" id="paypal-loading-indicator">
-            <div class="paypal-spinner"></div>
+        ${hasPaypal ? `
+        <div class="pms-paypal-wrap" id="pms-paypal-wrap">
+          <div class="pms-paypal-loading" id="pms-paypal-loading">
+            <div class="pms-paypal-spinner"></div>
             <span>Cargando opciones de pago...</span>
           </div>
-          <div id="paypal-error-container"></div>
-          <div class="paypal-buttons-container" id="paypal-buttons-container"></div>
-        </div>
+          <div id="pms-paypal-error"></div>
+          <div class="paypal-btns-container" id="paypal-btns"></div>
+        </div>` : ''}
 
         <div class="pms-footer" id="pms-footer">
-          <button class="pms-confirm-btn" id="pms-confirm-btn" onclick="confirmPaymentMethod()">
-            Confirmar pedido →
-          </button>
-          <button class="pms-cancel-btn" onclick="closePaymentSelector()">Cancelar</button>
+          <button class="pms-confirm" id="pms-confirm-btn" onclick="confirmCash()">Confirmar pedido →</button>
+          <button class="pms-cancel" onclick="closePaymentSelector()">Cancelar</button>
         </div>
       </div>`;
 
     document.body.appendChild(overlay);
-    paymentSelectorOpen = true;
-
     overlay.addEventListener('click', e => { if (e.target === overlay) closePaymentSelector(); });
   }
 
   function closePaymentSelector() {
-    const el = document.getElementById('payment-selector-overlay');
-    if (el) el.remove();
-    paymentSelectorOpen = false;
+    document.getElementById('pms-overlay')?.remove();
     paypalButtonsRendered = false;
-    paypalOrderIdInFlight = null;
   }
 
-  function selectPaymentMethod(method) {
-    selectedPaymentMethod = method;
-    document.querySelectorAll('.pms-method-btn').forEach(b => b.classList.remove('selected'));
-    document.getElementById('pms-btn-' + method).classList.add('selected');
+  function selectMethod(method) {
+    selectedMethod = method;
+    document.querySelectorAll('.pms-method').forEach(b => b.classList.remove('selected'));
+    document.getElementById('pms-' + method)?.classList.add('selected');
 
-    const paypalWrap  = document.getElementById('paypal-checkout-wrap');
-    const footer      = document.getElementById('pms-footer');
-    const confirmBtn  = document.getElementById('pms-confirm-btn');
+    const paypalWrap = document.getElementById('pms-paypal-wrap');
+    const footer     = document.getElementById('pms-footer');
 
     if (method === 'paypal') {
-      paypalWrap.classList.remove('hidden');
-      footer.style.display = 'none';
-      if (!paypalButtonsRendered) {
-        renderPayPalButtons();
-      }
+      if (paypalWrap) paypalWrap.classList.add('open');
+      if (footer)     footer.style.display = 'none';
+      if (!paypalButtonsRendered) renderPaypalButtons();
     } else {
-      paypalWrap.classList.add('hidden');
-      footer.style.display = 'block';
-      confirmBtn.textContent = 'Confirmar pedido →';
+      if (paypalWrap) paypalWrap.classList.remove('open');
+      if (footer)     footer.style.display = 'block';
     }
   }
 
-  function loadPayPalSDK(clientId) {
+  function loadPaypalSDK(clientId, env) {
     return new Promise((resolve, reject) => {
       if (window.paypal) { resolve(); return; }
       if (paypalSDKLoading) {
-        const wait = setInterval(() => { if (window.paypal) { clearInterval(wait); resolve(); } }, 100);
+        const interval = setInterval(() => {
+          if (window.paypal) { clearInterval(interval); resolve(); }
+        }, 150);
         return;
       }
       paypalSDKLoading = true;
-      const script = document.createElement('script');
-      script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(clientId)}&currency=USD&intent=capture&enable-funding=venmo,paylater`;
-      script.dataset.pageType = 'checkout';
-      script.onload = () => { paypalSDKLoaded = true; paypalSDKLoading = false; resolve(); };
+      const script  = document.createElement('script');
+      const baseUrl = env === 'production'
+        ? 'https://www.paypal.com/sdk/js'
+        : 'https://www.sandbox.paypal.com/sdk/js';
+      script.src = `${baseUrl}?client-id=${encodeURIComponent(clientId)}&currency=USD&intent=capture&enable-funding=venmo,paylater,card`;
+      script.onload  = () => { paypalSDKLoaded = true; paypalSDKLoading = false; resolve(); };
       script.onerror = () => { paypalSDKLoading = false; reject(new Error('No se pudo cargar el SDK de PayPal')); };
       document.head.appendChild(script);
     });
   }
 
-  async function renderPayPalButtons() {
-    const container      = document.getElementById('paypal-buttons-container');
-    const loadingEl      = document.getElementById('paypal-loading-indicator');
-    const errorContainer = document.getElementById('paypal-error-container');
-
+  async function renderPaypalButtons() {
+    const loadingEl = document.getElementById('pms-paypal-loading');
+    const errorEl   = document.getElementById('pms-paypal-error');
+    const container = document.getElementById('paypal-btns');
     if (!container) return;
+
     container.innerHTML = '';
-    errorContainer.innerHTML = '';
+    if (errorEl)   errorEl.innerHTML = '';
     if (loadingEl) loadingEl.style.display = 'flex';
 
-    const clientId = PAYPAL_CLIENT_ID;
+    const clientId = paypalConfig?.client_id;
+    const env      = paypalConfig?.env || 'sandbox';
+
     if (!clientId) {
-      showPayPalError('PayPal no está configurado. Usa efectivo por favor.');
+      showPaypalError('PayPal no está disponible. Usa efectivo.');
       return;
     }
 
     try {
-      await loadPayPalSDK(clientId);
+      await loadPaypalSDK(clientId, env);
+
       if (loadingEl) loadingEl.style.display = 'none';
 
       window.paypal.Buttons({
@@ -695,165 +716,138 @@
           tagline: false,
         },
 
-        createOrder: async () => {
-          if (checkoutInProgress) throw new Error('Pago en progreso');
-          checkoutInProgress = true;
-          paypalOrderIdInFlight = null;
-          try {
-            const data = await api.post('/paypal/create-order', {});
-            if (!data.paypal_order_id) throw new Error('No se recibió el ID de orden de PayPal');
-            paypalOrderIdInFlight = data.paypal_order_id;
-            return data.paypal_order_id;
-          } catch(e) {
-            checkoutInProgress = false;
-            showPayPalError(e.message || 'Error al crear la orden');
-            throw e;
-          }
+        createOrder: async (data, actions) => {
+          const totalCOP = cartData.reduce((s, i) => s + parseFloat(i.subtotal), 0);
+          const totalUSD = convertCOPtoUSD(totalCOP);
+          return actions.order.create({
+            intent: 'CAPTURE',
+            purchase_units: [{
+              description: 'Cafetería Santa Juana — ' + cartData.length + ' producto(s)',
+              amount: {
+                currency_code: 'USD',
+                value: totalUSD.toFixed(2),
+                breakdown: {
+                  item_total: {
+                    currency_code: 'USD',
+                    value: totalUSD.toFixed(2),
+                  },
+                },
+              },
+              items: cartData.map(item => ({
+                name:        item.name.substring(0, 127),
+                unit_amount: {
+                  currency_code: 'USD',
+                  value:         convertCOPtoUSD(parseFloat(item.price)).toFixed(2),
+                },
+                quantity: String(item.quantity),
+              })),
+            }],
+            application_context: {
+              brand_name:          'Cafetería Santa Juana',
+              user_action:         'PAY_NOW',
+              shipping_preference: 'NO_SHIPPING',
+            },
+          });
         },
 
         onApprove: async (data, actions) => {
+          const confirmBtn = document.getElementById('pms-confirm-btn');
+          const footer     = document.getElementById('pms-footer');
+          const ppWrap     = document.getElementById('pms-paypal-wrap');
+
+          if (ppWrap) {
+            ppWrap.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;gap:10px;padding:20px;color:var(--muted);font-size:0.85rem">
+              <div class="pms-paypal-spinner"></div> Verificando pago con PayPal...
+            </div>`;
+          }
+
           try {
-            showPayPalProcessing();
-            const fundingSource = data.paymentSource || 'paypal';
+            const captureResult = await actions.order.capture();
+
+            const captureUnit = captureResult.purchase_units?.[0]?.payments?.captures?.[0];
+            if (!captureUnit || captureUnit.status !== 'COMPLETED') {
+              throw new Error('La captura de PayPal no fue completada');
+            }
+
+            const fundingSource = data.paymentSource || captureResult.payment_source
+              ? Object.keys(captureResult.payment_source || {})[0] || 'paypal'
+              : 'paypal';
+
             const order = await api.post('/paypal/capture-order', {
-              paypal_order_id: data.orderID,
+              paypal_order_id: captureResult.id,
+              capture_id:      captureUnit.id,
+              amount:          parseFloat(captureUnit.amount?.value || 0),
               funding_source:  fundingSource,
             });
-            checkoutInProgress = false;
-            paypalOrderIdInFlight = null;
+
             closePaymentSelector();
             await loadCartFull();
             await loadOrders();
-            showPayPalSuccess(order, fundingSource);
-          } catch(e) {
-            checkoutInProgress = false;
-            hidePayPalProcessing();
-            showPayPalError(e.message || 'Error al procesar el pago');
+            showPaypalSuccess(order, fundingSource);
+          } catch (e) {
+            showPaypalError(e.message || 'Error al registrar el pago. Contacta al administrador.');
           }
         },
 
-        onError: (err) => {
-          checkoutInProgress = false;
-          paypalOrderIdInFlight = null;
-          hidePayPalProcessing();
-          const msg = (err && err.message) ? err.message : 'Ocurrió un error con PayPal';
-          if (!msg.includes('popup') && !msg.includes('window')) {
-            showPayPalError('Error de PayPal: ' + msg);
+        onError: err => {
+          const msg = err?.message || '';
+          if (!msg.toLowerCase().includes('popup') && !msg.toLowerCase().includes('window')) {
+            showPaypalError('Error de PayPal: ' + (msg || 'intenta de nuevo'));
           }
         },
 
-        onCancel: () => {
-          checkoutInProgress = false;
-          paypalOrderIdInFlight = null;
-          hidePayPalProcessing();
-        },
-      }).render('#paypal-buttons-container');
+        onCancel: () => {},
+      }).render('#paypal-btns');
 
       paypalButtonsRendered = true;
-    } catch(e) {
-      showPayPalError(e.message || 'No se pudo cargar PayPal. Intenta con efectivo.');
+    } catch (e) {
+      showPaypalError(e.message || 'No se pudo cargar PayPal. Usa efectivo por favor.');
     }
   }
 
-  function showPayPalError(msg) {
-    const loadingEl = document.getElementById('paypal-loading-indicator');
-    const errEl     = document.getElementById('paypal-error-container');
+  function showPaypalError(msg) {
+    const loadingEl = document.getElementById('pms-paypal-loading');
+    const errorEl   = document.getElementById('pms-paypal-error');
     if (loadingEl) loadingEl.style.display = 'none';
-    if (errEl) errEl.innerHTML = `<div class="paypal-error-msg">${msg}</div>`;
+    if (errorEl)   errorEl.innerHTML = `<div class="pms-paypal-error">${msg}</div>`;
   }
 
-  function showPayPalProcessing() {
-    const footer = document.getElementById('pms-footer');
-    if (footer) footer.style.display = 'none';
-    const box = document.getElementById('payment-selector-box');
-    if (!box) return;
-    let proc = document.getElementById('paypal-processing-indicator');
-    if (!proc) {
-      proc = document.createElement('div');
-      proc.id = 'paypal-processing-indicator';
-      proc.style.cssText = 'padding:20px;text-align:center;display:flex;align-items:center;justify-content:center;gap:10px;font-size:0.85rem;color:var(--muted)';
-      proc.innerHTML = '<div class="paypal-spinner"></div> Verificando pago...';
-      box.appendChild(proc);
-    }
+  function convertCOPtoUSD(cop) {
+    const rate = 0.00024;
+    return Math.max(0.01, Math.round(cop * rate * 100) / 100);
   }
 
-  function hidePayPalProcessing() {
-    const proc = document.getElementById('paypal-processing-indicator');
-    if (proc) proc.remove();
-    const footer = document.getElementById('pms-footer');
-    if (footer) footer.style.display = 'block';
-  }
-
-  async function confirmPaymentMethod() {
-    if (selectedPaymentMethod === 'cash') {
-      await checkoutCash();
-    }
-  }
-
-  async function checkoutCash() {
+  async function confirmCash() {
     if (checkoutInProgress) return;
     checkoutInProgress = true;
     const btn = document.getElementById('pms-confirm-btn');
-    if (btn) { btn.disabled=true; btn.textContent='Generando pedido...'; }
+    if (btn) { btn.disabled = true; btn.textContent = 'Generando pedido...'; }
     try {
       const order = await api.post('/orders/checkout', {});
       checkoutInProgress = false;
-      toast('¡Pedido confirmado! Muestra el QR en la cafetería 🎉','success');
       closePaymentSelector();
       await loadCartFull();
       await loadOrders();
+      toast('¡Pedido confirmado! Muestra el QR en la cafetería 🎉', 'success');
       showOrderQR(order);
-    } catch(e) {
+    } catch (e) {
       checkoutInProgress = false;
-      toast(e.message,'error');
-      if (btn) { btn.disabled=false; btn.textContent='Confirmar pedido →'; }
+      toast(e.message, 'error');
+      if (btn) { btn.disabled = false; btn.textContent = 'Confirmar pedido →'; }
     }
   }
 
-  function showPayPalSuccess(order, fundingSource) {
-    const fsLabels = {
-      paypal: 'Saldo PayPal', card: 'Tarjeta', credit: 'Tarjeta de crédito',
-      venmo: 'Venmo', paylater: 'Pagar después', applepay: 'Apple Pay',
-      googlepay: 'Google Pay',
-    };
-    const fsLabel = fsLabels[fundingSource] || 'PayPal';
-
-    const overlay = document.createElement('div');
-    overlay.className = 'payment-success-overlay';
-    const qrId = 'success-qr-' + Date.now();
-
-    overlay.innerHTML = `
-      <div class="payment-success-box">
-        <div class="success-icon-wrap">✅</div>
-        <div class="success-title">¡Pago exitoso!</div>
-        <div class="success-sub">Tu pedido fue confirmado y pagado a través de PayPal.</div>
-        <div class="success-details">
-          <div class="success-detail-row"><span class="success-detail-label">Pedido</span><span class="success-detail-val">#${order.id}</span></div>
-          <div class="success-detail-row"><span class="success-detail-label">Total</span><span class="success-detail-val" style="color:var(--accent)">${fmtCurrency(order.total)}</span></div>
-          <div class="success-detail-row"><span class="success-detail-label">Método</span><span class="success-detail-val">${fsLabel}</span></div>
-          ${order.turn_number ? `<div class="success-detail-row"><span class="success-detail-label">Turno</span><span class="success-detail-val" style="color:var(--gold)">#${String(order.turn_number).padStart(3,'0')}</span></div>` : ''}
-        </div>
-        <div style="background:var(--cream);border-radius:16px;padding:20px;margin-bottom:20px;text-align:center">
-          <div style="font-size:0.72rem;color:var(--muted);margin-bottom:12px;font-family:var(--font-display);font-weight:700;letter-spacing:0.06em;text-transform:uppercase">Tu código QR</div>
-          <div id="${qrId}" style="display:inline-block;background:#fff;padding:10px;border-radius:10px"></div>
-        </div>
-        <button class="success-close-btn" onclick="this.closest('.payment-success-overlay').remove()">Ver mis pedidos ✓</button>
-      </div>`;
-
-    document.body.appendChild(overlay);
-    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
-
-    setTimeout(() => {
-      const qrEl = document.getElementById(qrId);
-      if (qrEl && typeof QRCode !== 'undefined') {
-        new QRCode(qrEl, {text: JSON.stringify({token: order.qr_token, orderId: order.id}), width: 160, height: 160, correctLevel: QRCode.CorrectLevel.H});
-      }
-    }, 100);
-  }
-
   function showOrderQR(order) {
-    const qrId = 'qr-' + Date.now();
-    const turnHTML = order.turn_number ? `<div style="display:inline-flex;align-items:center;gap:12px;background:rgba(255,209,102,0.15);border:1px solid rgba(255,209,102,0.4);border-radius:14px;padding:12px 20px;margin-bottom:16px"><span style="font-size:1.6rem">🎫</span><div style="text-align:left"><div style="font-family:var(--font-display);font-size:0.58rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#b08800;margin-bottom:2px">Tu número de turno</div><div style="font-family:var(--font-display);font-size:2rem;font-weight:900;color:var(--gold);letter-spacing:-0.04em;line-height:1">#${String(order.turn_number).padStart(3,'0')}</div></div></div><br/>` : '';
+    const qrId    = 'qr-' + Date.now();
+    const turnHTML = order.turn_number
+      ? `<div style="display:inline-flex;align-items:center;gap:12px;background:rgba(255,209,102,0.15);border:1px solid rgba(255,209,102,0.4);border-radius:14px;padding:12px 20px;margin-bottom:16px">
+           <span style="font-size:1.6rem">🎫</span>
+           <div style="text-align:left">
+             <div style="font-family:var(--font-display);font-size:0.58rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#b08800;margin-bottom:2px">Tu número de turno</div>
+             <div style="font-family:var(--font-display);font-size:2rem;font-weight:900;color:var(--gold);letter-spacing:-0.04em;line-height:1">#${String(order.turn_number).padStart(3, '0')}</div>
+           </div>
+         </div><br/>`
+      : '';
     modal(`<div style="text-align:center">
       <div style="font-size:2.5rem;margin-bottom:12px">🎉</div>
       <h4 style="font-family:var(--font-display);font-size:1.1rem;margin-bottom:6px">¡Pedido confirmado!</h4>
@@ -866,40 +860,110 @@
       </div>
       <p style="font-size:0.8rem;color:var(--muted);margin-bottom:16px;line-height:1.7">📸 Guarda una captura de pantalla.<br/>El encargado escaneará tu QR al momento de pagar.</p>
       <button onclick="this.closest('.modal-overlay').remove()" style="width:100%;padding:14px;border:none;border-radius:14px;background:var(--c1);color:#fff;font-family:var(--font-display);font-size:0.8rem;font-weight:700;cursor:pointer;">Entendido ✓</button>
-    </div>`, {title:'Tu QR de pedido'});
-    setTimeout(() => { const el=document.getElementById(qrId); if(el&&typeof QRCode!=='undefined') new QRCode(el,{text:JSON.stringify({token:order.qr_token,orderId:order.id}),width:200,height:200,correctLevel:QRCode.CorrectLevel.H}); }, 100);
+    </div>`, { title: 'Tu QR de pedido' });
+    setTimeout(() => {
+      const el = document.getElementById(qrId);
+      if (el && typeof QRCode !== 'undefined') {
+        new QRCode(el, { text: JSON.stringify({ token: order.qr_token, orderId: order.id }), width: 200, height: 200, correctLevel: QRCode.CorrectLevel.H });
+      }
+    }, 100);
+  }
+
+  function showPaypalSuccess(order, fundingSource) {
+    const labels = {
+      paypal:    'Saldo PayPal',
+      card:      'Tarjeta',
+      credit:    'Tarjeta de crédito',
+      venmo:     'Venmo',
+      paylater:  'Pagar después',
+      applepay:  'Apple Pay',
+      googlepay: 'Google Pay',
+    };
+    const fsLabel = labels[fundingSource] || 'PayPal';
+    const qrId    = 'success-qr-' + Date.now();
+    const overlay = document.createElement('div');
+    overlay.className = 'success-overlay';
+    overlay.innerHTML = `<div class="success-box">
+      <div class="success-icon">✅</div>
+      <div class="success-title">¡Pago exitoso!</div>
+      <div class="success-sub">Tu pedido fue confirmado y pagado a través de PayPal.</div>
+      <div class="success-details">
+        <div class="success-row"><span class="success-label">Pedido</span><span class="success-val">#${order.id}</span></div>
+        <div class="success-row"><span class="success-label">Total</span><span class="success-val" style="color:var(--accent)">${fmtCurrency(order.total)}</span></div>
+        <div class="success-row"><span class="success-label">Método</span><span class="success-val">${fsLabel}</span></div>
+        ${order.turn_number ? `<div class="success-row"><span class="success-label">Turno</span><span class="success-val" style="color:var(--gold)">#${String(order.turn_number).padStart(3, '0')}</span></div>` : ''}
+      </div>
+      <div style="background:var(--cream);border-radius:16px;padding:20px;margin-bottom:20px;text-align:center">
+        <div style="font-size:0.72rem;color:var(--muted);margin-bottom:12px;font-family:var(--font-display);font-weight:700;letter-spacing:0.06em;text-transform:uppercase">Tu código QR</div>
+        <div id="${qrId}" style="display:inline-block;background:#fff;padding:10px;border-radius:10px"></div>
+      </div>
+      <button class="success-close" onclick="this.closest('.success-overlay').remove();switchTab('orders')">Ver mis pedidos ✓</button>
+    </div>`;
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+    setTimeout(() => {
+      const el = document.getElementById(qrId);
+      if (el && typeof QRCode !== 'undefined') {
+        new QRCode(el, { text: JSON.stringify({ token: order.qr_token, orderId: order.id }), width: 160, height: 160, correctLevel: QRCode.CorrectLevel.H });
+      }
+    }, 100);
   }
 
   async function loadOrders() {
-    if (!auth.isLoggedIn()) return;
-    try { const orders = await api.get('/orders/my'); myOrders=orders; renderOrders(orders); }
-    catch(e) {}
+    try {
+      const orders = await api.get('/orders/my');
+      myOrders = orders;
+      if (document.getElementById('tab-orders').classList.contains('active')) renderOrders(myOrders);
+    } catch (e) {}
   }
 
   function renderOrders(orders) {
     const container = document.getElementById('orders-content');
     if (!orders.length) {
-      container.innerHTML = `<div class="empty-state"><div class="empty-emoji">📋</div><div class="empty-title">Sin pedidos aún</div><p class="empty-sub">Aquí verás tu historial de pedidos</p><button class="primary-btn" onclick="switchTab('products')">Hacer mi primer pedido</button></div>`;
+      container.innerHTML = `<div class="empty-state">
+        <div class="empty-emoji">📋</div>
+        <div class="empty-title">Sin pedidos aún</div>
+        <p class="empty-sub">Aquí verás tu historial de pedidos</p>
+        <button class="primary-btn" onclick="switchTab('products')">Hacer mi primer pedido</button>
+      </div>`;
       return;
     }
     container.innerHTML = orders.map(o => {
-      const turn = o.turn_number ? parseInt(o.turn_number) : null;
-      const isMyTurn = queueEnabled && turn && turn===currentTurn && o.status==='pending';
-      const turnPillHTML = turn ? `<span class="turn-pill${isMyTurn?' active-turn':''}">🎫 Turno #${String(turn).padStart(3,'0')}${isMyTurn?' — ¡Ahora!':''}</span>` : '';
-      return `<div class="order-card${isMyTurn?' is-my-turn':''}">
+      const turn     = o.turn_number ? parseInt(o.turn_number) : null;
+      const isMyTurn = queueEnabled && turn && turn === currentTurn && o.status === 'pending';
+      const turnHTML = turn
+        ? `<span class="turn-pill${isMyTurn ? ' active-turn' : ''}">🎫 Turno #${String(turn).padStart(3, '0')}${isMyTurn ? ' — ¡Ahora!' : ''}</span>`
+        : '';
+      return `<div class="order-card${isMyTurn ? ' is-my-turn' : ''}">
         <div class="order-header-row">
-          <div><div class="order-id">Pedido #${o.id}${paymentMethodBadge(o.payment_method)}</div><div class="order-date">${fmtDate(o.created_at)}</div></div>
-          <div class="order-right">${statusPill(o.status)}<div class="order-total">${fmtCurrency(o.total)}</div></div>
+          <div>
+            <div class="order-id">Pedido #${o.id}${paymentBadge(o.payment_method)}</div>
+            <div class="order-date">${fmtDate(o.created_at)}</div>
+          </div>
+          <div class="order-right">
+            ${statusPill(o.status)}
+            <div class="order-total">${fmtCurrency(o.total)}</div>
+          </div>
         </div>
-        <div class="order-items-tags">${(o.items||[]).map(i=>`<span class="item-tag">${i.product_name} ×${i.quantity}</span>`).join('')}</div>
-        <div class="order-footer-row">${turnPillHTML}<button class="qr-show-btn" onclick="showQR(${o.id},'${o.qr_token}',${o.total},${turn||'null'})">📱 Ver QR</button></div>
+        <div class="order-items-tags">
+          ${(o.items || []).map(i => `<span class="item-tag">${i.product_name} ×${i.quantity}</span>`).join('')}
+        </div>
+        <div class="order-footer-row">
+          ${turnHTML}
+          <button class="qr-show-btn" onclick="showQR(${o.id}, '${o.qr_token}', ${o.total}, ${turn || 'null'})">📱 Ver QR</button>
+        </div>
       </div>`;
     }).join('');
   }
 
   function showQR(orderId, token, total, turnNumber) {
-    const qrId = 'qr-order-' + Date.now();
-    const turnHTML = turnNumber ? `<div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,209,102,0.15);border:1px solid rgba(255,209,102,0.3);border-radius:12px;padding:8px 16px;margin-bottom:14px"><span>🎫</span><span style="font-family:var(--font-display);font-size:1rem;font-weight:900;color:var(--gold)">Turno #${String(turnNumber).padStart(3,'0')}</span></div><br/>` : '';
+    const qrId    = 'qr-order-' + Date.now();
+    const turnHTML = turnNumber
+      ? `<div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,209,102,0.15);border:1px solid rgba(255,209,102,0.3);border-radius:12px;padding:8px 16px;margin-bottom:14px">
+           <span>🎫</span>
+           <span style="font-family:var(--font-display);font-size:1rem;font-weight:900;color:var(--gold)">Turno #${String(turnNumber).padStart(3, '0')}</span>
+         </div><br/>`
+      : '';
     modal(`<div style="text-align:center">
       <h4 style="font-family:var(--font-display);margin-bottom:6px">QR — Pedido #${orderId}</h4>
       <p style="color:var(--muted);font-size:0.875rem;margin-bottom:14px">Total: <strong>${fmtCurrency(total)}</strong></p>
@@ -909,40 +973,58 @@
         <p style="font-size:0.7rem;color:var(--muted);margin-top:10px">Token: ${token}</p>
       </div>
       <p style="font-size:0.8rem;color:var(--muted);margin-top:14px">Presenta este QR al encargado de la cafetería.</p>
-    </div>`, {title:'Tu código QR'});
-    setTimeout(() => { const el=document.getElementById(qrId); if(el&&typeof QRCode!=='undefined') new QRCode(el,{text:JSON.stringify({token,orderId}),width:200,height:200,correctLevel:QRCode.CorrectLevel.H}); }, 100);
+    </div>`, { title: 'Tu código QR' });
+    setTimeout(() => {
+      const el = document.getElementById(qrId);
+      if (el && typeof QRCode !== 'undefined') {
+        new QRCode(el, { text: JSON.stringify({ token, orderId }), width: 200, height: 200, correctLevel: QRCode.CorrectLevel.H });
+      }
+    }, 100);
   }
 
   function filterCat(btn, cat) {
     document.querySelectorAll('.cat-item').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    document.querySelectorAll('.mobile-cat-pill').forEach(b => b.classList.toggle('active', b.dataset.cat===cat));
-    currentCat = cat; renderProducts(allProducts); switchTab('products');
+    document.querySelectorAll('.mobile-cat-pill').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
+    currentCat = cat;
+    renderProducts(allProducts);
+    switchTab('products');
   }
 
   function filterCatMobile(btn, cat) {
     document.querySelectorAll('.mobile-cat-pill').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    document.querySelectorAll('.cat-item').forEach(b => b.classList.toggle('active', b.dataset.cat===cat));
-    currentCat = cat; renderProducts(allProducts); switchTab('products');
+    document.querySelectorAll('.cat-item').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
+    currentCat = cat;
+    renderProducts(allProducts);
+    switchTab('products');
   }
 
   function searchProducts(q) {
-    const base = currentCat ? allProducts.filter(p => p.category===currentCat) : allProducts;
-    const filtered = q ? base.filter(p => p.name.toLowerCase().includes(q.toLowerCase()) || (p.description||'').toLowerCase().includes(q.toLowerCase())) : base;
+    const base     = currentCat ? allProducts.filter(p => p.category === currentCat) : allProducts;
+    const filtered = q
+      ? base.filter(p =>
+          p.name.toLowerCase().includes(q.toLowerCase()) ||
+          (p.description || '').toLowerCase().includes(q.toLowerCase()))
+      : base;
     document.getElementById('product-count').textContent = filtered.length + ' artículos';
     const grid = document.getElementById('products-grid');
     grid.innerHTML = filtered.length
       ? filtered.map(productCardHTML).join('')
-      : `<div class="empty-state" style="grid-column:1/-1"><div class="empty-emoji">🔍</div><div class="empty-title">Sin resultados</div><p class="empty-sub">Intenta con otro término</p></div>`;
+      : `<div class="empty-state" style="grid-column:1/-1">
+           <div class="empty-emoji">🔍</div>
+           <div class="empty-title">Sin resultados</div>
+           <p class="empty-sub">Intenta con otro término</p>
+         </div>`;
   }
 
   function switchTab(tab) {
-    document.querySelectorAll('.tab-nav-btn').forEach((t,i) => t.classList.toggle('active', ['products','cart','orders'][i]===tab));
+    document.querySelectorAll('.tab-nav-btn').forEach((t, i) =>
+      t.classList.toggle('active', ['products', 'cart', 'orders'][i] === tab));
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    document.getElementById('tab-'+tab).classList.add('active');
-    if (tab==='orders') loadOrders();
-    if (tab==='cart') loadCartFull();
+    document.getElementById('tab-' + tab).classList.add('active');
+    if (tab === 'orders') loadOrders();
+    if (tab === 'cart')   { cartData.length ? renderCart() : loadCartFull(); }
   }
 
   init();
