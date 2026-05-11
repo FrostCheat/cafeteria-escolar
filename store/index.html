@@ -685,12 +685,12 @@
       document.head.appendChild(script);
     });
   }
-
+  
   function withTimeout(promise, ms, label) {
     return Promise.race([
       promise,
       new Promise((_, reject) =>
-        setTimeout(() => reject(new Error(`Timeout en "${label}" (${ms / 1000}s). Verifica tu conexión e intenta de nuevo.`)), ms)
+        setTimeout(() => reject(new Error(`Tiempo de espera agotado en "${label}" (${ms / 1000}s). Verifica tu conexión e intenta de nuevo.`)), ms)
       ),
     ]);
   }
@@ -778,8 +778,12 @@
     try {
       await window.paypal.Buttons({
         style: {
-          layout: 'vertical', color: 'gold', shape: 'rect',
-          label: 'pay', height: 48, tagline: false,
+          layout:  'vertical',
+          color:   'gold',
+          shape:   'rect',
+          label:   'pay',
+          height:  48,
+          tagline: false,
         },
 
         createOrder: async () => {
@@ -795,11 +799,12 @@
               'creación de orden en servidor'
             );
             clearOverlayProcessing();
-            if (!result.id) throw new Error('El servidor no devolvió un ID de orden válido.');
+            if (!result?.id) throw new Error('El servidor no devolvió un ID de orden válido.');
             return result.id;
           } catch (err) {
             clearOverlayProcessing();
-            showPaypalErrorInOverlay('No se pudo iniciar el pago: ' + err.message);
+            const msg = err?.details?.error || err?.message || 'Error desconocido al preparar el pago.';
+            showPaypalErrorInOverlay(msg);
             throw err;
           }
         },
@@ -826,9 +831,10 @@
               toast('Tu pago fue procesado. Revisa "Mis Pedidos".', 'info');
               return;
             }
+            const msg = backendErr?.details?.error || backendErr?.message || 'Error al registrar el pago.';
             showPaypalErrorInOverlay(
-              backendErr.message +
-              (backendErr.status >= 500
+              msg +
+              (backendErr?.status >= 500
                 ? '<br/><small>Guarda tu ID de orden de PayPal: <strong>' + data.orderID + '</strong> y muéstraselo al administrador.</small>'
                 : '')
             );
