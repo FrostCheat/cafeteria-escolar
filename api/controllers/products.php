@@ -25,14 +25,36 @@ if ($resource === 'products') {
         } catch (PDOException $e) { jsonError('Error al obtener producto', 500); }
     }
 
-    if ($method === 'POST') {
+    if ($method === 'POST' && $id === null && $action === 'upload-image') {
+        requireAdmin();
+        if (empty($body['image'])) jsonError('Imagen requerida');
+        $dataUrl = $body['image'];
+        if (!preg_match('/^data:image\/(png|jpe?g|gif|webp);base64,/', $dataUrl, $m)) {
+            jsonError('Formato de imagen no válido. Usa PNG, JPG, GIF o WEBP');
+        }
+        $ext = strtolower($m[1]) === 'jpeg' ? 'jpg' : strtolower($m[1]);
+        $base64 = substr($dataUrl, strpos($dataUrl, ',') + 1);
+        $decoded = base64_decode($base64, true);
+        if ($decoded === false) jsonError('No se pudo procesar la imagen');
+        if (strlen($decoded) > 3 * 1024 * 1024) jsonError('La imagen no debe superar 3MB');
+        try {
+            if (!is_dir(UPLOAD_PATH)) mkdir(UPLOAD_PATH, 0755, true);
+            $filename = 'prod_' . bin2hex(random_bytes(8)) . '.' . $ext;
+            if (file_put_contents(UPLOAD_PATH . $filename, $decoded) === false) {
+                jsonError('No se pudo guardar la imagen', 500);
+            }
+            jsonResponse(['url' => '/imgs/uploads/' . $filename]);
+        } catch (Exception $e) { jsonError('Error al subir la imagen', 500); }
+    }
+
+    if ($method === 'POST' && $id === null && $action === null) {
         requireAdmin();
         if (empty($body['name']) || !isset($body['price'])) jsonError('Nombre y precio requeridos');
         try {
             $validCats = ['almuerzos','desayunos','rapidos','bebidas','snacks','postres','general'];
             $category  = in_array($body['category'] ?? '', $validCats) ? $body['category'] : 'general';
-            $db->prepare("INSERT INTO products (name, description, price, stock, category, image) VALUES (?,?,?,?,?,?)")
-               ->execute([trim($body['name']), trim($body['description'] ?? ''), (float)$body['price'], (int)($body['stock'] ?? 0), $category, $body['image'] ?? null]);
+            $db->prepare("INSERT INTO products (name, description, price, stock, category, image, emoji) VALUES (?,?,?,?,?,?,?)")
+               ->execute([trim($body['name']), trim($body['description'] ?? ''), (float)$body['price'], (int)($body['stock'] ?? 0), $category, $body['image'] ?? null, $body['emoji'] ?? null]);
             $newId  = (int)$db->lastInsertId();
             $qrData = generateQRData(['type' => 'product', 'id' => $newId, 'name' => $body['name'], 'price' => (float)$body['price']]);
             $db->prepare("UPDATE products SET qr_code=? WHERE id=?")->execute([$qrData, $newId]);
@@ -64,7 +86,7 @@ if ($resource === 'products') {
             $stmt->execute([$id]);
             if (!$stmt->fetch()) jsonError('Producto no encontrado', 404);
             $fields = []; $params = [];
-            foreach (['name','description','price','stock','category','image','active'] as $f) {
+            foreach (['name','description','price','stock','category','image','emoji','active'] as $f) {
                 if (array_key_exists($f, $body)) { $fields[] = "$f=?"; $params[] = $body[$f]; }
             }
             if (empty($fields)) jsonError('Sin campos para actualizar');

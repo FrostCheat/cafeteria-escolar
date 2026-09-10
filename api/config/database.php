@@ -61,12 +61,20 @@ function initDB(PDO $pdo): void {
             stock INT NOT NULL DEFAULT 0,
             category VARCHAR(50) NOT NULL DEFAULT 'general',
             image VARCHAR(255),
+            emoji VARCHAR(10),
             qr_code VARCHAR(255),
             active INT NOT NULL DEFAULT 1,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             INDEX idx_active_category (active, category)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     ");
+
+    try {
+        $col = $pdo->query("SHOW COLUMNS FROM products LIKE 'emoji'")->fetch();
+        if (!$col) {
+            $pdo->exec("ALTER TABLE products ADD COLUMN emoji VARCHAR(10) DEFAULT NULL AFTER image");
+        }
+    } catch (PDOException $e) {}
 
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS cart_items (

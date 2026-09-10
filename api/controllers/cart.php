@@ -7,7 +7,7 @@ if ($resource === 'cart') {
     if ($method === 'GET') {
         try {
             $stmt = $db->prepare("
-                SELECT ci.*, p.name, p.price, p.image, p.stock, p.category,
+                SELECT ci.*, p.name, p.price, p.image, p.emoji, p.stock, p.category,
                        (ci.quantity * p.price) as subtotal
                 FROM cart_items ci
                 JOIN products p ON p.id = ci.product_id
